@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redesigned Registration Form</title>
+    <link rel="stylesheet" href="/css/signup.css">
+   
+</head>
+<body>
+    <div class="container">
+        <div class="image">
+           <img src="/images/logo-login.png" alt="">
+        </div>
+        <div class="card">
+            <h3>Create an Account</h3>
+            <form id="registrationForm" class="form" method="post" action="/signup">
+                <input type="text" name="name" id="username" placeholder="Username" class="form__input" />
+                <input type="email" name="email" id="email" placeholder="Your Email" class="form__input" />
+                <input type="password" name="password" id="password" placeholder="Your Password" class="form__input" />
+                <input name="cPassword" id="confirmPassword" type="password" placeholder="Confirm Password" class="form__input" />
+                <div style="color: red"> <%= message %></div>
+                <button type="submit" class="btn">Submit & Register</button>
+
+                <div class="divider"></div>
+
+                <div class="social-login">
+                    <span>
+                        <img src="/images/7123025_logo_google_g_icon.png" alt="Google Logo" />
+                        <a href="/auth/Google">Sign up with Google</a>
+                    </span>
+                </div>
+
+                <div class="account-option">
+                    <h4><a href="/login">Already have an account?</a></h4>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="errorPopup" class="error-popup"></div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            
+       
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+            const errorPopup = document.getElementById('errorPopup');
+
+          
+            function showError(message) {
+                errorPopup.textContent = message;
+                errorPopup.classList.add('show');
+               
+                setTimeout(() => {
+                    errorPopup.classList.remove('show');
+                }, 3000);
+            }
+
+        
+            if (username === '') {
+                showError('Username is required');
+                return;
+            }
+
+            if (username.length < 3) {
+                showError('Username must be at least 3 characters long');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+         
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters long');
+                return;
+            }
+
+           
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
+            if (!passwordRegex.test(password)) {
+                showError('Password must contain uppercase, lowercase, and number');
+                return;
+            }
+
+            
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+           
+            this.submit();
+        });
+    </script>
+</body>
+</html>

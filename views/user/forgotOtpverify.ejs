@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <link rel="stylesheet" href="/css/fogotVOtp.css">
+
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="image">
+            <img src="/images/logo-login.png" alt="Logo">
+        </div>
+        <div class="otp-card">
+            <h3>Verify OTP</h3>
+            <p>Enter the OTP sent to your email</p>
+
+            <form id="verifyOtpForm" method="post" action="/forgotOtpVerify">
+                <input type="text" id="otp" name="otp" placeholder="Enter your OTP" class="form__input" required>
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+                <button type="submit" class="btn">Verify OTP</button>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('verifyOtpForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const otp = document.getElementById('otp').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+
+
+            const otpPattern = /^[0-9]{6}$/;
+            if (!otpPattern.test(otp)) {
+                errorMessage.textContent = 'Please enter a valid 6-digit OTP.';
+                successMessage.textContent = '';
+            } else {
+                errorMessage.textContent = '';
+
+
+                fetch('/forgotOtpVerify ', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ otp: otp }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: "success!",
+                                text: "Otp is Correct",
+                                icon: "success"
+                            })
+                                .then((result) => {
+                                    window.location.href = "/forgotPassword";
+                                })
+
+
+                                ;
+
+                        } else {
+                            errorMessage.textContent = data.message;
+                            successMessage.textContent = '';
+                        }
+                    })
+                    .catch(error => {
+                        errorMessage.textContent = 'An error occurred.  try again.';
+                        console.error('Error:', error);
+                    });
+            }
+        });
+    </script>
+
+</body>
+
+</html>

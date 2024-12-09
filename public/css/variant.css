@@ -1,0 +1,160 @@
+
+        /* Your existing CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: #f5f5f5;
+        }
+
+       
+        
+        /* Navbar and Sidebar fixed */
+        .hello {
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+        }
+        
+        .main-div {
+            display: flex;
+            margin-top: 80px;
+            flex-grow: 1;
+            background-color: #000000;
+        }
+        .hello {
+            position: fixed;
+            z-index: 2000;
+        }
+        .containerVariant {
+            background-color: #0A0A0A;
+            border-radius: 6px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px;
+            margin-top: 100px;
+            width: 100%;
+            padding-right: 0.75rem;
+            padding-left: 0.75rem;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .add-variant-button {
+            background-color: #FFA000;
+            color: #1e1e1e;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .add-variant-button:hover, .add-variant-button:focus {
+            background-color: #FFA000;
+            color: #1e1e1e;
+            text-decoration: none;
+            outline: none;
+        }
+        .variant-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .variant-table th, .variant-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #2b2b2b;
+        }
+        .variant-table th {
+            background-color: #2b2b2b;
+            font-weight: bold;
+        }
+        .variant-table tr:hover {
+            background-color: #2b2b2b;
+        }
+        .edit-button, .delete-button, .block-button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .edit-button {
+            background-color: transparent;
+            color: #ffa500;
+            border: 1px solid orange;
+        }
+        .delete-button {
+            background-color: transparent;
+            color: #ff0000;
+            border: 1px solid red;
+        }
+        .block-button {
+            background-color: transparent;
+            color: #ff6347;
+            border: 1px solid #ff6347;
+        }
+        .variant-section {
+            margin-bottom: 30px;
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #0A0A0A;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 6px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #2b2b2b;
+            border: none;
+            color: #f5f5f5;
+            border-radius: 4px;
+        }
+        .modal-form button {
+            background-color: #FFA000;
+            color: #1e1e1e;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }

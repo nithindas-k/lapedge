@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/userView.css">
+</head>
+
+<body>
+    
+
+    <div class="main-div">
+        <%- include("../partials/adminNavbar") %>
+            <div class="hello">
+                <%- include('../partials/adminSidebar') %>
+            </div>
+            <div class="containerUserDetails">
+                <h1>User Information</h1>
+
+                <div class="user-details">
+                    <p><strong>Username:</strong>
+                        <%= user.name %>
+                    </p>
+                    <p><strong>Email:</strong>
+                        <%= user.email %>
+                    </p>
+                    <p><strong>Join Date:</strong>
+                        <%= new Date(user.createdAt).toDateString() %>
+                    </p>
+                    <p><strong>Status:</strong>
+                        <%= user.isBlocked ? 'Blocked' : 'Active' %>
+                    </p>
+                </div>
+
+                <a href="/admin/users" class="back-button" style=" color: #000000; text-decoration: none;">Back to Users</a>
+            </div>
+    </div>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script>
+
+        async function blockUser(userId) {
+            const response = await fetch(`/admin/blockUser?id=${userId}`, { method: 'GET' });
+            const result = await response.json();
+            if (result.success) {
+                swal({
+                    icon: "success",
+                    title: "Success",
+                    text: result.message
+                })
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                alert("Failed to block the user.");
+            }
+        }
+
+        async function unblockUser(userId) {
+            const response = await fetch(`/admin/unblockUser?id=${userId}`, { method: 'GET' });
+            const result = await response.json();
+            if (result.success) {
+                swal({
+                    icon: "success",
+                    title: "Success",
+                    text: result.message
+                })
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                alert("Failed to unblock the user.");
+            }
+        }
+    </script>
+</body>
+
+</html>

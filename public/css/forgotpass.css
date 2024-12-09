@@ -1,0 +1,114 @@
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .password-reset-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .password-reset-container h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .password-reset-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+            text-align: left;
+        }
+
+        .password-reset-container input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        .password-reset-container input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #FFAB00;
+            border: none;
+            border-radius: 5px;
+            color: rgb(0, 0, 0);
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .password-reset-container input[type="submit"]:hover {
+            background-color: #FFAB00;
+        }
+
+        /* Error Popup Styling */
+        .error-popup {
+            position: fixed;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #ff9900;
+            color: rgb(0, 0, 0);
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-width: 250px;
+            display: none;
+            animation: slideFromLeft 0.3s ease;
+        }
+
+        @keyframes slideFromLeft {
+            from {
+                transform: translate(-100%, -50%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(0, -50%);
+                opacity: 1;
+            }
+        }
+
+        .error-popup.show {
+            display: block;
+        }
+
+        /* Center the image above the form */
+        .image img {
+            position: absolute;
+            left: 52%;
+            bottom: 57%;
+            max-width: 300px;
+            z-index: -1;
+        }
+
+        @media (max-width: 576px) {
+            .image img {
+                left: 50%;
+                bottom: 75%;
+                transform: translateX(-50%);
+                max-width: 150px;
+            }
+        }

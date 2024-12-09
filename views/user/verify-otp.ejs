@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <link rel="stylesheet" href="/css/verifyOtp.css">
+   
+</head>
+
+<body>
+    <div class="otp-container">
+        <h2 class="otp-title">Verify Your Email</h2>
+        <p class="email-info">Enter the 6-digit code sent to your@email.com</p>
+
+        <form id="otpForm">
+            <div class="otp-input-container">
+                <input type="text" maxlength="1" class="otp-input" id="otp1" name="otp1" required>
+                <input type="text" maxlength="1" class="otp-input" id="otp2" name="otp2" required>
+                <input type="text" maxlength="1" class="otp-input" id="otp3" name="otp3" required>
+                <input type="text" maxlength="1" class="otp-input" id="otp4" name="otp4" required>
+                <input type="text" maxlength="1" class="otp-input" id="otp5" name="otp5" required>
+                <input type="text" maxlength="1" class="otp-input" id="otp6" name="otp6" required>
+            </div>
+
+            <button type="button" class="verify-btn" onclick="submitOTP()">Verify OTP</button>
+        </form>
+
+        <div class="resend-container">
+            <button id="resendBtn" class="resend-btn" onclick="resendOTP()">Resend OTP</button>
+            <span id="timer" class="timer">02:00</span>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+        const otpInputs = document.querySelectorAll('.otp-input');
+
+otpInputs.forEach((input, index) => {
+    input.addEventListener('input', () => {
+       
+        if (input.value.length === 1 && index < otpInputs.length - 1) {
+            otpInputs[index + 1].focus();
+        }
+    });
+
+    input.addEventListener('keydown', (e) => {
+        
+        if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
+            otpInputs[index - 1].focus();
+        }
+    });
+});
+
+
+
+
+async function submitOTP() {
+    const otp1 = document.getElementById('otp1').value;
+    const otp2 = document.getElementById('otp2').value;
+    const otp3 = document.getElementById('otp3').value;
+    const otp4 = document.getElementById('otp4').value;
+    const otp5 = document.getElementById('otp5').value;
+    const otp6 = document.getElementById('otp6').value;
+
+    const otpData = { otp1, otp2, otp3, otp4, otp5, otp6 };
+
+    const response = await fetch('/verifyotp', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(otpData)
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'OTP verified successfully!'
+        }).then(()=>{
+            window.location.href='/'
+        })
+     
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: result.message
+        });
+    }
+}
+
+
+
+
+
+
+        
+        let timeLeft = 30; 
+        const timerDisplay = document.getElementById('timer');
+        const resendBtn = document.getElementById('resendBtn');
+        let timerInterval;
+
+        function startTimer() {
+            timeLeft = 60; 
+            resendBtn.classList.add('disabled');
+            resendBtn.disabled = true;
+
+            clearInterval(timerInterval); // Clear any existing interval
+
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    resendBtn.classList.remove('disabled');
+                    resendBtn.disabled = false;
+                    timerDisplay.textContent = '00:00';
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+   
+        startTimer();
+
+       async function resendOTP() {
+            const response=await fetch("/resentotp",{
+                method: "POST",
+            })
+            const data = await response.json();
+
+            if(data.success)
+            {
+                Swal.fire({
+                    icon:'success',
+                    title: 'OTP Resent',
+                    text: 'A new OTP has been sent to your email.'
+                });
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to resend OTP. Please try again later.'
+                });
+            }
+
+
+
+            Swal.fire({
+                icon: 'info',
+                title: 'OTP Resent',
+                text: 'A new OTP has been sent to your email.'  
+            });
+
+            otpInputs.forEach(input => input.value = ''); 
+            startTimer(); 
+        }
+    </script>
+
+
+<script>
+
+</script>
+</body>
+
+</html>

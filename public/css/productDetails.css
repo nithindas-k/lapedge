@@ -1,0 +1,76 @@
+/* Keeping the same styles for consistency */
+.main-div {
+    display: flex;
+    background-color: #000000;
+}
+
+.hello {
+    position: fixed;
+    z-index: 2000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #000000;
+    color: #f2f2f2;
+}
+
+.containerProductDetails {
+    background-color: #0A0A0A;
+    border-radius: 6px;
+    max-width: 800px;
+    margin: 100px auto;
+    padding: 40px;
+    width: 100%;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffa500;
+}
+
+.product-details {
+    background-color: #2b2b2b;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+}
+
+.product-details p, .product-details ul {
+    margin: 10px 0;
+}
+
+.product-images {
+    display: flex;
+    gap: 10px;
+}
+
+.product-images img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.back-button {
+    padding: 10px 20px;
+    background-color: #ffa500;
+    color: #1e1e1e;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.back-button:hover {
+    background-color: #FFAB00;
+}

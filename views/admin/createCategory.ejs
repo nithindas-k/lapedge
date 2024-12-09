@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Category</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/createCategory.css">
+   
+    <link rel="stylesheet" href="https://unpkg.com/cropperjs/dist/cropper.min.css">
+    
+</head>
+
+<body>
+    <div class="main-div">
+        <%- include("../partials/adminNavbar") %>
+        <div class="hello">
+            <%- include('../partials/adminSidebar') %>
+        </div>
+
+        <div class="containerCreateCategory">
+            <h1>Create Category</h1>
+
+            <form id="form-data" action="/category/create" method="POST" enctype="multipart/form-data" class="category-form">
+                <label for="name">Category Name</label>
+                <input type="text" name="name" id="name" required>
+
+                <label for="description">Category Description</label>
+                <textarea name="description" id="description" required></textarea>
+
+                <div class="crop-section">
+                    <label for="image">Category Image</label>
+                    <input type="file" name="image" id="image" accept="image/*">
+                    <img id="imagePreview" alt="Image Preview" style="display:none;">
+                    <button type="button" id="cropButton" style="display:none;">Crop Image</button>
+                </div>
+
+               
+                <div id="cropModal" class="crop-modal">
+                    <div class="modal-content">
+                        <img id="imageToCrop" alt="Image to Crop">
+                        <div class="button-group">
+                            <button type="button" id="saveCrop">Save Cropped Image</button>
+                            <button type="button" id="cancelCrop">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="center-button">
+                    <button type="submit" class="submit-button">Create Category</button>
+                </div>
+            </form>
+
+            <a href="/admin/categories" class="back-button" style="color: #000000;">Back to Categories</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>
+    <script>
+
+        document.getElementById("form-data").addEventListener("submit",function(event){
+
+            event.preventDefault();
+
+            const name  = document.getElementById("name").value()
+            const description  = document.getElementById("description").value()
+
+
+             if(name.trim() == ""){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter category name!'
+                });
+                return;
+             }
+
+             if(description.trim() == ""){
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please enter category description!'
+                });
+                return;
+             }
+
+
+
+
+             this.submit();
+
+
+
+
+
+
+
+        })
+
+
+
+
+
+
+
+
+
+
+        let cropper;
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('imagePreview');
+        const cropModal = document.getElementById('cropModal');
+        const cropButton = document.getElementById('cropButton');
+        const saveCropButton = document.getElementById('saveCrop');
+        const cancelCropButton = document.getElementById('cancelCrop');
+        const imageToCrop = document.getElementById('imageToCrop');
+
+        imageInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    cropButton.style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        cropButton.addEventListener('click', function () {
+            cropModal.style.display = 'flex';
+            imageToCrop.src = imagePreview.src;
+
+           
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.8,
+                zoomable: true,
+                movable: true,
+            });
+        });
+
+        saveCropButton.addEventListener('click', function () {
+            const canvas = cropper.getCroppedCanvas();
+            const croppedImageDataUrl = canvas.toDataURL(); 
+       
+            const blob = dataURItoBlob(croppedImageDataUrl);
+
+         
+            const formData = new FormData(document.querySelector('.category-form'));
+            formData.set('image', blob, 'cropped-image.png'); 
+
+           
+            fetch('/category/create', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        
+                        swal({
+                            title: "Success",
+                            text: data.message,
+                            icon: "success",
+                            button: "OK",
+                        }).then(() => {
+                            window.location.href = "/category"; 
+                        });
+                    } else {
+                      
+                        swal({
+                            title: "Error",
+                            text: data.message,
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                })
+                .catch(error => {
+                 
+                    swal({
+                        title: "Error",
+                        text: "An unexpected error occurred.",
+                        icon: "error",
+                        button: "OK",
+                    });
+                    console.error('Error:', error);
+                });
+
+            cropModal.style.display = 'none'; 
+            cropper.destroy(); 
+        });
+
+     
+        function dataURItoBlob(dataURI) {
+            const byteString = atob(dataURI.split(',')[1]);
+            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mimeString });
+        }
+
+        cancelCropButton.addEventListener('click', function () {
+            cropModal.style.display = 'none';
+            cropper.destroy(); 
+        });
+    </script>
+</body>
+
+</html>

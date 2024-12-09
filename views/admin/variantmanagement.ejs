@@ -1,0 +1,172 @@
+<!-- views/variants/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variant Management</title>
+    <link rel="stylesheet" href="/css/variant.css">
+</head>
+<body>
+    <div class="main-div">
+        <%- include("../partials/adminNavbar") %>
+        <div class="hello">
+            <%- include('../partials/adminSidebar') %>
+        </div>
+        <div class="containerVariant">
+            <!-- RAM Variant Section -->
+            <button style="margin-left: 84%; margin-bottom: 30px;"  class="add-variant-button"><a style="color: black; text-decoration: none;" href="/variants/createVariant">Add  Variant</a></button>
+            <div class="variant-section">
+               
+                <div class="header">
+                    <h1>RAM Variants</h1>
+                    
+                </div>
+                <table class="variant-table">
+                    <thead>
+                        <tr>
+                            <th>RAM Size</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% ramVariants.forEach(function(variant) { %>
+                            <tr class="<%= variant.isBlocked ? 'blocked-variant' : '' %>">
+                                <td><%= variant.value %></td>
+                                <td><%= variant.isBlocked ? 'Blocked' : 'Active' %></td>
+                                <td>
+                                    <a href="/variants/ram/edit/<%= variant._id %>" class="edit-button">Edit</a>
+                                    <form action="/variants/ram/delete/<%= variant._id %>" method="POST" style="display:inline;">
+                                        <button type="submit" class="delete-button">Delete</button>
+                                    </form>
+                                    <form action="/variants/ram/toggle-block/<%= variant._id %>" method="POST" style="display:inline;">
+                                        <button type="submit" class="block-button">
+                                            <%= variant.isBlocked ? 'Unblock' : 'Block' %>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Processor Variant Section -->
+            <div class="variant-section">
+                <div class="header">
+                    <h1>Processor Variants</h1>
+                   
+                </div>
+                <table class="variant-table">
+                    <thead>
+                        <tr>
+                            <th>Processor</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% processorVariants.forEach(function(variant) { %>
+                            <tr class="<%= variant.isBlocked ? 'blocked-variant' : '' %>">
+                                <td><%= variant.value %></td>
+                                <td><%= variant.isBlocked ? 'Blocked' : 'Active' %></td>
+                                <td>
+                                    <a href="/variants/processor/edit/<%= variant._id %>" class="edit-button">Edit</a>
+                                    <form action="/variants/processor/delete/<%= variant._id %>" method="POST" style="display:inline;">
+                                        <button type="submit" class="delete-button">Delete</button>
+                                    </form>
+                                    <form action="/variants/processor/toggle-block/<%= variant._id %>" method="POST" style="display:inline;">
+                                        <button type="submit" class="block-button">
+                                            <%= variant.isBlocked ? 'Unblock' : 'Block' %>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Display Variant Section -->
+            <div class="variant-section">
+                <div class="header">
+                    <h1>Display Variants</h1>
+
+                </div>
+                <table class="variant-table">
+                    <thead>
+                        <tr>
+                            <th>Display Size</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% displayVariants.forEach(function(variant) { %>
+                            <tr class="<%= variant.isBlocked ? 'blocked-variant' : '' %>">
+                                <td><%= variant.value %></td>
+                                <td><%= variant.isBlocked ? 'Blocked' : 'Active' %></td>
+                                <td>
+                                    <a href="/variants/display/edit/<%= variant._id %>" class="edit-button">Edit</a>
+                                    <form action="/variants/display/delete/<%= variant._id %>" method="POST" style="display:inline;">
+                                        <button type="submit" class="delete-button">Delete</button>
+                                    </form>
+                                    <form action="/variants/display/toggle-block/<%= variant._id %>" method="POST" style="display:inline;">
+                                        <button type="submit" class="block-button">
+                                            <%= variant.isBlocked ? 'Unblock' : 'Block' %>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Storage Variant Section -->
+            <div class="variant-section">
+                <div class="header">
+                    <h1>Storage Variants</h1>
+
+                </div>
+                <table class="variant-table">
+                    <thead>
+                        <tr>
+                            <th>Storage Size</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% storageVariants.forEach(function(variant) { %>
+                            <tr class="<%= variant.isBlocked ? 'blocked-variant' : '' %>">
+                                <td><%= variant.value %></td>
+                                <td><%= variant.isBlocked ? 'Blocked' : 'Active' %></td>
+                                <td>
+                                    <a href="/variants/storage/edit/<%= variant._id %>" class="edit-button">Edit</a>
+                                    <form action="/variants/storage/delete/<%= variant._id %>" method="POST" style="display:inline;">
+                                        <button type="submit" class="delete-button">Delete</button>
+                                    </form>
+                                    <form action="/variants/storage/toggle-block/<%= variant._id %>" method="POST" style="display:inline;">
+                                        <button type="submit" class="block-button">
+                                            <%= variant.isBlocked ? 'Unblock' : 'Block' %>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+           
+        </div>
+    </div>
+
+    <script src="/javascripts/variant-management.js"></script>
+    <script>
+    
+    </script>
+</body>
+</html>

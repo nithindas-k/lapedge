@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create RAM Variant</title>
+    <link rel="stylesheet" href="/css/create.css">
+    <link rel="stylesheet" href="/css/products.css">
+
+</head>
+
+<body>
+    <div class="main-div">
+        <%- include("../partials/adminNavbar") %>
+            <div class="hello">
+                <%- include('../partials/adminSidebar') %>
+            </div>
+
+            <div class="containerCreateProduct">
+                <h1>Create RAM Variant</h1>
+                <form class="product-form" id="form">
+                    <label for="ramName">RAM Variant</label>
+                    <input type="text" id="ramName" name="ramName" placeholder="Enter RAM">
+
+                    <div class="button-group">
+                        <button type="button" class="cancel-button">Cancel</button>
+                        <button type="submit" class="submit-button">Create</button>
+                    </div>
+                </form>
+            </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const form = document.getElementById("form").addEventListener("submit",  async  function (event) {
+            event.preventDefault();
+
+            const ramName = document.getElementById("ramName").value.trim();
+
+            if (ramName === "") {
+                Swal.fire({
+                    title: "Error",
+                    text: "RAM Variant Name is required!",
+                    icon: "error"
+                });
+                return;
+            }
+
+            // Prepare the data to send
+            const response = await fetch('/variants/create/ram', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ram: ramName }) // Here 'ram' is being sent as a key
+    });
+
+    const result = await response.json();
+    if (result.success) {
+        Swal.fire({
+            title: "Success",
+            text: "RAM Variant created successfully!",
+            icon: "success"
+        })
+        .then(()=>{
+            window.location.href = "/admin/variant"
+        })
+    } else {
+        Swal.fire({
+            title: "Error",
+            text: result.message,
+            icon: "error"
+        });
+    }
+});
+        
+    </script>
+</body>
+
+</html>

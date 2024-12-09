@@ -1,0 +1,163 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+body {
+    background-color: #000000; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #fff; 
+}
+/* Card Container */
+.card {
+    background-color: #252525; /* Darker grey card */
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #FDA208; /* Accent color */
+}
+/* Input Fields */
+.form__input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #333; /* Darker borders */
+    background-color: #333;
+    color: #fff;
+    font-size: 16px;
+}
+.form__input:focus {
+    outline: none;
+    border-color: #FDA208;
+}
+/* Button Styles */
+.btn {
+    width: 100%;
+    background-color: #FDA208;
+    color: #000;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+.btn:hover {
+    background-color: #e69307;
+}
+/* Error Message Styling */
+.alert-container {
+position: fixed;
+top: 20px;
+right: 20px;
+width: 300px; /* Adjust width if needed */
+z-index: 9999; /* Make sure it's above other content */
+}
+.alert {
+position: relative;
+padding: 15px 15px 15px 50px;
+margin-bottom: 15px;
+border-radius: 8px;
+display: flex;
+align-items: center;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+opacity: 0;
+transform: translateX(100%);
+transition: all 0.4s ease;
+}
+
+.alert.show {
+opacity: 1;
+transform: translateX(0);
+}
+
+
+.alert-icon {
+ position: absolute;
+ left: 15px;
+ font-size: 22px;
+}
+
+.alert-content {
+ flex-grow: 1;
+}
+
+.alert-title {
+ font-weight: bold;
+ margin-bottom: 5px;
+ display: block;
+}
+
+.alert-close {
+background: none;
+border: none;
+color: rgba(0, 0, 0, 0.5);
+font-size: 20px;
+cursor: pointer;
+margin-left: 10px;
+transition: color 0.3s ease;
+position: absolute;
+right: 10px;
+top: 50%;
+transform: translateY(-50%);
+}
+
+.alert-close:hover {
+color: rgba(0, 0, 0, 0.8);
+}
+/* Success Alert */
+.alert-success {
+ background-color: #e6f3e6;
+ color: #2c7a2c;
+ border-left: 4px solid #2c7a2c;
+}
+
+.alert-success .alert-icon {
+ color: #2c7a2c;
+}
+
+/* Error Alert */
+.alert-error {
+ background-color: #fce4e4;
+ color: #cc0000;
+ border-left: 4px solid #cc0000;
+}
+
+.alert-error .alert-icon {
+ color: #cc0000;
+}
+
+/* Warning Alert */
+.alert-warning {
+ background-color: #fff3cd;
+ color: #856404;
+ border-left: 4px solid #856404;
+}
+
+.alert-warning .alert-icon {
+ color: #856404;
+}
+
+/* Info Alert */
+.alert-info {
+ background-color: #e2f0ff;
+ color: #0056b3;
+ border-left: 4px solid #0056b3;
+}
+
+.alert-info .alert-icon {
+ color: #0056b3;
+}

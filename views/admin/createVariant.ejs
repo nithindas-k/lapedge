@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Variant</title>
+    <link rel="stylesheet" href="/css/create.css">
+</head>
+
+<body>
+    <div class="main-div">
+        <%- include("../partials/adminNavbar") %>
+
+            <div class="hello">
+                <%- include('../partials/adminSidebar') %>
+            </div>
+
+            <div class="containerCreateVariant">
+                <h1>Create Variant</h1>
+
+                <!-- Variant Creation Form -->
+                <form class="variant-form" id="variantForm">
+                    <div class="form-group">
+                        <label for="variantType">Select Variant Type</label>
+                        <select id="variantType" name="variantType" required>
+                            <option value="" disabled selected>Select a Variant</option>
+                            <option value="ram">ram</option>
+                            <option value="processor">processor</option>
+                            <option value="display">display</option>
+                            <option value="storage">storage</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="variantValue">Variant Value</label>
+                        <input type="text" id="variantValue" name="variantValue"
+                            placeholder="Enter variant value (e.g., 8GB, Intel i7, 15.6-inch, 512GB SSD)" required>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="cancel-button" onclick="cancelVariant()">Cancel</button>
+                        <button type="submit" class="submit-button">Create</button>
+                    </div>
+                </form>
+            </div>
+    </div>
+
+    <!-- Include SweetAlert2 for alert messages -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function cancelVariant() {
+            Swal.fire({
+                title: 'Cancelled',
+                text: 'Variant creation has been cancelled.',
+                icon: 'info',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Redirect after cancellation
+                window.location.href = '/admin/variant';
+            });
+        }
+
+        // Handle form submission using fetch
+        document.getElementById('variantForm').addEventListener('submit', function (event) {
+            // Prevent default form submission\
+            event.preventDefault();
+
+            const variantType = document.getElementById('variantType').value;
+            const variantValue = document.getElementById('variantValue').value.trim();
+            console.log(variantType, variantValue)
+
+            // Validate the form data
+            if (!variantType || !variantValue) {
+
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please select a variant type and provide a value.',
+                    icon: 'error'
+                });
+                return;
+            }
+
+            // Create the form data to be sent to the server
+            // const formData = new FormData();
+            // formData.append('variantType', variantType);
+            // formData.append('variantValue', variantValue);
+
+            // Use fetch API to send data to the backend
+            fetch('/variants/createVariant', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify({ variantType, variantValue })
+            })
+                .then(response => {
+
+
+                    console.log(response)
+                    return response.json()
+                }) // Parse the JSON response
+                .then((data) => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Variant has been created successfully.',
+                            icon: 'success'
+                        }).then(() => {
+                            // Optionally, redirect to another page after success
+                            window.location.href = '/admin/variant';
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message || 'Something went wrong. Please try again.',
+                            icon: 'error'
+                        });
+                    }
+                })
+
+
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'There was an error submitting the form.',
+                        icon: 'error'
+                    });
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>

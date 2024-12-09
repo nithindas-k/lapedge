@@ -1,0 +1,184 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+
+.card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form__input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+.btn {
+    width: 100%;
+    background-color: #ff9900;
+    color: rgb(0, 0, 0);
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+
+.btn:hover {
+    background-color: #ff9900;
+}
+
+.social-login {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #666;
+}
+
+.social-login img {
+    width: 20px;
+    margin-right: 8px;
+}
+.account-option {
+margin-top: 10px; /* Adds a small gap */
+}
+
+
+.divider {
+    border-bottom: 1px solid #ddd;
+    margin: 20px 0;
+}
+
+.account-option a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.account-option a:hover {
+    text-decoration: underline;
+}
+.social-login {
+margin-top: 20px;
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 14px;
+color: #666;
+}
+
+.social-login span {
+display: flex;
+align-items: center;
+}
+
+.social-login img {
+width: 20px;
+margin-right: 8px;
+}
+
+/* Error Popup Styling */
+.error-popup {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #ff9900;
+    color: rgb(0, 0, 0);
+    padding: 15px;
+    border-radius: 0 10px 10px 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-width: 250px;
+    display: none;
+    animation: slideFromLeft 0.3s ease;
+}
+
+@keyframes slideFromLeft {
+    from {
+        transform: translate(-100%, -50%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(0, -50%);
+        opacity: 1;
+    }
+}
+
+.error-popup.show {
+    display: block;
+}
+.image img {
+position: absolute;
+left: 52%;
+bottom: 69%;
+z-index: -1;
+max-width: 300px;
+}
+
+@media (max-width: 576px) {
+body {
+padding: 10px;
+}
+
+.image img {
+left: 50%;
+bottom: 75%;
+transform: translateX(-50%);
+max-width: 150px;
+}
+
+.card {
+padding: 1rem;
+}
+
+.btn {
+padding: 10px;
+}
+
+h3 {
+font-size: 20px;
+}
+
+.form__input {
+font-size: 14px;
+}
+}
+

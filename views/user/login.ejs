@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="/css/login.css">
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="image">
+            <img src="/images/logo-login.png" alt="">
+        </div>
+        <div class="card">
+            <h3>Login to Your Account</h3>
+            <form id="loginForm" class="form" method="post" action="/login">
+                <input type="email" name="email" id="email" placeholder="Your Email" class="form__input" />
+                <input type="password" name="password" id="password" placeholder="Your Password" class="form__input" />
+                <div style="color: red;">
+                    <%= message %>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="/forgotOtp">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn">Login</button>
+
+                <div class="account-option">
+                    <h4><a href="/signup">Don't have an account?</a></h4>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+
+    <div id="errorPopup" class="error-popup"></div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorPopup = document.getElementById('errorPopup');
+
+
+            function showError(message) {
+                errorPopup.textContent = message;
+                errorPopup.classList.add('show');
+
+
+                setTimeout(() => {
+                    errorPopup.classList.remove('show');
+                }, 3000);
+            }
+
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters long');
+                return;
+            }
+
+
+            this.submit();
+        });
+    </script>
+</body>
+
+</html>

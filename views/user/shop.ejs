@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--=============== FLATICON ===============-->
+  <link rel="stylesheet"
+    href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+
+  <!--=============== SWIPER CSS ===============-->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+  <!--=============== CSS ===============-->
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/tiny-slider.css">
+  <link rel="stylesheet" href="/css/stylethree.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <title>Shop</title>
+</head>
+
+<body>
+  <main class="main">
+    <%- include('../partials/usernavbar') %>
+
+      </nav>
+      <div class="hero">
+        <div class="container">
+          <div class="row justify-content-between">
+            <div class="col-lg-5">
+              <div class="intro-excerpt">
+                <h1>Shop <span clsas="d-block"></span></h1>
+                <p class="mb-4">Performance that meets your needs !</p>
+
+              </div>
+            </div>
+            <div class="col-lg-7">
+              <div class="hero-img-wrap">
+                <img style="margin-left: 300px;" src="/images/mainlogo.png" width="400px" class="img-fluid">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <section class="products container section">
+        <div class="tab__btns">
+          <!-- <span class="tab__btn active-tab" data-target="#featured"
+                >Featured</span
+              > -->
+          <h3 class="section__title"><span>Best </span> Sellers</h3>
+          <!-- <span class="tab__btn" data-target="#popular">Popular</span>
+              <span class="tab__btn" data-target="#new-added">New Added</span> -->
+        </div>
+
+        <div class="tab__items">
+          <div class="tab__item active-tab" content id="featured">
+            <div class="products__container grid">
+              <% products.forEach((data)=>{ %>
+                <div class="product__item">
+                  <div class="product__banner">
+                    <a href="/productDetails/<%= data._id %>" class="product__images">
+                      <img src="/uploads/products/<%= data.productImage[0] %>" alt="" class="product__img default" />
+                      <img src="/uploads/products/<%= data.productImage[1] %>" alt="" class="product__img hover" />
+                    </a>
+                    <div class="product__actions">
+                      <a href="/productDetails/<%= data._id %>" class="action__btn" aria-label="Quick View">
+                        <i class="fi fi-rs-eye"></i>
+                      </a>
+                      <a href="#" class="action__btn" aria-label="Add to Wishlist">
+                        <i class="fi fi-rs-heart"></i>
+                      </a>
+
+                    </div>
+                    <div class="product__badge light-pink">
+                      <%=data.status %>
+                    </div>
+                  </div>
+                  <div class="product__content">
+                    <span class="product__category">
+                      <%= data.category.name %>
+                    </span>
+                    <a href="details.html">
+                      <h3 class="product__title">
+                        <%= data.name %>
+                      </h3>
+                    </a>
+                    <div class="product__rating">
+                      <i class="fi fi-rs-star"></i>
+                      <i class="fi fi-rs-star"></i>
+                      <i class="fi fi-rs-star"></i>
+                      <i class="fi fi-rs-star"></i>
+                      <i class="fi fi-rs-star"></i>
+                    </div>
+                    <div class="product__price flex">
+                      <span class="new__price">₹<%= data.salePrice %></span>
+                      <span class="old__price">₹<%= data.regularPrice %></span>
+                    </div>
+                    <a href="#" class="action__btn cart__btn" aria-label="Add To Cart">
+                      <i class="fi fi-rs-shopping-bag-add"></i>
+                    </a>
+                  </div>
+                </div>
+                <% }) %>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="newsletter section home__newsletter">
+        <div class="newsletter__container container grid">
+          <h3 class="newsletter__title flex">
+            <img src="./assets/img/icon-email.svg" alt="" class="newsletter__icon" />
+            Sign in to Newsletter
+          </h3>
+          <p class="newsletter__description">
+            ...and receive $25 coupon for first shopping.
+          </p>
+          <form action="" class="newsletter__form">
+            <input type="text" placeholder="Enter Your Email" class="newsletter__input" />
+            <button type="submit" class="newsletter__btn">Subscribe</button>
+          </form>
+        </div>
+      </section>
+      <%- include('../layouts/footer') %>
+
+
+</body>
+
+</html>

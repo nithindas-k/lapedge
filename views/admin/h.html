@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Profile</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <style>
+
+/* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+}
+
+/* Sidebar styles */
+.sidebar {
+  background-color: #f4f4f4;
+  padding: 20px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-item {
+  color: #333;
+  text-decoration: none;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.sidebar-item.active {
+  background-color: #ffa500;
+  color: #fff;
+}
+
+/* Main content styles */
+.main-content {
+  flex: 1;
+  padding: 20px;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.profile-form label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.profile-form input {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.save-button {
+  background-color: #ffa500;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #ff9100;
+}
+
+    </style>
+  <div class="sidebar">
+    <a href="#" class="sidebar-item">Dashboard</a>
+    <a href="#" class="sidebar-item">Orders</a>
+    <a href="#" class="sidebar-item active">Update Profile</a>
+    <a href="#" class="sidebar-item">Wallet</a>
+    <a href="#" class="sidebar-item">My Address</a>
+    <a href="#" class="sidebar-item">Change Password</a>
+    <a href="#" class="sidebar-item">Logout</a>
+  </div>
+
+  <div class="main-content">
+    <h1>Update Profile</h1>
+    <form class="profile-form">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+      <label for="phone">Phone</label>
+      <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+
+      <label for="profile-image">Profile Image</label>
+      <input type="file" id="profile-image" name="profile-image">
+
+      <button type="submit" class="save-button">Save</button>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a1a1a;
+      color: #fff;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .search-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .search-bar input {
+      flex-grow: 1;
+      padding: 10px;
+      border: none;
+      background-color: #2b2b2b;
+      color: #fff;
+    }
+
+    .search-bar button {
+      background-color: #ffb700;
+      color: #1a1a1a;
+      border: none;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+
+    th {
+      background-color: #333;
+    }
+
+    .btn {
+      background-color: #ffb700;
+      color: #1a1a1a;
+      border: none;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Products</h1>
+    <div class="search-bar">
+      <input type="text" placeholder="Search products">
+      <button class="btn">Search</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Product ID</th>
+          <th>Product Name</th>
+          <th>Price</th>
+          <th>Offer Price</th>
+          <th>Brand</th>
+          <th>Stock</th>
+          <th>Specifications</th>
+          <th>View</th>
+          <th>Update</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Asus Strix</td>
+          <td>₹160000</td>
+          <td>₹141058</td>
+          <td>Asus</td>
+          <td>145</td>
+          <td>Processor: Ryzen 7, RAM: 16GB, Display: 15.6-inch, Storage: 512GB</td>
+          <td><button class="btn">View</button></td>
+          <td><button class="btn">Update</button></td>
+          <td><button class="btn">Delete</button></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Mac M1</td>
+          <td>₹160000</td>
+          <td>₹141058</td>
+          <td>Apple</td>
+          <td>145</td>
+          <td>Processor: Intel i7, RAM: 16GB, Display: 13.3-inch, Storage: 512GB</td>
+          <td><button class="btn">View</button></td>
+          <td><button class="btn">Update</button></td>
+          <td><button class="btn">Delete</button></td>
+        </tr>
+        <tr>
+          <p>3</p>
+          <td>3</td>
+          <td>Victus 16</td>
+          <td>₹160000</td>
+          <td>₹141058</td>
+          <td>HP</td>
+          <td>145</td>
+          <td>Processor: Intel i7, RAM: 16GB, Storage: 1.5TB</td>
+          <td><button class="btn">View</button></td>
+          <td><button class="btn">Update</button></td>
+          <td><button class="btn">Delete</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+
+</html>

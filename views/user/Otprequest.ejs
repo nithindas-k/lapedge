@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <link rel="stylesheet" href="/css/otpreq.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="image">
+            <img src="/images/logo-login.png" alt="Logo">
+        </div>
+        <div class="otp-card">
+            <h3>Forgot Password?</h3>
+            <p>Enter you Email !</p>
+
+            <form id="forgotOtpForm" method="post" accept="/forgotOtp">
+                <input type="email" id="email" name="email" placeholder="Enter your email" class="form__input" required>
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+                <button type="submit" class="btn">Request OTP</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        document.getElementById('forgotOtpForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+
+
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(email)) {
+                errorMessage.textContent = 'Please enter a valid email address.';
+                successMessage.textContent = '';
+            } else {
+                errorMessage.textContent = '';
+
+                fetch('/forgotOtp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: "success!",
+                                text: data.message,
+                                icon: "success"
+                            }).then((result) => {
+                                window.location.href = "/forgotOtpVerify";
+
+                            });
+
+                        } else {
+                            swal.fire({
+                                title: "error!",
+                                text: data.message,
+                                icon: "error"
+
+                            })
+                        }
+                    })
+                    .catch(error => {
+                        errorMessage.textContent = 'An error occurred. Please try again.';
+                        console.error('Error:', error);
+                    });
+            }
+        });
+
+    </script>
+
+
+</body>
+
+</html>

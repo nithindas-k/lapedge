@@ -1,0 +1,181 @@
+
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: 'Arial', sans-serif;
+}
+
+body {
+background-color: #f4f4f9;
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100vh;
+padding: 20px; /* Ensure spacing on smaller screens */
+}
+
+.container {
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100%;
+width: 100%;
+position: relative;
+max-width: 1200px; /* Prevents stretching too much on larger screens */
+}
+
+.card {
+background-color: white;
+border-radius: 10px;
+padding: 2rem;
+box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+max-width: 400px;
+width: 100%;
+text-align: center;
+z-index: 1;
+}
+
+h3 {
+font-size: 24px;
+margin-bottom: 20px;
+color: #333;
+}
+
+.form__input {
+width: 100%;
+padding: 10px;
+margin: 10px 0;
+border-radius: 5px;
+border: 1px solid #ddd;
+font-size: 16px;
+}
+
+.btn {
+width: 100%;
+background-color: #ff9900;
+color: rgb(0, 0, 0);
+padding: 12px;
+border: none;
+border-radius: 5px;
+font-size: 16px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+margin-top: 15px;
+}
+
+.btn:hover {
+background-color: #ff9900;
+}
+
+.forgot-password {
+margin-top: 10px;
+text-align: left;
+font-size: 14px;
+}
+
+.forgot-password a {
+color: #a70000;
+text-decoration: none;
+}
+
+.forgot-password a:hover {
+text-decoration: underline;
+}  
+
+.account-option {
+text-align: center;
+margin-top: 20px;
+}
+
+.account-option a {
+color: #007bff;
+text-decoration: none;
+}
+
+.account-option a:hover {
+text-decoration: underline;
+}
+
+/* Error Popup Styling */
+.error-popup {
+position: fixed;
+left: 0;
+top: 50%;
+transform: translateY(-50%);
+background-color: #ff9900;
+color: rgb(0, 0, 0);
+padding: 15px;
+border-radius: 0 10px 10px 0;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+z-index: 1000;
+max-width: 250px;
+display: none;
+animation: slideFromLeft 0.3s ease;
+}
+
+@keyframes slideFromLeft {
+from {
+ transform: translate(-100%, -50%);
+ opacity: 0;
+}
+to {
+ transform: translate(0, -50%);
+ opacity: 1;
+}
+}
+
+.error-popup.show {
+display: block;
+}
+
+/* Image Styling */
+.image img {
+position: absolute;
+left: 53%;
+bottom: 60%;
+max-width: 300px;
+}
+
+@media (max-width: 768px) {
+.image img {
+ left: 50%;
+ bottom: 70%;
+ transform: translateX(-50%);
+ max-width: 200px;
+}
+
+.card {
+ padding: 1.5rem;
+}
+}
+
+@media (max-width: 576px) {
+body {
+ padding: 10px;
+}
+
+.image img {
+ left: 50%;
+ bottom: 75%;
+ transform: translateX(-50%);
+ max-width: 150px;
+}
+
+.card {
+ padding: 1rem;
+}
+
+.btn {
+ padding: 10px;
+}
+
+h3 {
+ font-size: 20px;
+}
+
+.form__input {
+ font-size: 14px;
+}
+}
+

@@ -1,0 +1,159 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #000000;
+    color: #f5f5f5;
+}
+
+.main-div {
+    display: flex;
+    background-color: #000000;
+}
+
+.hello {
+    position: fixed;
+    z-index: 2000;
+}
+
+.containerCreateCategory {
+    background-color: #0A0A0A;
+    border-radius: 6px;
+    max-width: 600px; /* Reduced width for better alignment */
+    margin: 100px auto; /* Centers the container horizontally */
+    padding: 40px;
+    width: 100%;
+    text-align: left; /* Ensure text is aligned properly */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a subtle shadow for depth */
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffa500;
+}
+
+.variant-form label {
+    margin-bottom: 5px; /* Tighten the space above input fields */
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.variant-form input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px; /* Reduce margin for tighter layout */
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #1c1c1c; /* Slightly lighter background */
+    color: #fff;
+}
+
+.variant-form select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #0A0A0A;
+    color: #fff;
+}
+
+.variant-form select {
+    cursor: pointer;
+}
+
+.submit-button {
+    padding: 10px 20px; /* Adjusted padding for better button size */
+    background-color: #ffa500;
+    color: #1e1e1e;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+.submit-button:hover {
+    background-color: #FFAB00;
+}
+
+/* Modal styling */
+.crop-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 400px;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-content img {
+    max-width: 600px;
+    height: auto;
+    border-radius: 8px;
+}
+
+#saveCrop,
+#cancelCrop {
+    margin-top: 20px;
+    background-color: #ffa500;
+    color: #000000;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    width: 48%;
+    font-size: 16px;
+    border-radius: 4px;
+}
+
+#saveCrop:hover,
+#cancelCrop:hover {
+    background-color: #FFAB00;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+#imagePreview {
+    margin-top: 20px;
+    max-width: 300px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.center-button {
+    text-align: center;
+}
+
+.back-button {
+    margin-top: 20px;
+    padding: 10px;
+    display: block;
+    text-align: center;
+    background-color: #ffa500;
+    color: #1e1e1e;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.back-button:hover {
+    background-color: #FFAB00;
+}
+.variant-form {
+    display: flex;
+    flex-direction: column;
+}   
