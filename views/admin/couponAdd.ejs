@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+
+</head>
+
+<body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .main-div {
+            display: flex;
+            background-color: #000000;
+        }
+
+        .hello {
+            position: fixed;
+            z-index: 2000;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: #f5f5f5;
+        }
+
+        .containerCreateVariant {
+            background-color: #0A0A0A;
+            border-radius: 6px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            margin-top: 100px;
+            width: 100%;
+            padding-right: 0.75rem;
+            padding-left: 0.75rem;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffa500;
+            margin-bottom: 20px;
+        }
+
+        .product-form label {
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-weight: bold;
+            display: block;
+        }
+
+        .product-form input,
+        #variantType,
+        #variantValue {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #2b2b2b;
+            color: #f2f2f2;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .submit-button,
+        .cancel-button {
+            padding: 8px;
+            background-color: #ffa500;
+            color: #000000;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            width: 48%;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover,
+        .cancel-button:hover {
+            background-color: #FFAB00;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .form-row>div {
+            width: 100%;
+        }
+    </style>
+
+    <div class="main-div">
+        <%- include("../partials/adminNavbar") %>
+            <div class="hello">
+                <%- include('../partials/adminSidebar') %>
+            </div>
+
+            <div class="containerCreateVariant">
+                <h1>Create Coupon</h1>
+                <form class="product-form" id="couponForm" action="/create-coupon" method="POST">
+                    <div class="form-row">
+                        <div>
+                            <label for="code">Coupon Code</label>
+                            <input type="text" id="code" name="code" required placeholder="Enter coupon code">
+                        </div>
+                        <div>
+                            <label for="discountValue">Discount Value</label>
+                            <input type="number" id="discountValue" name="discountValue" required min="0" step="0.01"
+                                placeholder="Enter discount amount">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="maxDiscount">Maximum Discount</label>
+                            <input type="number" id="maxDiscount" name="maxDiscount" required min="0" step="0.01"
+                                placeholder="Maximum discount limit">
+                        </div>
+                        <div>
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" name="startDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="expirationDate">Expiration Date</label>
+                            <input type="date" id="expirationDate" name="expirationDate" required>
+                        </div>
+                        <div>
+                            <label for="maxUsage">Maximum Usage</label>
+                            <input type="number" id="maxUsage" name="maxUsage" required min="1"
+                                placeholder="Max usage count">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="minimumPrice">Minimum Purchase Price</label>
+                            <input type="number" id="minimumPrice" name="minimumPrice" required min="0" step="0.01"
+                                placeholder="Minimum purchase amount">
+                        </div>
+                        <div>
+
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="cancel-button"><a style="text-decoration: none; color: #000000;"
+                                href="/coupon">Cancel</a></button>
+                        <button id="submit" type="submit" class="submit-button">Create Coupon</button>
+                    </div>
+                </form>
+            </div>
+
+
+
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+
+        document.getElementById("submit").addEventListener("click", async function (e) {
+
+            e.preventDefault();
+            try {
+
+                const code = document.getElementById("code").value;
+            const discountValue = document.getElementById("discountValue").value;
+            const maxDiscount = document.getElementById("maxDiscount").value;
+            const startDate = document.getElementById("startDate").value;
+            const expirationDate = document.getElementById("expirationDate").value;
+            const maxUsage = document.getElementById("maxUsage").value;
+            const minimumPrice = document.getElementById("minimumPrice").value;
+
+            if (code === "" || discountValue === "" || maxDiscount === "" || startDate === "" || expirationDate === "" || maxUsage === "" || minimumPrice === "") {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    title: 'All fields are required',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    icon: 'warning',
+
+                });
+                return;
+            }
+
+            const response  = await fetch("/coupon/add",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    code: code,
+                    discountValue: discountValue,
+                    maxDiscount: maxDiscount,
+                    startDate: startDate,
+                    expirationDate: expirationDate,
+                    maxUsage: maxUsage,
+                    minimumPrice: minimumPrice
+                })
+            })
+            const data = await response.json();
+            if (data.success) {
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    title: data.message,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    icon:'success',})
+                    setTimeout(()=>{
+                        window.location.href = "/coupon"
+                    },3000)
+            }else{
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    title: data.message,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    icon: 'error',})
+            }
+            
+                
+            } catch (error) {
+                console.log(error)
+                
+            }
+
+            
+
+        })
+
+
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Horizontal Card Navigation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .navigation-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            gap: 15px;
+            padding: 10px;
+        }
+        .navigation-container a{
+           text-decoration: none;
+        }
+
+        .nav-card {
+            flex: 1;
+            max-width: 200px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 15px 25px rgba(255, 179, 0, 0.241);
+        }
+
+        .nav-card i {
+            font-size: 30px;
+            color: #FDA208;
+            margin-bottom: 10px;
+        }
+
+        .nav-card h3 {
+            margin: 0;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .nav-card p {
+            color: #6c757d;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .navigation-container {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-card {
+                max-width: calc(50% - 10px);
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav-card {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navigation-container">
+        <a href="/account/<%=userData._id %>">
+
+            <div class="nav-card">
+                <i class="fas fa-th-large"></i>
+                <h3>Dashboard</h3>
+                <p>Overview of your account</p>
+            </div>
+        </a>
+        <a href="/orders">
+            <div class="nav-card">
+                <i class="fas fa-shopping-bag"></i>
+                <h3>Orders</h3>
+                <p>View your purchase history</p>
+            </div>
+        </a>
+        <a href="/profile-edit">
+            <div class="nav-card">
+                <i class="fas fa-user"></i>
+                <h3>Update Profile</h3>
+                <p>Manage your personal details</p>
+            </div>
+        </a>
+        <a href="/address/<%=userData._id %>">
+
+            <div class="nav-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>My Address</h3>
+                <p>Manage shipping addresses</p>
+            </div>
+        </a>
+         <a href="/wallet">
+            <div class="nav-card">
+                <i class="fas fa-wallet"></i>
+                <h3>Wallet</h3>
+                <p>Manage your payments</p>
+            </div>
+         </a>
+         <a href="/forgotOtp">
+            <div class="nav-card">
+                <i class="fas fa-lock"></i>
+                <h3>Change Password</h3>
+                <p>Update your account security</p>
+            </div>
+         </a>
+          <a href="/logout">
+            <div class="nav-card">
+                <i class="fas fa-sign-out-alt"></i>
+                <h3>Logout</h3>
+                <p>Exit your account</p>
+            </div>
+          </a>
+    </div>
+</body>
+
+</html>

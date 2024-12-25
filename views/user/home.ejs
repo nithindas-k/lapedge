@@ -24,6 +24,12 @@
 </head>
 
 <body style="background-color: #EFF2F1;  scroll-behavior: smooth;">
+  <style>
+        ::-webkit-scrollbar {
+    display: none;
+    
+}
+  </style>
   <!--=============== HEADER ===============-->
 
 
@@ -53,12 +59,15 @@
               <% }else{ %>
                 <li><a class="nav-link" href="/login">Login</a></li>
                 <% } %>
-                  <li><a class="nav-link" href="contact.html">wishlist</a></li>
+                  <li><a class="nav-link" href="contact.html">wishlist</a></li> 
           </ul>
 
           <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
-            <li><a class="nav-link" href="#"><img src="images/user.svg"></a></li>
-            <li><a class="nav-link" href="cart.html"><img src="images/cart.svg"></a></li>
+            <% if(userData._id) {%>
+            <li><a class="nav-link" href="/account/<%= userData._id  %>"><img src="images/user.svg"></a></li>
+            <% } %>
+            <li><a class="nav-link" href="/cart"><img src="images/cart.svg"></a></li>
+            <li><a   class="nav-link" href="/wishlist"><img  style="width: 30px; height: 30px; margin-left: 10px;" src="/images/2055203-ff9800.svg"></a></li>
           </ul>
         </div>
       </div>
@@ -303,6 +312,10 @@
                     </a>
                     <a href="#" class="action__btn" aria-label="Add to Wishlist">
                       <i class="fi fi-rs-heart"></i>
+                    </a>
+                    <a href="/cart" class="action__btn" aria-label="Add to cart">
+                      <i class="fi fi-rs-shopping-cart"></i>
+
                     </a>
 
                   </div>

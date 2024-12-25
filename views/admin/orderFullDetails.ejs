@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .main-div {
+            display: flex;
+            flex-grow: 1;
+            margin-top: 80px;
+        }
+
+        .hello {
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+        }
+
+        .containerOrderDetails {
+            background-color: #0A0A0A;
+            border-radius: 6px;
+            margin-left: 250px;
+            margin-top: 20px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            overflow-x: auto;
+            flex-grow: 1;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .order-header h1 {
+            font-size: 24px;
+            color: #FFA000;
+        }
+
+        .order-details-section {
+            background-color: #1A1A1A;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .order-details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .order-details-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-details-item label {
+            color: #888;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .order-details-item .value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .order-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .order-items-table th,
+        .order-items-table td {
+            border: 1px solid #2b2b2b;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .order-items-table th {
+            background-color: #2b2b2b;
+            color: #ffffff;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .status-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .status-select {
+            background-color: #2b2b2b;
+            color: #f5f5f5;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .change-status-btn, 
+        .cancel-order-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .change-status-btn {
+            background-color:transparent;
+            border: 1px solid #FFA000;
+            color: #FFA000;
+        }
+
+        .cancel-order-btn {
+            background-color:transparent;
+            border: 1px solid #ff0000;
+            color: #ff0000;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background-color:transparent;
+            border: 1px solid #FFA000;
+            color: #FFA000;
+        }
+
+        .status-shipped {
+            background-color: #2196F3;
+            color: #fff;
+        }
+
+        .status-delivered {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .status-canceled {
+            background-color: #F44336;
+            color: #fff;
+        }
+        #return {
+         
+            padding: 5px;
+            background-color: transparent;
+            color: #ffffff;
+            border: 1px  solid #540000;
+            border-radius: 6px;
+            margin-left: 10px;
+
+
+            cursor: pointer;
+
+            
+        }
+    </style>
+</head>
+<body>
+    <div class="main-div">
+        <%- include("../partials/adminNavbar") %>
+        <div class="hello">
+            <%- include('../partials/adminSidebar') %>
+        </div>
+
+        <div class="containerOrderDetails">
+            <div class="order-header">
+                <h1 >Order Details - <%=order._id %></h1>
+                <span class="status-badge status-pending"><%=order.orderStatus %></span>
+            </div>
+  <input id="orderId" type="text" hidden value="<%=order._id %>">
+            <div class="order-details-section">
+                <div class="order-details-grid">
+                    <div class="order-details-item">
+                        <label>Order Date</label>
+                        <div class="value"><%=new Date(order.orderDate).toLocaleDateString() %></div>
+                    </div>
+                    <div class="order-details-item">
+                        <label>Payment Method</label>
+                        <div class="value"><%=order.paymentMethod %></div>
+                    </div>
+                    <div class="order-details-item">
+                        <label>Total Amount</label>
+                        <div class="value">₹<%=order.totalAmount %></div>
+                    </div>
+                    <div class="order-details-item">
+                        <label>Payment Status</label>
+                        <div class="value"><%=order.paymentStatus%></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-details-section">
+                <h2 style="color: #FFA000; margin-bottom: 15px;">Shipping Address</h2>
+                <div class="order-details-grid">
+                    <div class="order-details-item">
+                        <label>Name</label>
+                        <div class="value"><%=order.userId.name %></div>
+                    </div>
+                    <div class="order-details-item">
+                        <label>Address</label>
+                        <div class="value"><%=order.shippingAddress %></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-details-section">
+                <h2 style="color: #FFA000; margin-bottom: 15px;">Order Items</h2>
+                <table class="order-items-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Image</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% order.items.forEach((data)=>{ %>
+                        <tr>
+                            <td><%=data.ProductId.name %></td>
+                            <td>
+                                <img src="/uploads/products/<%=data.ProductId.productImage[0] %>" alt="<%=data.ProductId.name %>" class="product-image">
+                            </td>
+                            <td><%=data.quantity %></td>
+                            <td>₹<%=data.unitPrice %></td>
+                            <td>₹<%=data.totalPrice %></td>
+                            <td>
+                                <span class="status-badge status-pending"><%=data.status %></span>
+                                <% if(data.status == "Return Requested"){%>
+                                    
+                                    <button id="return"  class="approve-request-btn" data-id="<%=data._id %>">Approve</button>
+                                    <button id="return"  class="reject-request-btn" data-id="<%=data._id %>" >Reject</button>
+
+                                    <% } %>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="order-details-section">
+                <h2 style="color: #FFA000; margin-bottom: 15px;">Order Status Management</h2>
+                <div class="status-section">
+                    <% if(order.orderStatus != "Return Requested"){%>
+                        <% if(order.orderStatus != "Cancelled"){ %>
+                    
+                    <select  id="status" class="status-select">
+                        
+                        <option value="Ordered">Ordered</option>
+                        <option value="Shipped">Shipped</option>    
+                        <option value="Delivered">Delivered</option>
+                       
+                    </select>
+                    <% } %>
+                    <button id="change-status"  class="change-status-btn">Change Status</button>
+                    <% if(order.orderStatus === "Ordered"){%>
+                    <button class="cancel-order-btn">Cancel Order</button>
+                    <% } %>
+                    <% } %>
+
+                    <% if(order.orderStatus == "Return Requested"){%>
+                        <div><p><%=order.returnReason %></p></div> <br>
+                        <button id="approve"  class="Allapprove-request-btn" data-id="<%=order._id %>">Approved</button>
+                        <button id="reject"  class="Allreject-request-btn" data-id="<%=order._id %>">Rejected</button>
+
+                        <% } %>
+
+                    
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", ()=>{
+
+
+
+           
+      
+
+       
+
+
+
+     
+
+        document.getElementById("approve")?.addEventListener("click", async (btn) => {
+            
+
+            const orderId = document.getElementById("orderId").value
+            const response = await fetch(`/admin/approve`,{
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({orderId})
+                })
+                const data = await response.json()
+                    console.log(data)
+                    if(data.success) {
+                        Swal.fire({
+                            title: "Return Request Approved",
+                            text: `Return request approved for item ${data.itemId}`,
+                            icon: "success",
+                        })
+                        setTimeout(()=>{
+                            window.location.reload()
+                        },2000)
+                    }
+                
+
+            
+            
+            
+
+
+        })
+
+
+
+
+     document.querySelectorAll(".reject-request-btn")?.forEach(async (btn) => {
+            btn?.addEventListener("click", async function(event) {
+                const order = event.currentTarget
+                const orderId = document.getElementById("orderId").value
+
+                const itemId = order.getAttribute("data-id")
+
+
+                const response = await fetch(`/admin/returnRequest/${itemId}`,{
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({orderId})
+                })
+
+                if(response.ok) {
+                    const data = await response.json()
+                    console.log(data)
+                    if(data.success) {
+                        Swal.fire({
+                            title: "Return Request Rejected",
+                            text: `Return request rejected for item ${data.itemId}`,
+                            icon: "success",
+                        })
+                        setTimeout(()=>{
+                            window.location.reload()
+                        }, 2000)
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: data.message,
+                            icon: "error",
+                        })
+                    }
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        text: "An error occurred while rejecting return request",
+                        icon: "error",
+                    })
+                }
+            })
+         })
+         
+         
+         
+         
+         document.querySelectorAll(".approve-request-btn")?.forEach(async (btn) => {
+            btn?.addEventListener("click", async function(event) {
+                const order = event.currentTarget
+                const orderId = document.getElementById("orderId").value
+                const itemId = order.getAttribute("data-id")
+                
+                const response = await fetch(`/admin/approveReturnRequest/${itemId}`,{
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body:JSON.stringify({orderId})
+                })
+                const result = await response.json()
+                if(result.success) {
+                    Swal.fire({
+                        title: "Return Request Approved",
+                        text: `Return request approved for item ${result.itemId}`,
+                        icon: "success",
+                    })
+                    setTimeout(()=>{
+                        window.location.reload()
+                    }, 2000)
+                }
+
+
+
+            })
+        })
+
+
+
+
+
+
+
+        document.querySelector(".cancel-order-btn")?.addEventListener("click", async function(event) {
+
+            const orderId =document.getElementById("orderId").value
+
+
+            const response = await fetch(`/admin/cancelOrder/${orderId}`,{
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                
+            })
+            if(response.ok) {
+
+                swal.fire({
+                    title: "Order Cancelled",
+                    text: "Order cancelled successfully",
+                    icon: "success",
+                })
+                setTimeout(()=>{
+                    window.location.reload()
+                },1500)
+            }
+
+
+        })
+
+
+
+        document.getElementById("change-status")?.addEventListener("click",  async function(event) {
+            
+            const status = document.getElementById("status").value
+            const orderId =document.getElementById("orderId").value
+            console.log(orderId)
+            console.log(status)
+
+            const response = await fetch(`/admin/updateStatus/${orderId}`,{
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body:JSON.stringify({status})
+
+            })
+            if(response.ok) {
+                swal.fire({
+                    title: "Status Updated",
+                    text: `Order status updated to ${status}`,
+                    icon: "success",
+                })
+                setTimeout(()=>{
+                    window.location.reload()
+                },2000)
+           
+              
+            }
+        })
+        
+
+
+
+    })
+       
+        
+
+    </script>
+</body>
+</html>

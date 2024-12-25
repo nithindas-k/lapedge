@@ -690,7 +690,7 @@ table {
 /* Active Tab */
 .tab__btn.active-tab {
   color: var(--first-color);
-  background-color: var(--second-color);
+  background-color: transparent;
 }
 
 .tab__item:not(.active-tab) {
@@ -1669,7 +1669,7 @@ max-width: 700px;
 
 .account__tab.active-tab {
   background-color: var(--first-color);
-  color: var(--body-color);
+  color: black;
 }
 
 .account__tab:not(:last-child) {
@@ -2142,4 +2142,8 @@ max-width: 700px;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+}
+::-webkit-scrollbar {
+  display: none;
+  
 }

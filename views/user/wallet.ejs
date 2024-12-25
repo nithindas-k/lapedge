@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet"
+    href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/tiny-slider.css">
+  <link rel="stylesheet" href="/css/stylethree.css">
+  <link rel="stylesheet"
+  
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/addAddress.css">
+
+  <title>Shop</title>
+
+  <style>
+
+
+
+    
+    
+    
+
+.container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .wallet-title {
+            color: #1a1a1a;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #2193b0, #6dd5ed);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .balance-label {
+            font-size: 16px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .balance-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .action-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .transactions-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .transactions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .transactions-title {
+            font-size: 20px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .transaction-filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-button {
+            padding: 8px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-button.active {
+            background: #2193b0;
+            color: white;
+            border-color: #2193b0;
+        }
+
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            transition: background-color 0.3s;
+        }
+
+        .transaction-item:hover {
+            background: #f0f2f5;
+        }
+
+        .transaction-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .icon-credit {
+            background: #28a745;
+        }
+
+        .icon-debit {
+            background: #dc3545;
+        }
+
+        .transaction-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .transaction-title {
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .transaction-date {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+        }
+
+        .amount-credit {
+            color: #28a745;
+        }
+
+        .amount-debit {
+            color: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .balance-actions {
+                flex-direction: column;
+            }
+            
+            .transaction-filters {
+                display: none;
+            }
+            
+            .wallet-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+   
+  </style>
+</head>
+
+<body style="background-color: #EFF2F1;">
+  
+
+  <main class="main">
+    <%- include('../partials/usernavbar') %>
+
+    </nav>
+
+    <main class="main">
+      <!--=============== BREADCRUMB ===============-->
+      <section class="breadcrumb">
+        <ul class="breadcrumb__list flex container">
+          <li><a href="/" class="breadcrumb__link">Home</a></li>
+          <li><span class="breadcrumb__link"></span>></li>
+          <li><a href="/shop"><span class="breadcrumb__link">Shop</span></a></li>
+          <li><span class="breadcrumb__link"></span>></li>
+          <li><span class="breadcrumb__link">Product Details</span></li>
+        </ul>
+      </section>
+
+      <!--=============== DETAILS ===============-->
+      <%- include('../partials/accountnav') %>
+      
+      <section class="accounts section--lg">
+
+          
+
+          
+        
+
+            <!-- Orders Content -->
+           
+            <!-- <div class="tab__content" content id="update-profile">
+                <h3 class="tab__header">Update Profile</h3>
+                <div class="tab__body">
+                  <form class="form grid">
+                    <input
+                      type="text"
+                      placeholder="Username"
+                      class="form__input"
+                    />
+                    <div class="form__btn">
+                      <button class="btn btn--md">Save</button>
+                    </div>
+                  </form>
+                </div>
+              </div> -->
+              
+            
+              <div class="container">
+                <div class="wallet-header">
+                    <h1 class="wallet-title">My Wallet</h1>
+                </div>
+        
+                <div class="balance-card">
+                    <div class="balance-label">Total Balance</div>
+                      <% if(wallet){%>
+                        <div class="balance-amount">₹<%=wallet.balance %></div>
+                        <% }else { %>
+                            <div class="balance-amount">₹0</div>
+                            <% } %>
+                  
+                  
+                </div>
+        
+                <div class="transactions-card">
+                    <div class="transactions-header">
+                        <h2 class="transactions-title">Recent Transactions</h2>
+                    
+                    </div>
+        
+                    <div style="height: 400px; overflow: scroll;" class="transaction-list">
+                        <% transaction.forEach((data)=>{ %>
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon icon-credit">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <span class="transaction-title">Refund Received <%=data.associatedOrder %></span>
+                                    <span class="transaction-date">
+                                        <%= new Date(data.date).toDateString() === new Date().toDateString() 
+                                            ? `Today, ${new Date(data.date).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}` 
+                                            : `${new Date(data.date).toLocaleString('en-US', { month: 'short', day: 'numeric' })}, ${new Date(data.createdAt).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}` 
+                                        %>
+                                    </span>
+                                </div>
+                            </div>
+                            <span class="transaction-amount amount-credit">+ ₹ <%=data.amount %></span>
+                        </div>
+                        <% }) %>
+        
+                     
+        
+                      
+                      
+        
+                    </div>
+                </div>
+            </div>
+
+            
+             
+              
+
+    
+          
+        </div>
+      </section>
+      
+
+    
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+
+
+
+  document.getElementById("form").addEventListener("submit",  function (event) {
+    event.preventDefault();
+    
+    const name = document.getElementById("Name").value.trim();
+    const address = document.getElementById("Address").value.trim();
+    const city = document.getElementById("City").value.trim();
+    const state = document.getElementById("State").value.trim();
+    const pincode = document.getElementById("Pincode").value.trim();
+    const phone = document.getElementById("Phone").value.trim();
+    const userId = document.getElementById("user_id").value
+    const addressId = document.getElementById("address_id").value
+
+ 
+    if (name === "" || address === "" || city === "" || state === "" || pincode === "" || phone === "") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'All fields are required',
+            toast: true,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+        return; 
+    }
+
+    
+   
+    const data = {
+        name: name,
+        address: address,
+        city: city,
+        state: state,
+        pincode: pincode,
+        phone: phone
+        
+    };
+ console.log(data);
+
+   
+    fetch(`/address/edit/${addressId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+       
+        
+       
+        Swal.fire({
+            icon: 'success',
+            title: data.message,
+            toast: true,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+        })
+        .then(()=>{
+          window.location.href = `/address/${userId}`
+        })
+        
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+
+     
+        Swal.fire({
+            icon: 'error',
+            title: 'Something went wrong!',
+            toast: true,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+    });
+});
+
+      
+     
+    </script>
+</body>
+
+</html>

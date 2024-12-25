@@ -45,9 +45,14 @@ const productSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['Available', 'Out Of Stock', 'Discontinued'],
+        enum: ['Available', 'Out of Stock', 'Hurry up !'],
         required: true,
         default: 'Available'
+    },
+    offerPersentage :{
+        type: Number,
+        default: 0      
+
     },
     specifications: {
         RAM: { type:  mongoose.Schema.Types.ObjectId, ref: 'Variant', required: true },
@@ -57,6 +62,6 @@ const productSchema = new Schema({
     }
 }, { timestamps: true });
 
-const product = mongoose.model('Product', productSchema);
+const Product = mongoose.model('Product', productSchema);
 
-module.exports = product;
+module.exports = Product;

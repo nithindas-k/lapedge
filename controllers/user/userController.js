@@ -6,6 +6,14 @@ const nodemailer = require("nodemailer")
 const env = require("dotenv").config()
 const bcrypt = require('bcrypt');
 const product = require("../../models/productModel");
+const User = require("../../models/userSchema")
+const wishlist = require("../../models/wishlistModel")
+const couponSchema = require("../../models/couponModel")
+const offerSchema   = require("../../models/offerModel")
+
+const Order = require("../../models/orderModel")
+
+
 
 const pageNotFound = async (req, res) => {
 
@@ -86,7 +94,7 @@ const signup = async (req, res) => {
     try {
         const { name, email, password, cPassword } = req.body;
         console.log("Sending email")
-    
+
         if (password !== cPassword) {
             return res.render("login", { message: "password invalid" });
         }
@@ -137,9 +145,9 @@ const resendOTP = async (req, res) => {
         // OTP
         const newOtp = generateOtp();
         console.log("Generated new OTP", newOtp);
-        
-       //OTP expiration  
-req.session.UserOtpTimestamp = Date.now();
+
+        //OTP expiration  
+        req.session.UserOtpTimestamp = Date.now();
         const emailSent = await sendVerificationEmail(email, newOtp);
         if (!emailSent) {
             console.log("Failed to send email");
@@ -163,34 +171,34 @@ const verifyOtp = async (req, res) => {
 
         const { otp1, otp2, otp3, otp4, otp5, otp6 } = req.body;
         const userOtpInput = `${otp1}${otp2}${otp3}${otp4}${otp5}${otp6}`;
-        console.log("user in put "+userOtpInput)
-       
+        console.log("user in put " + userOtpInput)
+
         const sessionOtp = req.session.UserOtp;
         const sessionOtpTimestamp = req.session.UserOtpTimestamp;
-       console.log(sessionOtp,sessionOtpTimestamp)
-        
+        console.log(sessionOtp, sessionOtpTimestamp)
+
         if (!sessionOtp) {
             return res.status(400).json({ success: false, message: "OTP not found. Please request a new OTP." });
         }
-        
+
         // OTP has expired
-        const otpExpirationTime = 1 * 60 * 1000; 
+        const otpExpirationTime = 1 * 60 * 1000;
         const currentTime = Date.now();
         console.log(currentTime - sessionOtpTimestamp > otpExpirationTime)
         if (currentTime - sessionOtpTimestamp > otpExpirationTime) {
             req.session.UserOtp = null;
             req.session.UserOtpTimestamp = null;
-            console.log("+++++++++++"+req.session.userData)
+            console.log("+++++++++++" + req.session.userData)
             return res.status(400).json({ success: false, message: "OTP expired. Please request a new OTP." });
         }
 
         // otp check
-        console.log(userOtpInput,sessionOtp,req.session.UserData)
+        console.log(userOtpInput, sessionOtp, req.session.UserData)
         if (userOtpInput === sessionOtp) {
 
             const { name, email, password } = req.session.UserData;
 
-            
+
             const hashedPassword = await bcrypt.hash(password, 10);
 
 
@@ -200,23 +208,23 @@ const verifyOtp = async (req, res) => {
                 password: hashedPassword
             });
 
-            
+
             await newUser.save();
 
-      
+
             req.session.UserOtp = null;
-            req.session.UserData = null;
+            req.session.UserData = newUser;
             req.session.UserOtpTimestamp = null;
 
-       
 
-            
+
+
             req.session.user = true;
             return res.json({ success: true, message: 'OTP verified successfully.' });
-             
+
 
         } else {
-            
+
             return res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
         }
     } catch (error) {
@@ -230,29 +238,29 @@ const forgotOtp = async (req, res) => {
     try {
         const { email } = req.body;
 
-       
+
         if (!email) {
             return res.json({ success: false, message: "Email is required." });
         }
 
-       
+
         const user = await userSchema.findOne({ email });
         if (!user) {
             return res.json({ success: false, message: "User not found." });
         }
 
-      
+
         const otp = generateOtp();
 
-        
+
         const emailSent = await sendVerificationEmail(email, otp);
         if (!emailSent) {
             return res.json({ success: false, message: "Failed to send OTP. Please try again." });
         }
 
-        
-        req.session.UserOtp = otp; 
-        req.session.UserData = user; 
+
+        req.session.UserOtp = otp;
+        req.session.UserData = user;
         console.log(`Forgot password otp: ${req.session.UserOtp}`)
         return res.json({ success: true, message: "OTP sent to your email ." });
 
@@ -265,14 +273,14 @@ const forgotOtp = async (req, res) => {
 
 const forgotOtpVerify = async (req, res) => {
     try {
-       
-        const { otp } = req.body; 
 
-       
+        const { otp } = req.body;
+
+
         const sessionOtp = req.session.UserOtp;
-        const userData = req.session.UserData;  
+        //  const userData = req.session.UserData;
 
-     
+
         if (!sessionOtp) {
 
             return res.status(400).json({ success: false, message: "OTP not found. Please request a new OTP." });
@@ -288,7 +296,7 @@ const forgotOtpVerify = async (req, res) => {
             return res.status(400).json({ success: true });
 
         } else {
-            
+
 
             return res.status(400).json({ success: false, message: "Invalid OTP. Please try again." });
         }
@@ -326,32 +334,77 @@ const loadResetPassword = async (req, res) => {
 }
 
 const loadShopPage = async (req, res) => {
-
     try {
-        const products = await productSchema.find({isBlocked:false}).populate("category").populate("specifications.RAM").populate("specifications.processor").populate("specifications.displaySize").populate("specifications.storage")
+        const { category = "All", price = "All", sortBy = "All", page = 1, search = "" } = req.query;
+        const limit = 8; 
+        const skip = (page - 1) * limit;
 
-        console.log(products)
-        res.render("shop",{products})
+        let filter = {};
 
+        if (category && category !== "All") {
+            const selectedCategory = await categorySchema.findOne({ name: category });
+            if (selectedCategory) {
+                filter.category = selectedCategory._id;
+            }
+        }
+
+       
+        if (price && price !== "All") {
+            const [min, max] = price.split("-").map(Number);
+            filter.price = max ? { $gte: min, $lte: max } : { $gte: min };
+        }
+
+        
+        if (search) {
+            filter.name = { $regex: search, $options: "i" }; 
+        }
+
+        const products = await productSchema.find(filter)
+            .populate("category")
+            .sort(sortBy === "price-low-to-high" ? { price: 1 } :
+                  sortBy === "price-high-to-low" ? { price: -1 } :
+                  { createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        const totalProducts = await productSchema.countDocuments(filter);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        const categorys = await categorySchema.find({ isListed: true });
+
+        res.render("shop", {
+            products,
+            category: categorys,
+            selectedCategory: category,
+            price,
+            sortBy,
+            currentPage: page,
+            totalPages,
+            searchQuery: search 
+        });
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        res.status(500).send("An error occurred while loading the shop page.");
     }
+};
 
-}
+
+
+
 
 
 
 
 
 const loadHomepage = async (req, res) => {
-    const category = await categorySchema.find({isListed: true})
+    const category = await categorySchema.find({ isListed: true })
 
-    const products = await productSchema.find({isBlocked: false}).populate("category")
+    const products = await productSchema.find({ isBlocked: false }).populate("category")
     const userLoggedIn = !!req.session.user;
 
 
     try {
-        return res.render("home",{category:category,product:products,userLoggedIn:userLoggedIn})
+        return res.render("home", { category: category, product: products, userLoggedIn: userLoggedIn })
 
     } catch (error) {
         console.log("home page not founded", error)
@@ -386,8 +439,9 @@ const login = async (req, res) => {
         if (!passwordMatch) {
             return res.render("login", { message: "password invalid" })
         }
-        req.session.user=true
-      
+        req.session.user = true
+        req.session.userData = findUser
+
         res.redirect("/")
 
 
@@ -402,18 +456,321 @@ const login = async (req, res) => {
 const loadproductDetails = async (req, res) => {
     const id = req.params.id;
     try {
-        
-        const product = await productSchema.findOne({_id:id}) .populate('specifications.RAM').populate('specifications.processor').populate('specifications.displaySize').populate('specifications.storage');
-        const products = await productSchema.find({isBlocked:false,category: product.category,_id:{$ne:id}}).populate("category")
-        console.log(product)
-        return res.render("productDetails",{product: product,products:products})
+
+        const product = await productSchema.findOne({ _id: id }).populate('specifications.RAM').populate('specifications.processor').populate('specifications.displaySize').populate('specifications.storage');
+        const products = await productSchema.find({ _id: { $ne: id }, isBlocked: false, name: { $eq: product.name } }).populate("category")
+
+        return res.render("productDetails", { product: product, products: products })
 
     } catch (error) {
         console.log("productDetails page not founded", error)
         res.status(200).send("server error")
     }
- 
+
 }
+
+const loadAccount = async (req, res) => {
+    try {
+
+        if (!req.params.userId) {
+            return res.redirect("/login")
+        }
+        const userId = req.session.userData._id
+        const user = await userSchema.findById(userId)
+
+
+        res.render("account", {
+            user: user
+        })
+    } catch (error) {
+
+    }
+
+
+}
+
+
+
+
+const loadOrders = async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.redirect("/login")
+        }
+        const userId = req.session.userData._id
+        const orders = await Order.find({ userId: userId }).sort({ orderDate: -1 })
+
+
+
+
+
+        res.render("order", {
+            orders: orders
+        })
+
+
+    } catch (error) {
+
+    }
+
+
+
+}
+
+
+
+
+
+const loadProfileEdit = async (req, res) => {
+    try {
+
+        if (!req.session.user) {
+            return res.redirect('/login');
+        }
+
+
+        const userId = req.session.userData._id;
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.redirect('/login');
+        }
+
+        res.render('updateprofile', {
+            user: user,
+            title: 'Edit Profile'
+        });
+    } catch (error) {
+        console.error('Error loading profile edit page:', error);
+        return res.status(500).render('error', {
+            message: 'An error occurred while loading the profile page',
+            error: error
+        });
+    }
+};
+
+const updateProfile = async (req, res) => {
+    try {
+
+        const { name, email } = req.body
+
+
+        if (!req.session.user) {
+            return res.redirect("login")
+        }
+        const userId = req.session.userData._id;
+        const user = await userSchema.findById(userId);
+
+        user.name = name
+
+
+        user.save()
+        return res.status(500).json({ success: true, message: "Profile updated successfully" })
+
+
+
+
+
+
+
+
+
+    } catch (error) {
+        console.error("Error in updating profile", error)
+        return res.status(500).json({ success: false, message: "Failed to update profile" })
+
+    }
+
+};
+
+
+const loadOrderConfirmation = async (req, res) => {
+    try {
+        const { orderId } = req.params
+
+
+
+
+        const orderDetails = await Order.findById(orderId).populate("items.ProductId")
+        const totalAmount = orderDetails.items.reduce((accumulator, item) => {
+            return accumulator + item.totalPrice;
+        }, 0);
+        const couponId = orderDetails.coupon
+
+        let discountAmonut = 0
+
+        if (couponId) {
+            const coupon = await couponSchema.findById(couponId)
+
+            if (coupon && coupon.discountValue) {
+                discountAmonut = parseInt((totalAmount * coupon.discountValue) / 100);
+            }
+
+
+        }
+
+        if (!req.session.user) {
+            return res.redirect("/login")
+        }
+
+
+
+
+
+
+        res.render("success", {
+            order: orderDetails,
+            totalAmount: totalAmount,
+            discountAmonut: discountAmonut || 0
+        })
+    } catch (error) {
+
+
+        console.log(error)
+
+    }
+
+
+
+
+}
+
+const loadOrdersDetails = async (req, res) => {
+
+    try {
+        if (!req.session.user) {
+            return res.redirect("/login")
+        }
+
+        const { orderId } = req.params
+        const orderDetails = await Order.findById(orderId)
+
+        res.render("success", {
+            orders: orderDetails
+        })
+
+
+
+
+
+    } catch (error) {
+
+    }
+
+
+
+
+}
+
+const changePassword = async (req, res) => {
+    try {
+        const { newPassword } = req.body
+
+
+        const userId = req.session.UserData._id
+        const user = await userSchema.findById(userId)
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        if (user.password == hashedNewPassword) {
+            return res.status(500).json({ success: false, message: "Password is same as old password" })
+
+        }
+        user.password = hashedNewPassword
+        await user.save()
+        res.status(200).json({ success: true, message: "Password updated successfully" })
+
+
+
+
+    } catch (error) {
+        console.log(error)
+
+    }
+}
+
+const loadProductsFilter = async (req, res) => {
+    try {
+        const { sortBy, priceRange, category } = req.query
+        console.log("filter data: +++++++++++++++++++++++++++++++++++++++++++++++ ", sortBy, priceRange, category)
+        let sort = {}
+        if (sortBy == "price-low-to-high") {
+            sort = { salePrice: 1 }
+        }
+
+        if (sortBy == "price-high-to-low") {
+            sort = { salePrice: -1 }
+        }
+
+        if (sortBy == "aA - zZ") {
+            sort = { name: 1 }
+        }
+        if (sortBy == "zZ - aA") {
+            sort = { name: -1 }
+
+        }
+        if (sortBy == "New arrivals") {
+            sory = { createdAt: -1 }
+        }
+
+
+        //price 
+
+        let find = {}
+        if (priceRange == "50000-60000") {
+            find = { salePrice: { $gte: 50000, $lte: 60000 } }
+        }
+
+        if (priceRange == "80000-100000") {
+            find = { salePrice: { $gte: 80000, $lte: 100000 } }
+
+        }
+
+        if (priceRange == "100000") {
+
+            find = { salePrice: { $gt: 100000 } }
+        }
+        if (priceRange == "60000-80000") {
+            find = { salePrice: { $gte: 60000, $lte: 80000 } }
+
+        }
+        if (priceRange == "40000") {
+            find = { salePrice: { $gte: 40000 } }
+        }
+
+
+        //category
+
+
+
+
+
+        let products = await productSchema.find(find).sort(sort).populate("category")
+        if (category != "All") {
+
+            products = products.filter((product) => {
+
+                return product.category.name.toString() == category
+
+            })
+        }
+
+
+        res.json(products)
+
+
+
+
+
+    } catch (error) {
+        console.log(error)
+    }
+
+
+
+
+}
+
+
 
 
 
@@ -433,7 +790,16 @@ module.exports = {
     forgotOtpVerify,
     loadResetPassword,
     loadShopPage,
-    loadproductDetails
+    loadproductDetails,
+    loadAccount,
+    loadProfileEdit,
+    updateProfile,
+    changePassword,
+    loadOrderConfirmation,
+    loadOrders,
+    loadOrdersDetails,
+    loadProductsFilter
+
 
 
 }

@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="/css/tiny-slider.css">
     <link rel="stylesheet" href="/css/stylethree.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 </head>
 <body>
@@ -53,11 +54,28 @@
                         <li><a class="nav-link" href="/login">Login</a></li>
                     <% } %>
                     <li><a class="nav-link" href="contact.html">wishlist</a></li>
+                    
                 </ul>
+                <!-- <div class="header__search">
+                    <input
+                      type="text"
+                      placeholder="Search For Items..."
+                      class="form__input"
+                    />
+                    <button class="search__btn">
+                      <img src="/img/search.png" alt="search icon" />
+                    </button>
+                  </div> -->
+                
 
                 <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
-                    <li><a class="nav-link" href="#"><img src="assets/images/user.svg"></a></li>
-                    <li><a class="nav-link" href="cart.html"><img src="assets/images/cart.svg"></a></li>
+                    <li><a class="nav-link" href="/account/<%=userData._id %>"><img src="/images/user.svg"></a></li>
+                    <li><a class="nav-link" href="/cart"><img src="/images/cart.svg"></a></li>
+                    <li><a   class="nav-link" href="/wishlist"><img  style="width: 30px; height: 30px; margin-left: 10px;" src="/images/2055203-ff9800.svg"></a></li>
+
+
+
+
                 </ul>
             </div>
         </div>

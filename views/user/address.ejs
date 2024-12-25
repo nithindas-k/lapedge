@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet"
+    href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/tiny-slider.css">
+  <link rel="stylesheet" href="/css/stylethree.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+
+  <title>Shop</title>
+
+  <style>
+    .tab__content {
+      display: none;
+    }
+
+    .tab__content.active-tab {
+      display: block;
+    }
+
+    .order-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-gap: 20px;
+    }
+
+    .order-card {
+      background-color: #ffffff;
+      border: 1px solid #e6e6e6;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .order-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .order-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    .order-card p {
+      font-size: 14px;
+      color: #000000;
+      margin-bottom: 8px;
+    }
+
+    .order-card .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+
+    .order-card .actions a {
+      font-size: 14px;
+      color: #ffaa00;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .order-card .actions a:hover {
+      color: #0056b3;
+    }
+
+    .tabs__content {
+      height: 500px;
+      overflow: hidden;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+
+
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+
+    }
+
+
+
+    .action-buttons a {
+      margin: 5px
+    }
+
+    .card {
+      background-color: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
+    }
+
+    .card address {
+      font-style: normal;
+      color: #333;
+    }
+
+    .action-buttons {
+      margin-top: 10px;
+    }
+
+    .action-buttons a {
+      margin-right: 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .action-buttons a.edit {
+      color: green;
+    }
+
+    .action-buttons a.delete {
+      color: red;
+    }
+
+    .tab__header {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .add {
+      font-size: 1rem;
+      font-weight: bold;
+      text-decoration: none;
+      color: #ffaa00;
+    }
+
+    .tab__body {
+      padding: 10px 0;
+    }
+
+    .address-btn {
+      background-color: transparent;
+      border: none !important;
+      text-decoration: none !important;
+
+
+
+    }
+  </style>
+</head>
+
+<body style="background-color: #EFF2F1;">
+
+
+  <main class="main">
+    <%- include('../partials/usernavbar') %>
+
+      </nav>
+
+      <main class="main">
+        <!--=============== BREADCRUMB ===============-->
+        <section class="breadcrumb">
+          <ul class="breadcrumb__list flex container">
+            <li><a href="/" class="breadcrumb__link">Home</a></li>
+            <li><span class="breadcrumb__link"></span>></li>
+            <li><a href="/shop"><span class="breadcrumb__link">Shop</span></a></li>
+            <li><span class="breadcrumb__link"></span>></li>
+            <li><span class="breadcrumb__link">Product Details</span></li>
+          </ul>
+        </section>
+
+        <!--=============== DETAILS ===============-->
+        <%- include('../partials/accountnav') %>
+
+          <section class="accounts section--lg">
+
+
+
+
+
+
+            <!-- Orders Content -->
+
+            <!-- <div class="tab__content" content id="update-profile">
+                <h3 class="tab__header">Update Profile</h3>
+                <div class="tab__body">
+                  <form class="form grid">
+                    <input
+                      type="text"
+                      placeholder="Username"
+                      class="form__input"
+                    />
+                    <div class="form__btn">
+                      <button class="btn btn--md">Save</button>
+                    </div>
+                  </form>
+                </div>
+              </div> -->
+            <div style="max-width: 83%; margin: auto;">
+              <h3 class="tab__header">Shipping Address
+                <span>
+                  <a style="color: #ffaa00; margin-left: 33rem;" href="/address/create" class="add">Add</a>
+                </span>
+              </h3>
+
+              <div style="max-width: 80%; margin: auto; max-height: 450px; overflow: scroll;" class="tab__body">
+                <% addresses.forEach((data)=>{ %>
+                  <div class="card">
+                    <address class="address">
+                      <b>Name : </b>
+                      <%=data.name%> <br>
+
+                        <b>Address : </b>
+                        <%=data.address%> <br>
+
+                          <b>City : </b>
+                          <%=data.city%> <br>
+
+                            <b>State : </b>
+                            <%=data.state%> <br>
+
+                              <b>Pincode : </b>
+                              <%=data.pincode%>
+
+                                <input id="address-id" type="text" hidden value="<%=data._id %>">
+                                <input id="user-id" type="text" hidden value="<%=user._id%>">
+
+                    </address>
+                    <p class="phone"><b>Phone : </b>
+                      <%=data.phone%>
+                    </p>
+                    <div class="action-buttons">
+                      <button id="edit" class="address-btn">
+                        <a style="color: green;" href="/address/edit/<%=data._id%>" class="edit"><b>Edit</b></a>
+                      </button>
+                      <button class="address-btn deleteAddress">
+                        <p style="color: red;" href="#" class="delete"><b>Delete</b></p>
+                      </button>
+                     
+                    </div>
+                  </div>
+                  <% }) %>
+
+
+
+              </div>
+
+            </div>
+            </div>
+
+
+
+
+
+
+            </div>
+          </section>
+
+
+
+      </main>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <script>
+        
+        const addressId = document.getElementById("address-id").value;
+        document.querySelectorAll(".deleteAddress").forEach((deleteButton) => {
+  deleteButton.addEventListener("click", async function (e) {
+    try {
+      const addressId = deleteButton.closest(".card").querySelector("#address-id").value;
+
+
+      const confirmation = await swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want to delete this address?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+      });
+
+      if (confirmation.isConfirmed) {
+        const response = await fetch(`/address/${addressId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            swal.fire({
+              title: "Address Deleted Successfully",
+              toast: true,
+              showConfirmButton: false,
+              timerProgressBar: true,
+              position: 'top-right',
+              icon: 'success',
+              timer: 2000,
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          } else {
+            swal.fire({
+              text: result.message,
+              icon: "error",
+            });
+          }
+        } else {
+          swal.fire({
+            text: "Failed to delete the address.",
+            icon: "error",
+          });
+        }
+      } else {
+  
+        swal.fire({
+          title: "Cancelled",
+          text: "The address was not deleted.",
+          icon: "info",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      swal.fire({
+        text: "An error occurred while deleting the address.",
+        icon: "error",
+      });
+    }
+  });
+});
+
+          
+      </script>
+
+</body>
+
+</html>

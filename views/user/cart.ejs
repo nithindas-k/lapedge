@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet"
+    href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/tiny-slider.css">
+  <link rel="stylesheet" href="/css/stylethree.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+
+  <title>Shop</title>
+
+
+</head>
+
+<body style="background-color: #EFF2F1;">
+  <style>
+    .quantity-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .quantity {
+      width: 50px;
+      height: 35px;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      margin: 0 5px;
+    }
+
+
+    .quantity-btn {
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 35px;
+      height: 35px;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      color: #333;
+      transition: background-color 0.2s;
+      margin: auto;
+    }
+
+    .quantity-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+    .quantity-btn:active {
+      background-color: #ccc;
+    }
+
+    .table__img {
+
+      object-fit: cover;
+      width: 70px;
+      border-radius: 50%;
+      height: 70px;
+
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .proceed {
+      background-color: orange !important;
+    }
+
+    .cart__total {
+      border: 1px solid black !important;
+    }
+  </style>
+
+  <main class="main">
+    <%- include('../partials/usernavbar') %>
+
+      </nav>
+
+      <main class="main">
+        <!--=============== BREADCRUMB ===============-->
+        <section class="breadcrumb">
+          <ul class="breadcrumb__list flex container">
+            <li><a href="/" class="breadcrumb__link">Home</a></li>
+            <li><span class="breadcrumb__link"></span>></li>
+            <li><a href="/shop"><span class="breadcrumb__link">Shop</span></a></li>
+            <li><span class="breadcrumb__link"></span>></li>
+            <li><span class="breadcrumb__link">Product Details</span></li>
+          </ul>
+
+
+
+
+
+          <section class="cart section--lg container" style="max-width: 90%;">
+            <div class="table__container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Remove</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% items.forEach((item,i)=> { %>
+                   
+                    <input id="stock-<%=item._id %>" type="text" hidden value="<%=item.productId.quantity %>">
+                    <tr>
+                      <td>
+
+                        <img src="/uploads/products/<%= item.productId.productImage[0] %>" class="table__img" />
+                      </td>
+                      <td>
+                        <h3 class="table__title">
+                          <%= item.productId.name %>
+                        </h3>
+
+                      </td>
+                      <td>
+
+                        <span class="table__price">₹<%= item.productId.salePrice %></span>
+                      </td>
+                      <td>
+                        <div class="quantity-container">
+
+                          <button class="quantity-btn decrement" data-item-id="<%= item._id %>" data-index=<%=i
+                            %>>-</button>
+
+                          <input type="number" value="<%= item.quantity %>" class="quantity"
+                            data-item-id="<%= item._id %>" min="1" max=<%=item.productId.quantity%>/>
+
+                          <button class="quantity-btn increment" data-item-id="<%= item._id %>" data-index=<%=i
+                            %>>+</button>
+                        </div>
+                      </td>
+                      <td>
+
+                        <span class="subtotal">₹<%= item.productId.salePrice * item.quantity %></span>
+                      </td>
+                      <td>
+
+                        <i id="itemid" class="fi fi-rs-trash table__trash" data-item-id="<%=item._id %>"></i>
+                      </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+
+              </table>
+            </div>
+<!-- 
+            <div class="cart__coupon">
+              <h3 class="section__title">Apply Coupon</h3>
+              <form action="" class="coupon__form form grid">
+                <div class="form__group grid">
+                  <input
+                    type="text"
+                    class="form__input"
+                    placeholder="Enter Your Coupon"
+                  />
+                  <div class="form__btn">
+                    <button class="btn flex btn--sm">
+                      <i class="fi-rs-label"></i> Aplly
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div> -->
+
+            <img style="width: 200px; height: 200px; position: relative; top: 80px; right: 30px;"
+              src="/images/logo-login.png" alt="">
+
+
+            <div class="cart__total">
+              <h3 class="section__title">Cart Totals</h3>
+              <table class="cart__total-table">
+                <tr>
+                  <td><span class="cart__total-title">Cart Subtotal</span></td>
+                  <td><span id="cart-totals" style="color: black;" class="cart__total-price  cart-totals">₹
+                      <%=totalAmount %>
+                    </span></td>
+                </tr>
+                <tr>
+                  <td><span class="cart__total-title">Shipping</span></td>
+                  <td><span style="color: rgba(0, 128, 0, 0.762);" class="cart__total-price">Free Shipping</span></td>
+                </tr>
+                <tr>
+                  <td><span class="cart__total-title">Total</span></td>
+                  <td><span id="" style="color: black;" class="cart__total-price  cart-totals">₹<%=totalAmount %></span>
+                  </td>
+                </tr>
+              </table>
+              <a href="/checkout" class="btn flex btn--md proceed ">
+                <i class="fi fi-rs-box-alt "></i> Proceed To Checkout
+              </a>
+            </div>
+            </div>
+
+          </section>
+
+        </section>
+
+
+
+
+
+
+
+      </main>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+      <script>
+        
+
+        const decrementButtons = document.querySelectorAll('.decrement');
+        const incrementButtons = document.querySelectorAll('.increment');
+        const cartTotals = document.getElementById("cart-totals")
+
+
+
+
+
+
+
+
+
+        const quantityInputs = document.querySelectorAll('.quantity');
+
+
+        function updateSubtotal(itemId, newQuantity) {
+          const itemRow = document.querySelector(`[data-item-id="${itemId}"]`).closest('tr');
+          const price = parseFloat(itemRow.querySelector('.table__price').textContent.replace('₹', ''));
+          const subtotalElement = itemRow.querySelector('.subtotal');
+          const newSubtotal = price * newQuantity;
+          subtotalElement.textContent = `₹${newSubtotal.toFixed(2)}`;
+        }
+
+
+        decrementButtons.forEach((btn) => {
+          btn.addEventListener('click', function () {
+            const input = this.nextElementSibling;
+            let currentValue = parseInt(input.value);
+            if (currentValue > 1) {
+              input.value = currentValue - 1;
+              updateSubtotal(input.dataset.itemId, currentValue - 1);
+
+              const itemRow = document.querySelector(`[data-item-id="${input.dataset.itemId}"]`).closest('tr');
+              const price = parseFloat(itemRow.querySelector('.table__price').textContent.replace('₹', ''));
+              const currentTotal = cartTotals.innerHTML.replace('₹', '')
+              const newTotal = (parseInt(currentTotal) - parseInt(price))
+              cartTotals.innerHTML = '₹' + newTotal
+              updateQuantityInBackend(input.dataset.itemId, currentValue - 1, newTotal);
+            }
+          });
+        });
+
+
+        incrementButtons.forEach((btn) => {
+          btn.addEventListener('click', async function () {
+           try {
+            const input = this.previousElementSibling;
+
+            let stock = document.getElementById(`stock-${input.dataset.itemId}`).value;
+            console.log(stock)
+            let currentValue = parseInt(input.value)
+            console.log(input.dataset.itemId)
+            const itemRow = document.querySelector(`[data-item-id="${input.dataset.itemId}"]`).closest('tr');
+            const price = parseFloat(itemRow.querySelector('.table__price').textContent.replace('₹', ''));
+            const currentTotal = cartTotals.innerHTML.replace('₹', '')
+            const newTotal = (parseInt(currentTotal) + parseInt(price))
+             updateQuantityInBackend(input.dataset.itemId, currentValue + 1, newTotal)
+             console.log(currentValue +1 , parseInt(stock))
+            if(currentValue +1 > parseInt(stock)){
+             return
+             
+            }
+            input.value = currentValue + 1;
+              
+              updateSubtotal(input.dataset.itemId, currentValue + 1)
+              cartTotals.innerHTML = '₹' + newTotal
+      
+            
+           } catch (error) {
+             console.log(error)
+           }
+            
+
+          });
+        });
+
+
+
+        document.querySelectorAll(".table__trash").forEach((btn) => {
+          btn.addEventListener('click', async function () {
+            const itemId = btn.getAttribute("data-item-id")
+
+            const response = await fetch("/cart/delete/", {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ itemId })
+            })
+            const data = await response.json()
+            if (data.success) {
+              Swal.fire({
+                title: data.message,
+                toast: true,
+                showConfirmButton: false,
+                timerProgressBar: true,
+                position: 'top-right',
+                icon: 'success',
+                timer: 2000,
+              })
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000)
+            }
+
+          });
+        });
+
+        function updateQuantityInBackend(itemId, newQuantity, totalAmount) {
+          fetch('/cart/update-quantity', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ itemId, newQuantity, totalAmount }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data)
+              if (data.success) {
+                return true
+              } else {
+                return Swal.fire({
+                title:data.message,
+                toast: true,
+                showConfirmButton: false,
+                timerProgressBar: true,
+                position: 'top-right',
+                icon: 'warning',
+                timer: 2000,
+              })
+              }
+            })
+            .catch((error) => {
+              throw new Error("hello")
+              return false
+            });
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </script>
+</body>
+
+</html>

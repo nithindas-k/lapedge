@@ -46,7 +46,7 @@
             </div>
     </div>
 
-    <!-- Include SweetAlert2 for alert messages -->
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function cancelVariant() {
@@ -56,21 +56,21 @@
                 icon: 'info',
                 confirmButtonText: 'OK'
             }).then(() => {
-                // Redirect after cancellation
+                
                 window.location.href = '/admin/variant';
             });
         }
 
-        // Handle form submission using fetch
+      
         document.getElementById('variantForm').addEventListener('submit', function (event) {
-            // Prevent default form submission\
+         
             event.preventDefault();
 
             const variantType = document.getElementById('variantType').value;
             const variantValue = document.getElementById('variantValue').value.trim();
             console.log(variantType, variantValue)
 
-            // Validate the form data
+    
             if (!variantType || !variantValue) {
 
                 Swal.fire({
@@ -81,12 +81,7 @@
                 return;
             }
 
-            // Create the form data to be sent to the server
-            // const formData = new FormData();
-            // formData.append('variantType', variantType);
-            // formData.append('variantValue', variantValue);
-
-            // Use fetch API to send data to the backend
+        
             fetch('/variants/createVariant', {
                 method: 'POST',
                 headers: {
@@ -99,7 +94,7 @@
 
                     console.log(response)
                     return response.json()
-                }) // Parse the JSON response
+                })
                 .then((data) => {
                     if (data.success) {
                         Swal.fire({
@@ -107,7 +102,7 @@
                             text: 'Variant has been created successfully.',
                             icon: 'success'
                         }).then(() => {
-                            // Optionally, redirect to another page after success
+                           
                             window.location.href = '/admin/variant';
                         });
                     } else {

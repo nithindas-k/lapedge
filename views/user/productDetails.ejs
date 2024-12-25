@@ -136,44 +136,51 @@
                   <i class="fi-rs-credit-card"></i> Cash on Delivery available
                 </li>
                 <li class="list__item flex">
-                  <in class="fi fi-box" style="color: orange;"> </i>Stock Available <span>
-                      <%= product.quantity %>
-                    </span>
+                  <i class="fi fi-box" style="color: orange;"> </i>Stock Available <span>
+                    <%= product.quantity %>
+                  </span>
                 </li>
               </ul>
+              <input type="text " id="stock" hidden value="<%= product.quantity %>">
+              <% if(product.quantity !=0){ %>
+                <div class="details__action">
+                  <div class="quantity-control">
+                    <button style="margin-right: 10px;" class="btn-decrement">-</button>
+                    <input style="width: 100px;" type="number" class="quantity" value="1" min="1" readonly />
+                    <button style="margin-left: 10px;" class="btn-increment">+</button>
+                  </div>
 
 
-              <div class="details__action">
-                <div class="quantity-control">
-                  <button style="margin-right: 10px;" class="btn-decrement">-</button>
-                  <input type="number" class="quantity" value="1" min="0" readonly />
-                  <button style="margin-left: 10px;" class="btn-increment">+</button>
+                  <div id="cart" style="background-color: #ff8800; border-radius: 6px;"> <a href="#"
+                      class="btn btn--sm">Add To Card</a></div> 
+                      
+                  <a id="wishlist" style="background-color: #ff8800; border-radius: 6px;" href="#"
+                    class="details__action-btn">
+                    <i class="fi fi-rs-heart"></i>
+                  </a>
+
+                  <% }%>
                 </div>
-
-              <div style="background-color: #ff8800; border-radius: 6px;" >  <a href="#" class="btn btn--sm">Add To Card</a></div>
-                <a href="#" class="details__action-btn">
-                  <i class="fi fi-rs-heart"></i>
-                </a>
-              </div>
-              <ul class="details__meta">
-                <li class="meta__list flex"><span><b>Specifications</b></li>
-                <li class="meta__list flex">
-                  <span><b>Ram:</b>:</span>
-                  <%=product.specifications.RAM.value%>
-                </li>
-                <li class="meta__list flex">
-                  <span><b>processor:</b></span>
-                  <%=product.specifications.processor.value%>
-                </li>
-                <li class="meta__list flex">
-                  <span><b>displaySize:</b>:</span>
-                  <%= product.specifications.displaySize.value%>
-                </li>
-                <li class="meta__list flex">
-                  <span><b>storage:</b>:</span>
-                  <%= product.specifications.storage.value%>
-                </li>
-              </ul>
+                <ul class="details__meta">
+                  <li class="meta__list flex"><span><b>Specifications</b></li>
+                  <li class="meta__list flex">
+                    <span><b>Ram:</b>:</span>
+                    <%=product.specifications.RAM.value%>
+                  </li>
+                  <li class="meta__list flex">
+                    <span><b>processor:</b></span>
+                    <%=product.specifications.processor.value%>
+                  </li>
+                  <li class="meta__list flex">
+                    <span><b>displaySize:</b>:</span>
+                    <%= product.specifications.displaySize.value%>
+                  </li>
+                  <li class="meta__list flex">
+                    <span><b>storage:</b>:</span>
+                    <%= product.specifications.storage.value%>
+                      <input id="productId" type="text" hidden value="<%=product._id %>">
+                  </li>
+                </ul>
             </div>
             <span style="color: orange;" class="detail__tab" data-target="#reviews">Reviews(3)</span>
           </div>
@@ -251,7 +258,7 @@
         <section class="newsletter section home__newsletter">
           <div class="newsletter__container container grid">
             <h3 class="newsletter__title flex">
-              <img src="./assets/img/icon-email.svg" alt="" class="newsletter__icon" />
+              <img src="/img/icon-email.svg" alt="" class="newsletter__icon" />
               Sign in to Newsletter
             </h3>
             <p class="newsletter__description">
@@ -266,8 +273,9 @@
         <%- include('../layouts/footer') %>
       </main>
 
-
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
       <script>
+        let stock = document.getElementById("stock").value
         function swapImage(clickedImg) {
 
           var mainImage = document.getElementById('mainImage');
@@ -301,17 +309,142 @@
         });
         document.querySelector('.btn-increment').addEventListener('click', function () {
           let input = document.querySelector('.quantity');
+
           let currentValue = parseInt(input.value);
-          if (!isNaN(currentValue)) {
-            input.value = currentValue + 1;
+          if (currentValue < 5) {
+            if (!isNaN(currentValue) && stock > currentValue) {
+              input.value = currentValue + 1;
+            }
+          } else {
+
+            return swal.fire({
+              title: "Max  limit is  5 ",
+              toast: true,
+              showConfirmButton: false,
+              timerProgressBar: true,
+              position: 'top-right',
+              icon: 'warning',
+              timer: 2000,
+
+            })
+
+
+
           }
         });
 
         document.querySelector('.btn-decrement').addEventListener('click', function () {
           let input = document.querySelector('.quantity');
           let currentValue = parseInt(input.value);
-          if (!isNaN(currentValue) && currentValue > 0) {
+          if (!isNaN(currentValue) && currentValue > 1) {
             input.value = currentValue - 1;
+          }
+        });
+
+        document.getElementById("cart").addEventListener('click', async function (event) {
+          event.preventDefault();
+
+          const productId = document.getElementById("productId").value;
+          const quantity = document.querySelector('.quantity').value;
+          try {
+
+
+
+            const response = await fetch('/cart/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ productId, quantity })
+            })
+            const data = await response.json()
+            if (data.success) {
+              swal.fire({
+                title: data.message,
+                toast: true,
+                showConfirmButton: false,
+                timerProgressBar: true,
+                position: 'top-right',
+                icon: 'success',
+                timer: 2000,
+
+              })
+            } else {
+              if (response.status == 404) {
+                window.location.href = "/login"
+              }
+              console.log(data)
+
+              swal.fire({
+                title: data.message,
+                toast: true,
+                showConfirmButton: false,
+                timerProgressBar: true,
+                position: 'top-right',
+                icon: 'warning',
+                timer: 2000,
+
+              })
+
+
+
+            }
+
+          } catch (error) {
+
+          }
+
+
+        });
+
+        document.getElementById("wishlist").addEventListener("click", async function (event) {
+          event.preventDefault();
+
+          try {
+            const productId = document.getElementById("productId").value;
+            const button = document.getElementById("wishlist")
+
+            const response = await fetch("/wishlist/add", {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ productId })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+              Swal.fire({
+                title: data.message,
+                toast: true,
+                showConfirmButton: false,
+                timerProgressBar: true,
+                position: 'top-right',
+                icon: 'success',
+                timer: 2000,
+              })
+              button.style.backgroundColor = "red"
+              
+            } else {
+              Swal.fire({
+                  title: data.message,
+                  toast: true,
+                  showConfirmButton: false,
+                  timerProgressBar: true,
+                  position: 'top-right',
+                  icon: 'info',
+                  timer: 2000,
+                })
+            }
+
+          } catch (error) {
+            console.error(error);
+            Swal.fire({
+                  title: "You Should Login First",
+                  toast: true,
+                  showConfirmButton: false,
+                  timerProgressBar: true,
+                  position: 'top-right',
+                  icon: 'question',
+                  timer: 2000,
+                })
+            
           }
         });
 

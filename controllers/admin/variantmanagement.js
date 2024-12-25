@@ -125,7 +125,7 @@ const loadCreateVariant = async  (req,res) => {
         }
     }
 
-    // Toggle block status of variant
+    
     const toggleBlockVariant = async (req, res) => {
         try {
             const { id } = req.params;
@@ -136,11 +136,10 @@ const loadCreateVariant = async  (req,res) => {
                 return res.status(404).send('Variant not found');
             }
 
-            // Toggle the blocked status
             variant.isBlocked = !variant.isBlocked;
             await variant.save();
 
-            res.redirect('/variants');
+            res.redirect('/admin/variant');
         } catch (error) {
             console.error('Error toggling variant block status:', error);
             res.status(500).send('Error toggling variant block status');

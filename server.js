@@ -11,6 +11,14 @@ const session = require("express-session")
 const passport =require("./config/passport")
 const nocache =require("nocache")
 const variantRoutes = require("./routes/variantRouter")
+const addressRouters = require("./routes/addressRouters")
+const cartRoutes  = require("./routes/cartRouter")
+const checkoutRoutes = require("./routes/checkoutRoutes")
+const orderRoutes = require("./routes/orderRouter")
+const wishlistRoutes = require("./routes/wishlistRouter")
+const couponRoutes  = require("./routes/couponRouters")
+const offerRoutes  = require("./routes/offerRoutes")
+const walletRoutes = require("./routes/walletRouter")
 db()
 
 
@@ -27,7 +35,7 @@ app.use(session({
    
 
 }))
-
+  
 app.use((req, res, next) => {
     
     next();
@@ -56,6 +64,15 @@ app.use("/admin", adminRouter);
 app.use("/category", categoryRoutes);
 app.use("/products", productRouter);
 app.use("/variants",variantRoutes)
+app.use("/address",addressRouters);
+app.use("/cart",cartRoutes)
+app.use("/checkout", checkoutRoutes)
+app.use("/order", orderRoutes)
+app.use("/wishlist",wishlistRoutes)
+app.use("/coupon", couponRoutes)
+app.use("/offer", offerRoutes)
+app.use("/wallet",walletRoutes)
+
 
 
 

@@ -47,25 +47,48 @@
                 <label for="quantity">Quantity</label>
                 <input type="number" name="quantity" id="quantity" value="<%= product.quantity %>">
 
-                <label for="status">Status</label>
-                <select name="status" id="status">
-                    <option value="Available" <%= product.status === 'Available' ? 'selected' : '' %>>Available</option>
-                    <option value="Out Of Stock" <%= product.status === 'Out Of Stock' ? 'selected' : '' %>>Out Of Stock</option>
-                    <option value="Discontinued" <%= product.status === 'Discontinued' ? 'selected' : '' %>>Discontinued</option>
-                </select>
+              
+                
 
                 <h4>Specifications</h4>
                 <label for="RAM">RAM</label>
-                <input type="text" name="RAM" id="RAM" value="<%= product.specifications.RAM %>">
+                <select  name="RAM" id="RAM">
+                    <% ram.forEach((data)=>{ %>
+                        <option value="<%= data._id  %>"<%= product.specifications.ram?.toString() === data._id.toString() ? 'selected' : '' %>>
+                        <%= data.value %>
+                        </option>
+                        <% }) %>
+                    
+                    </select>
 
                 <label for="processor">Processor</label>
-                <input type="text" name="processor" id="processor" value="<%= product.specifications.processor %>">
+                <select  name="processor" id="processor">
+                    <% processor.forEach((data)=>{ %>
+                        <option value="<%= data._id  %>" <%= product.specifications.processor?.toString() === data._id.toString() ? 'selected' : '' %>>
+                        <%= data.value %>
+                        </option>
+                        <% }) %>
+                    
+                    </select>
 
                 <label for="displaySize">Display Size</label>
-                <input type="text" name="displaySize" id="displaySize" value="<%= product.specifications.displaySize %>">
-
+                <select  name="displaySize" id="displaySize">
+                    <% display.forEach((data)=>{ %>
+                        <option value="<%= data._id  %>" <%= product.specifications.display?.toString() === data._id.toString() ? 'selected' : '' %> >
+                        <%= data.value %>
+                        </option>
+                        <% }) %>
+                    
+                    </select>
                 <label for="storage">Storage</label>
-                <input type="text" name="storage" id="storage" value="<%= product.specifications.storage %>">
+                <select  name="storage" id="storage" >
+                    <% storage.forEach((data)=>{ %>
+                        <option value="<%= data._id  %>" selected="<%= data.value %>"<%= product.specifications.storage?.toString() === data._id.toString() ? 'selected' : '' %>>
+                        <%= data.value %>
+                        </option>
+                        <% }) %>
+                    
+                    </select>
 
                 <div class="crop-section">
                     <label for="productImage1">Product Image 1</label>
@@ -275,7 +298,7 @@ let cropper;
     const name = document.getElementById("name").value;
     const description = document.getElementById("description").value;
     const quantity = document.getElementById("quantity").value;
-    const status = document.getElementById("status").value;
+
     const RAM = document.getElementById("RAM").value;
     const processor = document.getElementById("processor").value;
     const displaySize = document.getElementById("displaySize").value;
@@ -304,8 +327,6 @@ let cropper;
         errorMessage = "Sale price is required.";
     } else if (!quantity) {
         errorMessage = "Quantity is required.";
-    } else if (!status) {
-        errorMessage = "Product status is required.";
     } else if (!RAM) {
         errorMessage = "RAM is required.";
     } else if (!processor) {
@@ -344,7 +365,7 @@ let cropper;
         formData.append("name", name);
         formData.append("description", description);
         formData.append("quantity", quantity);
-        formData.append("status", status);
+
         formData.append("RAM", RAM);
         formData.append("processor", processor);
         formData.append("displaySize", displaySize);
@@ -367,7 +388,7 @@ let cropper;
                 name: name,
                 description: description,
                 quantity: quantity,
-                status: status,
+              
                 RAM: RAM,
                 processor: processor,
                 displaySize: displaySize,

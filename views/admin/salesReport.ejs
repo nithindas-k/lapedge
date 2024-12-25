@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+<body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .main-div {
+            display: flex;
+            flex-grow: 1;
+            margin-top: 80px;
+        }
+
+        .hello {
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+        }
+
+        .containerReport {
+            background-color: #0A0A0A;
+            border-radius: 6px;
+            /* margin-left: 250px; */
+            margin-top: 20px;
+            padding: 40px;
+            /* width: calc(100% - 250px); */
+            overflow-x: auto;
+            flex-grow: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FFA000;
+        }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .sales-table th,
+        .sales-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #2b2b2b;
+            word-wrap: break-word;
+        }
+
+        .sales-table th {
+            background-color: #2b2b2b;
+            font-weight: bold;
+        }
+
+        .sales-table tr:hover {
+            background-color: #2b2b2b;
+        }
+
+        .filter-controls {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-input input {
+            background-color: #2b2b2b;
+            border: none;
+            color: #f5f5f5;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .date-input label {
+            color: #FFA000;
+        }
+
+        .filter-btn {
+            background-color: #FFA000;
+            color: #1e1e1e;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background-color: #1A1A1A;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            color: #FFA000;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .summary-card p {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .download-btn {
+            background-color: transparent;
+            color: #FFA000;
+            padding: 8px 15px;
+            border: 1px solid #FFA000;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .download-btn:hover {
+            background-color: #FFA000;
+            color: #1e1e1e;
+        }
+    </style>
+
+    
+       
+
+            <div class="containerReport">
+                <div class="header">
+                    <h1>Sales Report</h1>
+                </div>
+
+                <div class="filter-controls">
+                    <div class="date-input">
+                        <label>Start Date:</label>
+                        <input type="date" id="startDate" name="startDate" value="<%= startDate %>">
+                    </div>
+                    <div class="date-input">
+                        <label>End Date:</label>
+                        <input type="date" id="endDate" name="endDate" value="<%= endDate %>">
+                    </div>
+                    <button class="filter-btn" onclick="filterReport()">Filter</button>
+                </div>
+
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>Total Sales</h3>
+                        <p>
+                            <%=totalSales %>
+                        </p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Total Orders</h3>
+                        <p><%=totalOrders %></p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Total Discounts</h3>
+                        <p>₹<%=totalDiscount %>
+                        </p>
+                    </div>
+                </div>
+
+                <table class="sales-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Username</th>
+                            <th>Order Date</th>
+                            <th>Payment Status</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% orders.forEach(order=> { %>
+                            <tr>
+                                <td>
+                                    <%= order._id %>
+                                </td>
+                                <td>
+                                    <%= order.userId.name %>
+                                </td>
+                                <td>
+                                    <%= new Date(order.createdAt).toLocaleString() %>
+                                </td>
+                                <td>
+                                    <%= order.paymentStatus %>
+                                </td>
+                                <td>₹<%= order.payableAmount %>
+                                </td>
+                            </tr>
+                            <% }) %>
+
+                    </tbody>
+                </table>
+
+                <div class="download-buttons">
+                   <a href="/admin/download?startDate=<%=startDate %>&endDate=<%=endDate %>"><button class="download-btn" >Download PDF</button></a> 
+                   <a href="/admin/dashboard"> <button class="download-btn">Back</button>
+                   </div></a>
+            </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+       async function filterReport() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    if (!startDate || !endDate) {
+        Swal.fire({
+            toast: true,
+            icon: 'warning',
+            title: 'Please select both start and end dates',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+        return;
+    }
+
+   
+    window.location.href = `/admin/salesreport?startDate=${startDate}&endDate=${endDate}`;
+}
+
+
+
+
+
+
+
+    </script>
+
+</body>
+
+</html>

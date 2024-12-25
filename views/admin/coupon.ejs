@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product List</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+
+</head>
+
+<body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .main-div {
+            display: flex;
+            flex-grow: 1;
+            margin-top: 80px;
+        }
+
+        .hello {
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+        }
+
+        .containerProduct {
+            background-color: #0A0A0A;
+            border-radius: 6px;
+            margin-left: 250px;
+            margin-top: 20px;
+            padding: 40px;
+            width: calc(100% - 250px);
+            overflow-x: auto;
+            flex-grow: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FFA000;
+        }
+
+        .add-coupon-button {
+            background-color: #FFA000;
+            color: #1e1e1e;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .add-coupon-button:hover,
+        .add-coupon-button:focus {
+            background-color: #FFA000;
+            color: #1e1e1e;
+            text-decoration: none;
+            outline: none;
+        }
+
+        .coupon-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .coupon-table th,
+        .coupon-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #2b2b2b;
+            word-wrap: break-word;
+        }
+
+        .coupon-table th {
+            background-color: #2b2b2b;
+            font-weight: bold;
+        }
+
+        .coupon-table tr:hover {
+            background-color: #2b2b2b;
+        }
+
+        .edit-button,
+        .delete-button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .edit-button {
+            background-color: transparent;
+            color: #ffa500;
+            border: 1px solid orange;
+        }
+
+        .delete-button {
+            background-color: transparent;
+            color: #ff0000;
+            border: 1px solid red;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+        }
+
+        .pagination ul li {
+            margin: 0 5px;
+        }
+
+        .pagination ul li a {
+            color: #ffa500;
+            padding: 8px 16px;
+            text-decoration: none;
+            background-color: #000000;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .pagination ul li a.active {
+            background-color: #FFAB00;
+            color: #1e1e1e;
+        }
+
+        .pagination ul li a:hover {
+            background-color: #000000;
+            color: #FFAB00;
+        }
+
+        .status-active {
+            color: #00ff00;
+        }
+
+        .status-inactive {
+            color: #ff0000;
+        }
+    </style>
+    <div class="main-div">
+        <%- include("../partials/adminNavbar") %>
+            <div class="hello">
+                <%- include('../partials/adminSidebar') %>
+            </div>
+
+            <div class="containerProduct">
+                <div class="header">
+                    <h1>Coupon List</h1>
+                    <a href="/coupon/add" class="add-coupon-button">Add Coupon</a>
+                </div>
+                <% if(coupons){ %>
+                    <table class="coupon-table">
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Coupon Code</th>
+                                <th>Discount Value</th>
+                                <th>Created Date</th>
+                                <th>Expiration Date</th>
+                                <th>Max Usage</th>
+                                <th>Used Count</th>
+                                <th>Status</th>
+                                <th>Edit</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% coupons.forEach((coupon, index)=> { %>
+                                <tr>
+                                    <td>
+                                        <%= index + 1 %>
+                                    </td>
+                                    <td>
+                                        <%= coupon.code %>
+                                    </td>
+                                    <td>
+                                        <%= coupon.discountValue %>%
+                                    </td>
+                                    <td>
+                                        <%= new Date(coupon.startDate).toLocaleDateString() %>
+                                    </td>
+                                    <td>
+                                        <%= new Date(coupon.expirationDate).toLocaleDateString() %>
+                                    </td>
+                                    <td>
+                                        <%= coupon.maxUsage %>
+                                    </td>
+                                    <td>
+                                        <%= coupon.currentUsage %>
+                                    </td>
+                                    <td>
+                                        <span class="<%= coupon.isActive ? 'status-active' : 'status-inactive' %>">
+                                            <%= coupon.isActive ? 'Active' : 'Inactive' %>
+                                        </span>
+                                    </td>
+                                    <td>
+
+                                        <button  class="edit-button"><a style="text-decoration: none; color: orange;" href="coupon/edit/<%=coupon._id%>">Edit</a></button>
+                                    </td>
+                                    <td>
+
+                                        <button class="delete-button"
+                                            onclick="toggleListing('<%=coupon._id %>')">Ban</button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+
+
+
+                    </table>
+                    <% } else { %>
+
+
+                        <h1>No coupons avalable</h1>
+
+
+                        <% } %>
+
+                            <div class="pagination">
+                                <ul>
+                                    <% for (let i=1; i <=totalPages; i++) { %>
+                                        <li>
+                                            <a href="/coupon?page=<%= i %>"
+                                                class="<%= i === currentPage ? 'active' : '' %>">
+                                                <%= i %>
+                                            </a>
+                                        </li>
+                                        <% } %>
+                                </ul>
+                            </div>
+
+            </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function toggleListing(couponId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You are about to toggle the coupon's status.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, continue',
+                cancelButtonText: 'No, cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/coupon/toggle/${couponId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-end',
+                                    icon: 'success',
+                                    title: data.message,
+                                    showConfirmButton: false,
+                                    timer: 2000,
+                                    timerProgressBar: true,
+                                    
+                                
+                                      
+                                    
+                                });
+                                setTimeout(()=>{
+                                    window.location.reload();
+                                },2000)
+
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: data.message,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'An unexpected error occurred.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        });
+                } else {
+                    Swal.fire({
+                        title: 'Cancelled',
+                        text: 'The action has been cancelled.',
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+    </script>
+
+
+
+</body>
+
+</html>

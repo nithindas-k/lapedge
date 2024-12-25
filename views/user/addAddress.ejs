@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet"
+    href="https://cdn-uicons.flaticon.com/2.0.0/uicons-regular-straight/css/uicons-regular-straight.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/tiny-slider.css">
+  <link rel="stylesheet" href="/css/stylethree.css">
+  <link rel="stylesheet"
+  
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/addAddress.css">
+
+  <title>Shop</title>
+
+  <style>
+
+
+
+    
+    
+    
+
+    .tab__content {
+      display: none;
+    }
+
+    .tab__content.active-tab {
+      display: block;
+    }
+    .order-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-gap: 20px;
+    }
+  
+    .order-card {
+      background-color: #ffffff;
+      border: 1px solid #e6e6e6;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+  
+    .order-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+  
+    .order-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+  
+    .order-card p {
+      font-size: 14px;
+      color: #000000;
+      margin-bottom: 8px;
+    }
+  
+    .order-card .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 16px;
+    }
+  
+    .order-card .actions a {
+      font-size: 14px;
+      color: #ffaa00;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+  
+    .order-card .actions a:hover {
+      color: #0056b3;
+    }
+    .tabs__content {
+        height: 500px;
+        overflow: hidden;
+        overflow-y: scroll;
+        scroll-behavior: smooth;
+     
+        
+    }
+    ::-webkit-scrollbar {
+    display: none;
+    
+}
+
+
+
+.action-buttons a{
+    margin: 5px;
+    
+}
+
+.card {
+      background-color: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
+  }
+
+  .card address {
+      font-style: normal;
+      color: #333;
+  }
+
+  .action-buttons {
+      margin-top: 10px;
+  }
+
+  .action-buttons a {
+      margin-right: 15px;
+      text-decoration: none;
+      font-weight: bold;
+  }
+
+  .action-buttons a.edit {
+      color: green;
+  }
+
+  .action-buttons a.delete {
+      color: red;
+  }
+
+  .tab__header {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #333;
+  }
+
+  .add {
+      font-size: 1rem;
+      font-weight: bold;
+      text-decoration: none;
+      color: #ffaa00;
+  }
+
+  .tab__body {
+      padding: 10px 0;
+  }
+   
+  </style>
+</head>
+
+<body style="background-color: #EFF2F1;">
+  
+
+  <main class="main">
+    <%- include('../partials/usernavbar') %>
+
+    </nav>
+
+    <main class="main">
+      <!--=============== BREADCRUMB ===============-->
+      <section class="breadcrumb">
+        <ul class="breadcrumb__list flex container">
+          <li><a href="/" class="breadcrumb__link">Home</a></li>
+          <li><span class="breadcrumb__link"></span>></li>
+          <li><a href="/shop"><span class="breadcrumb__link">Shop</span></a></li>
+          <li><span class="breadcrumb__link"></span>></li>
+          <li><span class="breadcrumb__link">Product Details</span></li>
+        </ul>
+      </section>
+
+      <!--=============== DETAILS ===============-->
+      <%- include('../partials/accountnav') %>
+      
+      <section class="accounts section--lg">
+
+          
+
+          
+        
+
+            <!-- Orders Content -->
+           
+            <!-- <div class="tab__content" content id="update-profile">
+                <h3 class="tab__header">Update Profile</h3>
+                <div class="tab__body">
+                  <form class="form grid">
+                    <input
+                      type="text"
+                      placeholder="Username"
+                      class="form__input"
+                    />
+                    <div class="form__btn">
+                      <button class="btn btn--md">Save</button>
+                    </div>
+                  </form>
+                </div>
+              </div> -->
+              
+            
+              <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="address-form">
+                            <h2 class="form-title">Address</h2>
+                            <form action="#" method="post" id="form">
+                                <div class="form-group">
+                                    <input id="Name" type="text" class="form-control" placeholder="Name" >
+                                </div>
+                                <div class="form-group">
+                                    <input id="Address" type="text" class="form-control" placeholder="Address" >
+                                </div>
+                                <div class="form-group">
+                                    <input id="City" type="text" class="form-control" placeholder="City" >
+                                </div>
+                                <div class="form-group">
+                                    <input id="State" type="text" class="form-control" placeholder="State" >
+                                </div>
+                                <div class="form-group">
+                                    <input id="Pincode" type="text" class="form-control" placeholder="Pincode" >
+                                </div>
+                                <div class="form-group">
+                                    <input  id="Phone" type="text" class="form-control" placeholder="Phone" >
+                                </div>
+                                <div>
+                                  <input id="user_id" type="text" hidden value="<%= userId %>">
+                                </div>
+                                <button type="submit" class="btn btn-add-addresss" style="background-color: #ffaa00; color: black;"><b>Add address</b></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+             
+
+          
+        </div>
+      </section>
+      
+
+    
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+
+
+
+  document.getElementById("form").addEventListener("submit",  function (event) {
+    event.preventDefault();
+    
+    const name = document.getElementById("Name").value.trim();
+    const address = document.getElementById("Address").value.trim();
+    const city = document.getElementById("City").value.trim();
+    const state = document.getElementById("State").value.trim();
+    const pincode = document.getElementById("Pincode").value.trim();
+    const phone = document.getElementById("Phone").value.trim();
+    const userId = document.getElementById("user_id").value
+
+    if (name === "" || address === "" || city === "" || state === "" || pincode === "" || phone === "") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'All fields are required',
+            toast: true,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+        return; 
+    }
+
+    
+   
+    const data = {
+        name: name,
+        address: address,
+        city: city,
+        state: state,
+        pincode: pincode,
+        phone: phone
+        
+    };
+ console.log(data);
+
+   
+    fetch(`/address/create/${userId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+       
+        
+       
+        Swal.fire({
+            icon: 'success',
+            title: 'Address added successfully!',
+            toast: true,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+        })
+        .then(()=>{
+          window.location.href = `/address/${userId}`
+        })
+        
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Something went wrong!',
+            toast: true,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+    });
+});
+
+      
+     
+    </script>
+</body>
+
+</html>

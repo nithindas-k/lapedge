@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Offer</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+<body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .main-div {
+            display: flex;
+            background-color: #000000;
+        }
+
+        .hello {
+            position: fixed;
+            z-index: 2000;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            color: #f5f5f5;
+        }
+
+        .containerCreateVariant {
+            background-color: #0A0A0A;
+            border-radius: 6px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            margin-top: 100px;
+            width: 100%;
+            padding-right: 0.75rem;
+            padding-left: 0.75rem;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffa500;
+            margin-bottom: 20px;
+        }
+
+        .product-form label {
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-weight: bold;
+            display: block;
+        }
+
+        .product-form input,
+        .product-form select,
+        .product-form textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #2b2b2b;
+            color: #f2f2f2;
+        }
+
+        .product-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .submit-button,
+        .cancel-button {
+            padding: 8px;
+            background-color: #ffa500;
+            color: #000000;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            width: 48%;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover,
+        .cancel-button:hover {
+            background-color: #FFAB00;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .form-row>div {
+            width: 100%;
+        }
+    </style>
+
+    <div class="main-div">
+        <%- include("../partials/adminNavbar") %>
+            <div class="hello">
+                <%- include('../partials/adminSidebar') %>
+            </div>
+
+            <div class="containerCreateVariant">
+                <h1>Edit Offer</h1>
+                
+                <form class="product-form" id="offerForm">
+                
+                    <div class="form-row">
+                        <div>
+                            <label for="name">Offer Name</label>
+                            <input type="text" id="name" name="name" placeholder="Enter offer name" value="<%=offer.name %>">
+                        </div>
+                        <div>
+                            <label for="type">Offer Type</label>
+                            <select id="type" name="type" onchange="loadCategories()">
+                                <option value="">Select Type</option>
+                                <option value="Category">Category</option>
+                                <option value="Product">Product</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="categoryOrProduct">Category/Product</label>
+                            <select id="categoryOrProduct" name="categoryOrProduct">
+                                <option value="">Select Category/Product</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="discountType">Discount Type</label>
+                            <select id="discountType" name="discountType">
+                                <option value="">Select Discount Type</option>
+                                <option value="Percentage">Percentage</option>
+                                <option value="Fixed Amount">Fixed Amount</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="discountValue">Discount Value</label>
+                            <input type="number" id="discountValue" name="discountValue" min="0" step="0.01"
+                                placeholder="Enter discount value" value="<%=offer.discountValue %>">
+                        </div>
+                        <div>
+                            <label for="minPurchase">Minimum Purchase (Optional)</label>
+                            <input type="number" id="minPurchase" name="minPurchase" min="0" step="0.01"
+                                placeholder="Enter minimum purchase amount" value="<%=offer.minPurchase %>">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" name="startDate" value="<%=offer.startDate %>">
+                        </div>
+                        <div>
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" name="endDate" value="<%=offer.endDate %>" >
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="status">Status</label>
+                            <select id="status" name="status">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Scheduled">Scheduled</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description"
+                                placeholder="Enter offer description"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="cancel-button">
+                            <a style="text-decoration: none; color: #000000;" href="/offer">Cancel</a>
+                        </button>
+                        <button id="submit" type="submit" class="submit-button">Update Offer</button>
+                    </div>
+                </form>
+            </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        async function loadCategories() {
+            const type = document.getElementById('type').value;
+            const select = document.getElementById('categoryOrProduct');
+            select.innerHTML = '<option value="">Select Category/Product</option>';
+
+            let url;
+            if (type === "Category") {
+                url = '/offer/category';
+            } else if (type === "Product") {
+                url = '/offer/product';
+            }
+
+            if (url) {
+                try {
+                    const response = await fetch(url, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        data.items.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item._id;
+                            option.textContent = item.name;
+                            select.appendChild(option);
+                        });
+                    } else {
+                        console.error('Failed to load items:', data.message);
+                    }
+                } catch (error) {
+                    console.error('Error loading items:', error);
+                }
+            }
+        }
+
+        document.getElementById("offerForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            try {
+                const name = document.getElementById("name").value.trim();
+                const type = document.getElementById("type").value.trim();
+                const categoryOrProduct = document.getElementById("categoryOrProduct").value.trim();
+                const discountType = document.getElementById("discountType").value.trim();
+                const discountValue = document.getElementById("discountValue").value.trim();
+                const minPurchase = document.getElementById("minPurchase").value.trim() || null;
+                const startDate = document.getElementById("startDate").value.trim();
+                const endDate = document.getElementById("endDate").value.trim();
+                const status = document.getElementById("status").value.trim();
+                const description = document.getElementById("description").value.trim();
+                if (name ==="" || type ==="" || categoryOrProduct ==="" || discountType ==="" || discountValue ===""  || minPurchase ==="" || startDate ===""  || endDate ===""  || status==="" || description ==="") {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                   
+                        text: 'Please fill all fields.',
+                        icon: 'warning',
+                        showConfirmButton: false,
+                        timer: 2000,  
+                        timerProgressBar: true
+                    });
+
+                    return;
+
+                }
+
+
+                const formData = {
+                    name,
+                    type,
+                    categoryOrProduct,
+                    discountType,
+                    discountValue,
+                    minPurchase,
+                    startDate,
+                    endDate,
+                    status,
+                    description
+                };
+
+
+
+
+
+                const response = await fetch("/offer/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        icon: 'success',
+                    });
+                    setTimeout(() => {
+                        window.location.href = "/offer"
+                    }, 3000);
+                } else {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        icon: 'error',
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    title: 'An error occurred',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    icon: 'error',
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

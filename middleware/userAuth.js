@@ -1,6 +1,6 @@
 let authCheck = (req, res, next) => {
    console.log( req.session.user)
-    if (['/account', '/wishlist', '/cart','/notifications'].includes(req.url)) {
+    if (['/account/:userId', '/wishlist', '/cart','/notifications'].includes(req.url)) {
         if (!req.session.user) {
             return res.redirect('/signup');
         }

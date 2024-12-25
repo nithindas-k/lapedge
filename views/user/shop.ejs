@@ -21,6 +21,120 @@
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
   <title>Shop</title>
+  <style>
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 20px;
+      transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+      overflow: hidden;
+      max-height: 1000px;
+
+      opacity: 1;
+    }
+
+    .filter-bar.hidden {
+      max-height: 0;
+      opacity: 0;
+      margin-bottom: 0;
+    }
+
+    .filter-toggle {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .filter-toggle:hover {
+      background-color: #e9ecef;
+    }
+
+    .filter-toggle i {
+      font-size: 20px;
+      color: #495057;
+    }
+
+    .filter-card {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 16px;
+      flex: 1 1 300px;
+    }
+
+    .filter-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .filter-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #495057;
+      cursor: pointer;
+    }
+
+    .filter-option input[type="radio"] {
+      margin-right: 8px;
+    }
+    .badge-circle {
+      position: absolute;
+     bottom: 210px;
+      right: 0px;
+      background: #FDA208;
+      color: rgb(0, 0, 0);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transform: rotate(10deg);
+    }
+    .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.pagination a {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #333;
+}
+
+.pagination a.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.pagination a:hover {
+    background-color: #ddd;
+}
+
+
+  </style>
 </head>
 
 <body>
@@ -28,6 +142,7 @@
     <%- include('../partials/usernavbar') %>
 
       </nav>
+      
       <div class="hero">
         <div class="container">
           <div class="row justify-content-between">
@@ -35,7 +150,6 @@
               <div class="intro-excerpt">
                 <h1>Shop <span clsas="d-block"></span></h1>
                 <p class="mb-4">Performance that meets your needs !</p>
-
               </div>
             </div>
             <div class="col-lg-7">
@@ -47,13 +161,122 @@
         </div>
       </div>
       <section class="products container section">
+        
+        <div class="filter-toggle" id="filterToggle">
+          <i class="fi fi-rs-filter"></i>
+        </div>
+        
+        <div class="filter-card">
+          <h3 class="filter-card-title">Search</h3>
+          <div class="filter-options">
+            <form action="/shop" method="GET">
+              <input
+                type="text"
+                name="search"
+                id="searchInput"
+                placeholder="Search products..."
+                style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%;"
+                value="<%= searchQuery || '' %>"
+              />
+              <button type="submit" style="margin-top: 10px; padding: 8px; border-radius: 4px;">Search</button>
+            </form>
+          </div>
+        </div>
+        
+        <div class="filter-bar" id="filterBar">
+          
+          <div class="filter-card">
+            <h3 class="filter-card-title">Sort By</h3>
+            <div class="filter-options">
+              <label class="filter-option">
+                <input type="radio" name="sort-by" value="all" checked>
+                All
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort-by" value="Popularity ">
+                Popularity 
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort-by" value="Featured ">
+                Featured 
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort-by" value="New arrivals ">
+                New arrivals 
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort-by" value="aA - zZ">
+                aA - zZ 
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort-by" value="zZ - aA">
+                zZ - aA 
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort-by" value="price-low-to-high">
+                Price: Low to High
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="sort-by" value="price-high-to-low">
+                Price: High to Low
+              </label>
+            </div>
+          </div>
+          <div class="filter-card">
+            <h3 class="filter-card-title">Price</h3>
+            <div class="filter-options">
+              <label class="filter-option">
+                <input type="radio" name="price" value="all" checked>
+                All
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="price" value="100000">
+                100000+
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="price" value="80000-100000">
+                ₹80000-100000
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="price" value="60000-80000">
+                ₹60000-80000
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="price" value="50000-60000">
+                ₹50000-60000
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="price" value="40000+">
+                ₹40000+
+              </label>
+            </div>
+          </div>
+
+
+          <div class="filter-card">
+            <h3 class="filter-card-title">Category</h3>
+            <div class="filter-options">
+
+              <label class="filter-option">
+                <input type="radio" name="category" value="All">
+                All
+
+              </label>
+
+
+
+              <%category.forEach((data)=>{ %>
+                <label class="filter-option">
+                  <input type="radio" name="category" value="<%=data.name %>">    <%=data.name %>
+                </label>
+
+                <% }) %>
+
+            </div>
+          </div>
+        </div>
         <div class="tab__btns">
-          <!-- <span class="tab__btn active-tab" data-target="#featured"
-                >Featured</span
-              > -->
           <h3 class="section__title"><span>Best </span> Sellers</h3>
-          <!-- <span class="tab__btn" data-target="#popular">Popular</span>
-              <span class="tab__btn" data-target="#new-added">New Added</span> -->
         </div>
 
         <div class="tab__items">
@@ -61,8 +284,13 @@
             <div class="products__container grid">
               <% products.forEach((data)=>{ %>
                 <div class="product__item">
+                  
                   <div class="product__banner">
+                    <% if(data.offerPersentage > 0){ %>
+                    <div style="z-index: 1000;" class="badge-circle"><%=data.offerPersentage%>%</div>
+                    <% } %>
                     <a href="/productDetails/<%= data._id %>" class="product__images">
+                  
                       <img src="/uploads/products/<%= data.productImage[0] %>" alt="" class="product__img default" />
                       <img src="/uploads/products/<%= data.productImage[1] %>" alt="" class="product__img hover" />
                     </a>
@@ -73,7 +301,6 @@
                       <a href="#" class="action__btn" aria-label="Add to Wishlist">
                         <i class="fi fi-rs-heart"></i>
                       </a>
-
                     </div>
                     <div class="product__badge light-pink">
                       <%=data.status %>
@@ -105,28 +332,166 @@
                   </div>
                 </div>
                 <% }) %>
+
+                
             </div>
+            <div class="pagination">
+            
+            
+              <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>&category=<%= selectedCategory %>&price=<%= price %>&sortBy=<%= sortBy %>"
+                   class="<%= i === Number(currentPage) ? 'active' : '' %>">
+                  <%= i %>
+                </a>
+              <% } %>
+            
+             
+            </div>
+            
           </div>
         </div>
-      </section>
-      <section class="newsletter section home__newsletter">
-        <div class="newsletter__container container grid">
-          <h3 class="newsletter__title flex">
-            <img src="./assets/img/icon-email.svg" alt="" class="newsletter__icon" />
-            Sign in to Newsletter
-          </h3>
-          <p class="newsletter__description">
-            ...and receive $25 coupon for first shopping.
-          </p>
-          <form action="" class="newsletter__form">
-            <input type="text" placeholder="Enter Your Email" class="newsletter__input" />
-            <button type="submit" class="newsletter__btn">Subscribe</button>
-          </form>
+        <section class="newsletter section home__newsletter">
+          <div class="newsletter__container container grid">
+            <h3 class="newsletter__title flex">
+              <img src="./assets/img/icon-email.svg" alt="" class="newsletter__icon" />
+              Sign in to Newsletter
+            </h3>
+            <p class="newsletter__description">
+              ...and receive $25 coupon for first shopping.
+            </p>
+            <form action="" class="newsletter__form">
+              <input type="text" placeholder="Enter Your Email" class="newsletter__input" />
+              <button type="submit" class="newsletter__btn">Subscribe</button>
+            </form>
+          </div>
+        </section>
+        <%- include('../layouts/footer') %>
+
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              const filterToggle = document.getElementById('filterToggle');
+              const filterBar = document.getElementById('filterBar');
+
+              filterToggle.addEventListener('click', function () {
+                filterBar.classList.toggle('hidden');
+              });
+            });
+          </script>
+          <script>
+            const filterGroups = ['sort-by', 'price', 'category'];
+
+            filterGroups.forEach(groupName => {
+              const radioButtons = document.querySelectorAll(`input[name="${groupName}"]`);
+
+              radioButtons.forEach(radioButton => {
+                radioButton.addEventListener('change', () => {
+
+                  fetchFilteredProducts();
+                });
+              });
+            });
+
+
+            function getCurrentFilters() {
+    return {
+      sortBy: document.querySelector('input[name="sort-by"]:checked')?.value || 'all',
+      priceRange: document.querySelector('input[name="price"]:checked')?.value || 'all',
+      category: document.querySelector('input[name="category"]:checked')?.value || 'All'
+    };
+  }
+
+
+  async function fetchFilteredProducts() {
+    try {
+  
+      const { sortBy, priceRange, category } = getCurrentFilters();
+
+    
+      console.log( sortBy, priceRange, category );
+
+ 
+      const response = await fetch(`/productsFilter?sortBy=${sortBy}&priceRange=${priceRange}&category=${category}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+
+      const products = await response.json();
+      
+      
+      updateProductDisplay(products);
+
+    } catch (error) {
+      console.error('Error fetching filtered products:', error);
+
+    }
+   }
+   function updateProductDisplay(products) {
+  const productContainer = document.querySelector('.products__container.grid');
+  
+  // Clear existing products
+  productContainer.innerHTML = '';
+
+  // Render new products
+  products.forEach(product => {
+    const productElement = document.createElement('div');
+    productElement.classList.add('product__item');
+    productElement.innerHTML = `
+      <div class="product__banner">
+        <a href="/productDetails/${product._id}" class="product__images">
+          <img src="/uploads/products/${product.productImage[0]}" alt="" class="product__img default" />
+          <img src="/uploads/products/${product.productImage[1]}" alt="" class="product__img hover" />
+        </a>
+        <div class="product__actions">
+          <a href="/productDetails/${product._id}" class="action__btn" aria-label="Quick View">
+            <i class="fi fi-rs-eye"></i>
+          </a>
+          <a href="#" class="action__btn" aria-label="Add to Wishlist">
+            <i class="fi fi-rs-heart"></i>
+          </a>
         </div>
-      </section>
-      <%- include('../layouts/footer') %>
+        <div class="product__badge light-pink">
+          ${product.status}
+        </div>
+      </div>
+      <div class="product__content">
+        <span class="product__category">
+          ${product.category.name}
+        </span>
+        <a href="/productDetails/${product._id}">
+          <h3 class="product__title">
+            ${product.name}
+          </h3>
+        </a>
+        <div class="product__rating">
+          <i class="fi fi-rs-star"></i>
+          <i class="fi fi-rs-star"></i>
+          <i class="fi fi-rs-star"></i>
+          <i class="fi fi-rs-star"></i>
+          <i class="fi fi-rs-star"></i>
+        </div>
+        <div class="product__price flex">
+          <span class="new__price">₹${product.salePrice}</span>
+          <span class="old__price">₹${product.regularPrice}</span>
+        </div>
+        <a href="#" class="action__btn cart__btn" aria-label="Add To Cart">
+          <i class="fi fi-rs-shopping-bag-add"></i>
+        </a>
+      </div>
+    `;
+    productContainer.appendChild(productElement);
+  });
+}
 
-
+   
+          </script>
+          
+  </main>
 </body>
 
 </html>

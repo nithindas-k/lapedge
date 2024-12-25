@@ -53,12 +53,12 @@
                     <label for="quantity">Quantity</label>
                     <input type="number" name="quantity" id="quantity">
 
-                    <label for="status">Status</label>
+                    <!-- <label for="status">Status</label>
                     <select name="status" id="status">
                         <option value="Available">Available</option>
                         <option value="Out Of Stock">Out Of Stock</option>
-                        <option value="Discontinued">Discontinued</option>
-                    </select>
+                        <option value="Discontinued">hurry up !</option>
+                    </select> -->
 
                     <h4>Specifications</h4>
                     <label for="RAM">RAM</label>
@@ -266,7 +266,7 @@
     const name = document.getElementById("name").value;
     const description = document.getElementById("description").value;
     const quantity = document.getElementById("quantity").value;
-    const status = document.getElementById("status").value;
+   
     const RAM = document.getElementById("RAM").value;
     const processor = document.getElementById("processor").value;
     const displaySize = document.getElementById("displaySize").value;
@@ -296,8 +296,6 @@
         errorMessage = "Sale price is required.";
     } else if (!quantity) {
         errorMessage = "Quantity is required.";
-    } else if (!status) {
-        errorMessage = "Product status is required.";
     } else if (!RAM) {
         errorMessage = "RAM is required.";
     } else if (!processor) {
@@ -335,7 +333,7 @@
         formData.append("name", name);
         formData.append("description", description);
         formData.append("quantity", quantity);
-        formData.append("status", status);
+      
         formData.append("RAM", RAM);
         formData.append("processor", processor);
         formData.append("displaySize", displaySize);

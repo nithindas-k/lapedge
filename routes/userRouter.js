@@ -2,13 +2,16 @@ const express = require("express")
 const router = express.Router()
 const userController = require("../controllers/user/userController")
 
+
+
+
 const passport =require("../config/passport")
 
- 
+
 
 router.get('/',userController.loadHomepage)
 router.get('/pageNotFound', userController.pageNotFound);
-router.get("/shop",userController.loadShopPage)
+    router.get("/shop",userController.loadShopPage)
 
 
 router.post('/verifyotp',userController.verifyOtp).get('/verifyotp',userController.loadverifyOtp)
@@ -27,7 +30,7 @@ router.get('/auth/google/callback',
     (req, res, next) => {
         console.log(req)
         if (!req.user) {
-            
+          
             const authInfo = req.authInfo;
             console.log(authInfo)
             if (authInfo && authInfo.message) {
@@ -35,8 +38,8 @@ router.get('/auth/google/callback',
             }
             return res.redirect('/signup');
         }
-        
-        
+        console.log( req.user)
+        req.session.userData = req.user
         req.session.user = true;
         res.redirect('/');
     }
@@ -55,6 +58,9 @@ router.post("/forgotOtpVerify", userController.forgotOtpVerify);
 
 router.get("/forgotPassword",userController.loadResetPassword)
 router.get("/productDetails/:id",userController.loadproductDetails)
+router.post("/changePassword",userController.changePassword)
+
+
 
 router.get('/logout', (req, res) => {
     req.session.destroy((err) => {
@@ -64,6 +70,21 @@ router.get('/logout', (req, res) => {
         res.redirect('/');  
     });
 });
+
+router.get("/account/:userId",userController.loadAccount)
+
+router.get("/orders",userController.loadOrders)
+router.get("/orders/:orderId", userController.loadOrdersDetails)
+
+
+
+router.get('/profile-edit', userController.loadProfileEdit);
+router.post('/profile-edit',userController.updateProfile);
+router.get("/order-confirmation/:orderId",userController.loadOrderConfirmation)
+
+router.get("/productsFilter",userController.loadProductsFilter)
+
+
 
 
 module.exports = router;  
