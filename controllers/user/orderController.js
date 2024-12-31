@@ -15,6 +15,8 @@ const placeOrder = async (req, res) => {
         const userId = req.session.userData._id;
         let { addressId, paymentMethod, disamount, couponCode } = req.body;
 
+     
+
         if (!addressId || !paymentMethod) {
             return res.status(400).json({
                 success: false,
@@ -41,6 +43,10 @@ const placeOrder = async (req, res) => {
         let totalAmount = orderItems.reduce((total, item) => total + item.totalPrice, 0);
         let payableAmount = totalAmount;
 
+        if(payableAmount > 1000){
+            return res.status(404).json({success:false,message:"COD Not available on this product"})
+        }
+
         if (couponCode && couponCode !== null) {
             var coupon = await Coupon.findOne({ code: couponCode });
             if (coupon && coupon.currentUsage < coupon.maxUsage) {
@@ -51,6 +57,7 @@ const placeOrder = async (req, res) => {
         }
 
         console.log("++++++++++++++++++++++++++++",couponCode)
+       
 
 
         const user = await User.findById(userId);
@@ -185,6 +192,8 @@ const razerpayorder = async (req, res) => {
             receipt: `order_${Date.now()}`,
             payment_capture: 1
         };
+
+        console.log("orderOptions +++  ++ ++ " ,orderOptions)
            
             
             const razorpayOrder = await razorpay.orders.create(orderOptions);
@@ -198,7 +207,7 @@ const razerpayorder = async (req, res) => {
             shippingAddress: `${shippingAddress.name},${shippingAddress.phone},${shippingAddress.pincode},${shippingAddress.state},${shippingAddress.address},${shippingAddress.city}`,
             orderStatus: 'Pending',
             paymentStatus: 'Pending',
-            coupon: coupon._id || null,
+            coupon: coupon?._id || null,
             razorpayOrderId: razorpayOrder.id,
             payableAmount:payableAmount,
             couponDiscount:couponDiscount
@@ -206,9 +215,12 @@ const razerpayorder = async (req, res) => {
 
 
         await newOrder.save();
-        
-        coupon.currentUsage+=1
-        await coupon.save()
+        if(coupon){
+
+            coupon.currentUsage+=1
+            await coupon.save()
+        }
+       
 
         
 
@@ -262,6 +274,7 @@ const verifyPayment = async (req, res) => {
             });
         }
         console.log("2")
+        console.log(razorpay_order_id)
 
         const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
 
@@ -353,7 +366,7 @@ const cancel =  async (req, res) => {
                         console.log("trueeeeeeeeeeeeeeeeee")
 
                         
-                        // var totalOrderDiscount = order.totalAmount - orderTotal
+                        
                             var proptionalDiscount = itemTotal / order.totalAmount * order.couponDiscount
                             amount = itemTotal - proptionalDiscount.toFixed()
 
@@ -419,6 +432,8 @@ const OrderrReturn =  async (req , res) => {
             item.status = "Return Requested"
             item.reason = returnReason || null
             await order.save()
+        
+            
         res.status(200).json({ success: true, message: 'Item returned successfully' })
 
         

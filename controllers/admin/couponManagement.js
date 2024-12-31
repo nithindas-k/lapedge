@@ -48,11 +48,11 @@ const loadCouponAddPage = async ( req , res )=>{
 const addcoupon = async ( req , res )=>{
     try {
 
-        const { code, discountValue, maxDiscount,startDate,expirationDate,maxUsage,minimumPrice } = req.body;
+        const { code, discountValue, startDate,expirationDate,maxUsage,minimumPrice } = req.body;
         const coupon = new CouponSchema({
             code: code,
             discountValue: discountValue,
-            maxDiscount: maxDiscount,
+     
             startDate: startDate,
             expirationDate: expirationDate,
             maxUsage: maxUsage,
@@ -131,11 +131,11 @@ const couponEdit   = async (req, res) => {
     try {
 
         const {id} = req.params
-        const { code, discountValue, maxDiscount, startDate, expirationDate, maxUsage, minimumPrice } = req.body;
+        const { code, discountValue, startDate, expirationDate, maxUsage, minimumPrice } = req.body;
         const coupon = await CouponSchema.findByIdAndUpdate(id, {
             code: code,
             discountValue: discountValue,
-            maxDiscount: maxDiscount,
+            
             startDate: startDate,
             expirationDate: expirationDate,
             maxUsage: maxUsage,
@@ -194,6 +194,8 @@ const couponApply =  async (req, res) => {
        
         
     } catch (error) {
+
+        console.log(error)
         
     }
 

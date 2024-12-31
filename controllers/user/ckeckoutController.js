@@ -12,7 +12,7 @@ const couponSchema = require("../../models/couponModel")
 const loadCheckout = async  (req, res) => {
     try {
         if(!req.session.user){
-            return res.redirect('login')
+            return res.redirect('/login')
         }
       
         const userId = await req.session.userData._id

@@ -154,10 +154,19 @@
                   <div id="cart" style="background-color: #ff8800; border-radius: 6px;"> <a href="#"
                       class="btn btn--sm">Add To Card</a></div> 
                       
-                  <a id="wishlist" style="background-color: #ff8800; border-radius: 6px;" href="#"
+                  <% if(wishlisted) {%>
+                    <a id="wishlist" style="background-color: #ff0000; border-radius: 6px;" href="#"
                     class="details__action-btn">
                     <i class="fi fi-rs-heart"></i>
                   </a>
+                    <% }else{ %>
+
+                      <a id="wishlist" style="background-color: #ff8800; border-radius: 6px;" href="#"
+                    class="details__action-btn">
+                    <i class="fi fi-rs-heart"></i>
+                  </a>
+
+                      <% } %>
 
                   <% }%>
                 </div>

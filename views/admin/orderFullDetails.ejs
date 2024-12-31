@@ -281,7 +281,8 @@
                 <h2 style="color: #FFA000; margin-bottom: 15px;">Order Status Management</h2>
                 <div class="status-section">
                     <% if(order.orderStatus != "Return Requested"){%>
-                        <% if(order.orderStatus != "Cancelled"){ %>
+                        
+                        <% if(order.orderStatus !== "Cancelled" &&  order.orderStatus !== "Returned"){ %>
                     
                     <select  id="status" class="status-select">
                         

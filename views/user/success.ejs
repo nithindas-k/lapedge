@@ -504,99 +504,106 @@
                 <%=order.orderStatus %>
               </span>
             </h1>
-            <div class="order-details">
-              <p><strong>Order Id : </strong>
-                <%=order._id %>
-              </p>
-              <p><strong>Order Date : </strong>
-                <%=order.orderDate %>
-              </p>
-              <p><strong>Payment Method : </strong>
-                <%=order.paymentMethod %>
-              </p>
-              <p><strong>Payment Status : </strong>
-                <%=order.paymentStatus %>
-              </p>
-            </div>
 
-            <div class="order-details">
-              <h2 style="color: #FDA208; margin-bottom: 15px;">Order Items</h2>
-              <div class="order-items">
-                <% order.items.forEach((data,index)=>{ %>
-                  <div class="order-item">
-                    <img src="/uploads/products/<%= data.ProductId.productImage[0] %>" />
-                    <div class="order-item-details">
-                      <h3>
-                        <%=data.ProductId.name%>
-                      </h3>
-                      <p>Quantity : <%=data.quantity %>
-                      </p>
-                      <p>Unit Price : ₹<%=data.unitPrice %>
-                      </p>
-                      <p>Total Price: ₹<%=data.totalPrice %>
-                      </p>
+            <% if(order.paymentStatus=="Pending" && order.paymentMethod=="razorPay" && order.orderStatus!="Cancelled"
+              ){%>
+              <a href=""><button id="continue-payment"><b>continue payment</b></button></a>
+              <% } %>
+                <div class="order-details">
+                  <input id="orderId" type="hidden" value="<%=order._id%>">
+                  <p><strong>Order Id : </strong>
+                    <%=order._id %>
+                  </p>
+                  <p><strong>Order Date : </strong>
+                    <%=order.orderDate %>
+                  </p>
+                  <p><strong>Payment Method : </strong>
+                    <%=order.paymentMethod %>
+                  </p>
+                  <p><strong>Payment Status : </strong>
+                    <%=order.paymentStatus %>
+                  </p>
+                </div>
 
-                      <p>Status: <span class="status-tag status-shipped">
-                          <%=data.status %>
-                        </span></p>
-                    </div>
-                    <input type="hidden" value="<%=index+1%> " id="index-">
+                <div class="order-details">
+                  <h2 style="color: #FDA208; margin-bottom: 15px;">Order Items</h2>
+                  <div class="order-items">
+                    <% order.items.forEach((data,index)=>{ %>
+                      <div class="order-item">
+                        <img src="/uploads/products/<%= data.ProductId.productImage[0] %>" />
+                        <div class="order-item-details">
+                          <h3>
+                            <%=data.ProductId.name%>
+                          </h3>
+                          <p>Quantity : <%=data.quantity %>
+                          </p>
+                          <p>Unit Price : ₹<%=data.unitPrice %>
+                          </p>
+                          <p>Total Price: ₹<%=data.totalPrice %>
+                          </p>
 
-                    <% if(data.status !=='Cancelled' && data.status !=='Returned' ) { %>
-                      <button type="button" class="<%= data.status === 'Delivered' ? 'return-btn' : 'cancel-btn' %>"
-                        data-order-id="<%= data._id %>"
-                        data-action="<%= data.status === 'Delivered' ? 'return' : 'cancel' %>"
-                        onclick="handleOrderAction('<%= data.ProductId._id%>', '<%= data.status === 'Delivered' ? 'return' : 'cancel' %>')">
-                        <%= data.status==='Delivered' ? 'Return' : 'Cancel' %>
-                      </button>
-                      <% } %>
+                          <p>Status: <span class="status-tag status-shipped">
+                              <%=data.status %>
+                            </span></p>
+                        </div>
+                        <input type="hidden" value="<%=index+1%> " id="index-">
+
+                        <% if(data.status !=='Cancelled' && data.status !=='Returned' && data.status
+                          !=="Return Requested" && order.orderStatus!="Return Requested" ) { %>
+                          <button type="button" class="<%= data.status === 'Delivered' ? 'return-btn' : 'cancel-btn' %>"
+                            data-order-id="<%= data._id %>"
+                            data-action="<%= data.status === 'Delivered' ? 'return' : 'cancel' %>"
+                            onclick="handleOrderAction('<%= data.ProductId._id%>', '<%= data.status === 'Delivered' ? 'return' : 'cancel' %>')">
+                            <%= data.status==='Delivered' ? 'Return' : 'Cancel' %>
+                          </button>
+                          <% } %>
+
+                      </div>
+                      <% }) %>
 
                   </div>
-                  <% }) %>
-
-              </div>
-            </div>
-            <input id="orderId" type="text" hidden value="<%=order._id %>">
-            <div class="order-details">
-              <h2 style="color: #FDA208; margin-bottom: 15px;">Shipping Information</h2>
-              <p><strong>Shipping Address : </strong>
-                <%=order.shippingAddress%>
-              </p>
-              <p><strong>Shipping Date:</strong> December 20, 2024</p>
-              <p><strong>Estimated Delivery:</strong> December 25, 2024</p>
-            </div>
-
-            <div class="order-details">
-              <h2 style="color: #FDA208; margin-bottom: 15px;">Order Summary</h2>
-              <div class="order-summary">
-                <div class="order-summary-item">
-                  <span>Subtotal</span>
-                  <span>₹<%=totalAmount %></span>
                 </div>
-                <div class="order-summary-item">
-                  <span>Total Discount</span>
-                  <span>₹<%=discountAmonut%></span>
+                <input id="orderId" type="text" hidden value="<%=order._id %>">
+                <div class="order-details">
+                  <h2 style="color: #FDA208; margin-bottom: 15px;">Shipping Information</h2>
+                  <p><strong>Shipping Address : </strong>
+                    <%=order.shippingAddress%>
+                  </p>
+                  <p><strong>Shipping Date:</strong> December 20, 2024</p>
+                  <p><strong>Estimated Delivery:</strong> December 25, 2024</p>
                 </div>
-                <div class="order-summary-item">
-                  <span>Shipping Charge</span>
-                  <span>₹0</span>
-                </div>
-                <div class="order-summary-item order-total">
-                  <span>Total Amount</span>
-                  <span>₹<%=order.payableAmount %></span>
-                </div>
-              </div>
-            </div>
 
-            <div class="buttons">
-              <a href="/orders" class="back-button">Back to Orders</a>
-              <% if(order.orderStatus=="Ordered" ){ %>
-                <button id="cancel" class="action-button">Cancel Order</button>
-                <% }else if(order.orderStatus=="Delivered" ) {%>
-                  <button id="return" class="action-button">Return</button>
-                  <% } %>
+                <div class="order-details">
+                  <h2 style="color: #FDA208; margin-bottom: 15px;">Order Summary</h2>
+                  <div class="order-summary">
+                    <div class="order-summary-item">
+                      <span>Subtotal</span>
+                      <span>₹<%=totalAmount %></span>
+                    </div>
+                    <div class="order-summary-item">
+                      <span>Total Discount</span>
+                      <span>₹<%=discountAmonut%></span>
+                    </div>
+                    <div class="order-summary-item">
+                      <span>Shipping Charge</span>
+                      <span>₹0</span>
+                    </div>
+                    <div class="order-summary-item order-total">
+                      <span>Total Amount</span>
+                      <span>₹<%=order.payableAmount %></span>
+                    </div>
+                  </div>
+                </div>
+                <button id="Invoice" style="color: red;"><b>Download Invoice</b></button>
+                <div class="buttons">
+                  <a href="/orders" class="back-button">Back to Orders</a>
+                  <% if(order.orderStatus=="Ordered" ){ %>
+                    <button id="cancel" class="action-button">Cancel Order</button>
+                    <% }else if(order.orderStatus=="Delivered" ) {%>
+                      <button id="return" class="action-button">Return</button>
+                      <% } %>
 
-            </div>
+                </div>
           </div>
 
 
@@ -615,6 +622,9 @@
 
       </main>
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      
+      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 
       <script>
 
@@ -644,7 +654,7 @@
               returnReason: returnReason ? returnReason : ""
             }),
           })
-        
+
           if (response.ok) {
             Swal.fire({
               title: "Order Returned",
@@ -656,7 +666,7 @@
             }, 1500)
           }
 
-          
+
 
 
 
@@ -753,6 +763,127 @@
           }
         }
 
+        document.getElementById("continue-payment")?.addEventListener("click",  async function (event) {
+          event.preventDefault();
+
+         
+          const orderId =  document.getElementById("orderId").value
+
+          const response = await fetch(`/order/retry-razorpay/${orderId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+           
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+
+          if (!result.success) {
+            throw new Error(result.message || 'Failed to initialize payment');
+          }
+
+          const options = {
+            key: result.razorpayKey,
+            amount: result.amount,
+            currency: 'INR',
+            name: 'Your Store Name',
+            description: 'Order Payment',
+            order_id: result.orderId,
+            prefill: result.prefill,
+            handler: async function (response) {
+              try {
+                const verifyResponse = await fetch('/order/verify-payment', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                  
+                  })
+                });
+
+                if (!verifyResponse.ok) {
+                  throw new Error('Payment verification failed');
+                }
+
+                const verifyResult = await verifyResponse.json();
+
+                if (verifyResult.success) {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Payment successful!',
+                    toast: true,
+                    position: 'top-right',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                  })
+
+
+
+
+                } else {
+                  throw new Error(verifyResult.message || 'Payment verification failed');
+                }
+              } catch (err) {
+                console.error('Payment verification error:', err);
+                Swal.fire({
+                  icon: 'error',
+                  title: err.message || 'Payment verification failed',
+                  toast: true,
+                  position: 'top-right',
+                  showConfirmButton: false,
+                  timer: 3000,
+                  timerProgressBar: true,
+                });
+              }
+            },
+            modal: {
+              ondismiss: function () {
+                Swal.fire({
+                  icon: 'warning',
+                  title: 'Payment cancelled',
+                  toast: true,
+                  position: 'top-right',
+                  showConfirmButton: false,
+                  timer: 2000,
+                  timerProgressBar: true,
+                });
+              }
+            }
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open()
+          
+
+         
+
+          
+
+        })
+        
+
+        document.getElementById("Invoice").addEventListener("click", async function (event) {
+         
+          const orderId =  document.getElementById("orderId").value
+          console.log(orderId)
+          const response = await fetch(`/invoice/${orderId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+
+        })
 
       </script>
 </body>

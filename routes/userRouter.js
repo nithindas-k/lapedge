@@ -81,10 +81,14 @@ router.get("/orders/:orderId", userController.loadOrdersDetails)
 router.get('/profile-edit', userController.loadProfileEdit);
 router.post('/profile-edit',userController.updateProfile);
 router.get("/order-confirmation/:orderId",userController.loadOrderConfirmation)
+router.get("/order-failed-confirmation/:razorpayId",userController.loadOrderFailure)
+router.post("/order/retry-razorpay/:orderId",userController.retryPayment)
 
 router.get("/productsFilter",userController.loadProductsFilter)
 
+router.get("/Invoice/:orderId",userController.loadInvoice)
 
 
+ 
 
 module.exports = router;  

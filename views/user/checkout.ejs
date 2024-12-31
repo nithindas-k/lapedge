@@ -525,10 +525,12 @@
                   <div class="form__group grid">
                     <input id="couponCode" type="text" class="form__input" placeholder="Enter Your Coupon" />
                     <div class="form__btn">
+                      
                       <button id="apply" class="btn flex btn--sm">
                         <i class="fi-rs-label"></i> Apply
                       </button>
                     </div>
+                    
                   </div>
                 </form>
 
@@ -551,6 +553,8 @@
                           <p>No available coupons</p>
                           <% } %>
                 </div>
+
+               <a style="text-decoration: none;"  id="cancel-coupon"  href=""><p style="color: red;" > <b>Cancel</b> </p></a>
 
               </div>
             </div>
@@ -712,7 +716,6 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-   
             },
             body: JSON.stringify({
                 addressId: addressId,
@@ -727,6 +730,7 @@
         }
 
         const result = await response.json();
+        console.log("result + " ,result)
 
         if (!result.success) {
             throw new Error(result.message || 'Failed to initialize payment');
@@ -759,6 +763,7 @@
                     }
 
                     const verifyResult = await verifyResponse.json();
+                    console.log("verifyResult + ", verifyResult)
 
                     if (verifyResult.success) {
                         Swal.fire({
@@ -805,7 +810,11 @@
 
         const rzp = new Razorpay(options);
         rzp.open();
-
+        rzp.on('payment.failed', (response) => {
+          console.log( response);
+          window.location.href = `/order-failed-confirmation/${response.error.metadata.order_id}`;
+        })
+      
     } catch (error) {
         console.error('Payment initialization error:', error);
         Swal.fire({
@@ -883,6 +892,45 @@
             console.error("Failed to apply coupon:", error);
           }
         });
+
+
+        document.getElementById("cancel-coupon").addEventListener("click",  async function(event) {
+
+          event.preventDefault();
+          swal.fire({
+            title: 'Are you sure you want to cancel the coupon?',
+            text: "You won't be able to apply the coupon again.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, cancel it!'
+          })
+          .then((result) => {
+            if (result.isConfirmed) {
+
+              swal.fire({
+                icon:'success',
+                title: 'Coupon canceled successfully!',
+                toast: true,
+                position: 'top-right',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+              })
+              .then(()=>{
+                window.location.reload();
+              })
+
+
+              
+            }
+          })
+
+
+          
+          
+        })
 
 
 

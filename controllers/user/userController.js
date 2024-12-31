@@ -7,11 +7,16 @@ const env = require("dotenv").config()
 const bcrypt = require('bcrypt');
 const product = require("../../models/productModel");
 const User = require("../../models/userSchema")
-const wishlist = require("../../models/wishlistModel")
+const wishlistSchema = require("../../models/wishlistModel")
 const couponSchema = require("../../models/couponModel")
-const offerSchema   = require("../../models/offerModel")
+const offerSchema = require("../../models/offerModel")
+const razorpay = require('../../config/razorpay');
+const PDFDocument = require('pdfkit');
+
+
 
 const Order = require("../../models/orderModel")
+
 
 
 
@@ -335,8 +340,10 @@ const loadResetPassword = async (req, res) => {
 
 const loadShopPage = async (req, res) => {
     try {
+
+
         const { category = "All", price = "All", sortBy = "All", page = 1, search = "" } = req.query;
-        const limit = 8; 
+        const limit = 8;
         const skip = (page - 1) * limit;
 
         let filter = {};
@@ -348,22 +355,22 @@ const loadShopPage = async (req, res) => {
             }
         }
 
-       
+
         if (price && price !== "All") {
             const [min, max] = price.split("-").map(Number);
             filter.price = max ? { $gte: min, $lte: max } : { $gte: min };
         }
 
-        
+
         if (search) {
-            filter.name = { $regex: search, $options: "i" }; 
+            filter.name = { $regex: search, $options: "i" };
         }
 
         const products = await productSchema.find(filter)
             .populate("category")
             .sort(sortBy === "price-low-to-high" ? { price: 1 } :
-                  sortBy === "price-high-to-low" ? { price: -1 } :
-                  { createdAt: -1 })
+                sortBy === "price-high-to-low" ? { price: -1 } :
+                    { createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
@@ -371,6 +378,7 @@ const loadShopPage = async (req, res) => {
         const totalPages = Math.ceil(totalProducts / limit);
 
         const categorys = await categorySchema.find({ isListed: true });
+
 
         res.render("shop", {
             products,
@@ -380,7 +388,7 @@ const loadShopPage = async (req, res) => {
             sortBy,
             currentPage: page,
             totalPages,
-            searchQuery: search 
+            searchQuery: search
         });
     } catch (error) {
         console.log(error);
@@ -455,12 +463,21 @@ const login = async (req, res) => {
 
 const loadproductDetails = async (req, res) => {
     const id = req.params.id;
+
     try {
+        const userId = req?.session?.userData?._id
+        let wishlisted = false
+        if (userId) {
+            const wishlist = await wishlistSchema.findOne({ userId: userId })
+             wishlisted = wishlist && wishlist.items.includes(id)
+        }
+        
+
 
         const product = await productSchema.findOne({ _id: id }).populate('specifications.RAM').populate('specifications.processor').populate('specifications.displaySize').populate('specifications.storage');
         const products = await productSchema.find({ _id: { $ne: id }, isBlocked: false, name: { $eq: product.name } }).populate("category")
 
-        return res.render("productDetails", { product: product, products: products })
+        return res.render("productDetails", { product: product, products: products, wishlisted: wishlisted })
 
     } catch (error) {
         console.log("productDetails page not founded", error)
@@ -771,6 +788,222 @@ const loadProductsFilter = async (req, res) => {
 }
 
 
+const loadOrderFailure  =  async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.redirect("/login")
+        }
+
+        const { razorpayId } = req.params
+        console.log("-------------------------------------",razorpayId)
+
+      
+
+
+
+
+        const orderDetails = await Order.findOne({razorpayOrderId:razorpayId}).populate("items.ProductId")
+        const totalAmount = orderDetails.items.reduce((accumulator, item) => {
+            return accumulator + item.totalPrice;
+        }, 0);
+        const couponId = orderDetails.coupon
+
+        let discountAmonut = 0
+
+        if (couponId) {
+            const coupon = await couponSchema.findById(couponId)
+
+            if (coupon && coupon.discountValue) {
+                discountAmonut = parseInt((totalAmount * coupon.discountValue) / 100);
+            }
+
+
+        }
+
+
+
+
+
+        res.render("success", {
+            order: orderDetails,
+            totalAmount: totalAmount,
+            discountAmonut: discountAmonut || 0
+        })
+
+
+        
+    } catch (error) {
+        console.log(error)
+        
+    }
+}
+
+const retryPayment =  async (req , res )=>{
+    try {
+        const {orderId} = req.params
+
+        const order = await Order.findById(orderId).populate("userId")
+        console.log(order)
+        const oldOrderId = order.razorpayOrderId
+
+       const user  = await userSchema.findOne({_id: order.userId})
+
+
+
+
+        
+             
+        let amountInPaise  =  Math.round(parseFloat(order.totalAmount)*100);
+
+        console.log(amountInPaise)
+
+
+        const orderOptions = {
+            amount: amountInPaise,
+            currency: 'INR',
+            receipt: `order_${Date.now()}`,
+            payment_capture: 1
+        };
+           
+            
+            const razorpayOrder = await razorpay.orders.create(orderOptions);
+            order.razorpayOrderId = razorpayOrder.id
+            await order.save()
+
+            console.log("++++++++++++++++++++++++++++++++++++",razorpayOrder)
+
+
+
+            const response = {
+                success: true,
+                razorpayKey: process.env.RAZORPAY_KEY_ID,
+                amount: amountInPaise,
+                orderId: razorpayOrder.id,
+                order_id: orderId ,
+                
+                prefill: {
+                    name:  user.name || '',
+                    email: user.email || '',
+                    contact: user.phone || ''
+                }
+            };
+
+            return res.status(200).json(response);
+
+
+    } catch (error) {
+
+        console.log(error)
+        
+    }
+
+}
+
+
+const loadInvoice = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        console.log('Generating invoice for order:', orderId);
+
+        // Fetch order with populated fields
+        const order = await Order.findById(orderId)
+            .populate('userId', 'name email address phone')
+            .populate('items.ProductId', 'name salePrice');
+
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+
+        // Create PDF document
+        const doc = new PDFDocument({
+            margin: 30,
+            size: 'A4',
+        });
+
+        // Set response headers
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="invoice-${orderId}.pdf"`);
+
+        // Pipe the document to the response
+        doc.pipe(res);
+
+        // Helper function for drawing table rows
+        const drawRow = (y, cols) => {
+            cols.forEach(([text, xOffset, width]) => {
+                doc.text(text, xOffset, y, { width, ellipsis: true });
+            });
+        };
+
+        // Header
+        doc.fontSize(20).text('INVOICE', { align: 'center' });
+        doc.moveDown();
+
+        // Invoice Details
+        doc.fontSize(12).text(`Invoice Date: ${new Date(order.createdAt).toLocaleDateString()}`);
+        doc.text(`Invoice Number: INV-${order._id.toString().slice(-6)}`);
+        doc.text(`Order Status: ${order.orderStatus}`);
+        doc.text(`Payment Status: ${order.paymentStatus}`);
+        doc.moveDown();
+
+        // Customer Details
+        doc.fontSize(14).text('Customer Details', { underline: true });
+        doc.fontSize(12).text(`Name: ${order.userId.name}`);
+        doc.text(`Email: ${order.userId.email}`);
+        doc.text(`Address: ${order.shippingAddress}`);
+        doc.moveDown();
+
+        // Items Table Header
+        let y = doc.y + 10;
+        doc.fontSize(14).text('Order Items', { underline: true });
+        y += 20;
+
+        doc.fontSize(12).text('Product', 30, y, { width: 200 });
+        doc.text('Price', 250, y, { width: 100, align: 'right' });
+        doc.text('Quantity', 350, y, { width: 100, align: 'right' });
+        doc.text('Subtotal', 450, y, { width: 100, align: 'right' });
+        doc.moveTo(30, y + 15).lineTo(550, y + 15).stroke();
+        y += 20;
+
+        // Items Table Rows
+        order.items.forEach(item => {
+            const productName = item.ProductId?.name || 'Unknown';
+            const price = `₹${item.ProductId?.salePrice || 0}`;
+            const quantity = item.quantity.toString();
+            const subtotal = `₹${((item.ProductId?.salePrice || 0) * item.quantity).toFixed(2)}`;
+
+            drawRow(y, [
+                [productName, 30, 200],
+                [price, 250, 100],
+                [quantity, 350, 100],
+                [subtotal, 450, 100],
+            ]);
+            y += 20;
+        });
+
+        doc.moveDown();
+
+        // Payment Summary
+        doc.fontSize(14).text('Payment Summary', { underline: true });
+        doc.fontSize(12).text(`Subtotal: ₹${order.totalAmount.toFixed(2)}`);
+        doc.text(`Discount: ₹${order.couponDiscount.toFixed(2)}`);
+        doc.text(`Total Amount: ₹${order.payableAmount.toFixed(2)}`);
+        doc.moveDown();
+
+        // Footer
+        doc.fontSize(10)
+            .text('Thank you for your business!', { align: 'center' })
+            .moveDown()
+            .fontSize(8)
+            .text('This is a computer-generated document and needs no signature.', { align: 'center' });
+
+        // Finalize the PDF
+        doc.end();
+
+    } catch (error) {
+        console.error('Error generating invoice:', error);
+        res.status(500).send('Error generating invoice: ' + error.message);
+    }
+};
 
 
 
@@ -798,7 +1031,10 @@ module.exports = {
     loadOrderConfirmation,
     loadOrders,
     loadOrdersDetails,
-    loadProductsFilter
+    loadProductsFilter,
+    loadOrderFailure,
+    retryPayment,
+    loadInvoice
 
 
 

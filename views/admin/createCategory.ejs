@@ -65,8 +65,8 @@
 
             event.preventDefault();
 
-            const name  = document.getElementById("name").value()
-            const description  = document.getElementById("description").value()
+            const name  = document.getElementById("name").value
+            const description  = document.getElementById("description").value
 
 
              if(name.trim() == ""){
@@ -158,45 +158,42 @@
 
            
             fetch('/category/create', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        
-                        swal({
-                            title: "Success",
-                            text: data.message,
-                            icon: "success",
-                            button: "OK",
-                        }).then(() => {
-                            window.location.href = "/category"; 
-                        });
-                    } else {
-                      
-                        swal({
-                            title: "Error",
-                            text: data.message,
-                            icon: "error",
-                            button: "OK",
-                        });
-                    }
-                })
-                .catch(error => {
-                 
-                    swal({
-                        title: "Error",
-                        text: "An unexpected error occurred.",
-                        icon: "error",
-                        button: "OK",
-                    });
-                    console.error('Error:', error);
+        method: 'POST',
+        body: formData
+    })
+        .then(async (response) => {
+            const data = await response.json();
+            if (response.ok && data.success) {
+                swal({
+                    title: "Success",
+                    text: data.message,
+                    icon: "success",
+                    button: "OK",
+                }).then(() => {
+                    window.location.href = "/admin/categories"; 
                 });
-
-            cropModal.style.display = 'none'; 
-            cropper.destroy(); 
+            } else {
+                swal({
+                    title: "Error",
+                    text: data.message,
+                    icon: "error",
+                    button: "OK",
+                });
+            }
+        })
+        .catch(error => {
+            swal({
+                title: "Error",
+                text: "An unexpected error occurred.",
+                icon: "error",
+                button: "OK",
+            });
+            console.error('Error:', error);
         });
+
+    cropModal.style.display = 'none'; 
+    cropper.destroy(); 
+});
 
      
         function dataURItoBlob(dataURI) {

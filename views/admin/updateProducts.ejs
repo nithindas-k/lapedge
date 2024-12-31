@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,133 +10,145 @@
     <link rel="stylesheet" href="https://unpkg.com/cropperjs/dist/cropper.min.css">
     <link rel="stylesheet" href="/css/updateproduct.css">
 </head>
+
 <body>
     <div class="main-div">
         <%- include("../partials/adminNavbar") %>
-        <div class="hello">
-            <%- include('../partials/adminSidebar') %>
-        </div>
+            <div class="hello">
+                <%- include('../partials/adminSidebar') %>
+            </div>
 
-        <div class="containerCreateProduct">
-            <h1>Update Product</h1>
+            <div class="containerCreateProduct">
+                <h1>Update Product</h1>
 
-            <form id="productForm" class="product-form">
-                <label for="name">Product Name</label>
-                <input type="text" name="name" id="name" value="<%= product.name %>">
+                <form id="productForm" class="product-form">
+                    <label for="name">Product Name</label>
+                    <input type="text" name="name" id="name" value="<%= product.name %>">
 
-                <label for="description">Product Description</label>
-                <textarea name="description" id="description"><%= product.description %></textarea>
+                    <label for="description">Product Description</label>
+                    <textarea name="description" id="description"><%= product.description %></textarea>
 
-                <label for="brand">Brand</label>
-                <input type="text" name="brand" id="brand" value="<%= product.brand %>">
+                    <label for="brand">Brand</label>
+                    <input type="text" name="brand" id="brand" value="<%= product.brand %>">
 
-                <label for="category">Category</label>
-                <select name="category" id="category">
-                    <% category.forEach(cat=> { %>
-                        <option value="<%= cat._id %>" <%= product.category?.toString() === cat._id.toString() ? 'selected' : '' %>>
-                            <%= cat.name %>
-                        </option>
-                    <% }) %>
-                </select>
-
-                <label for="regularPrice">Regular Price</label>
-                <input type="number" name="regularPrice" id="regularPrice" value="<%= product.regularPrice %>">
-
-                <label for="salePrice">Sale Price</label>
-                <input type="number" name="salePrice" id="salePrice" value="<%= product.salePrice %>">
-
-                <label for="quantity">Quantity</label>
-                <input type="number" name="quantity" id="quantity" value="<%= product.quantity %>">
-
-              
-                
-
-                <h4>Specifications</h4>
-                <label for="RAM">RAM</label>
-                <select  name="RAM" id="RAM">
-                    <% ram.forEach((data)=>{ %>
-                        <option value="<%= data._id  %>"<%= product.specifications.ram?.toString() === data._id.toString() ? 'selected' : '' %>>
-                        <%= data.value %>
-                        </option>
-                        <% }) %>
-                    
+                    <label for="category">Category</label>
+                    <select name="category" id="category">
+                        <% category.forEach(cat=> { %>
+                            <option value="<%= cat._id %>" <%=product.category?.toString()===cat._id.toString()
+                                ? 'selected' : '' %>>
+                                <%= cat.name %>
+                            </option>
+                            <% }) %>
                     </select>
 
-                <label for="processor">Processor</label>
-                <select  name="processor" id="processor">
-                    <% processor.forEach((data)=>{ %>
-                        <option value="<%= data._id  %>" <%= product.specifications.processor?.toString() === data._id.toString() ? 'selected' : '' %>>
-                        <%= data.value %>
-                        </option>
-                        <% }) %>
-                    
+                    <label for="regularPrice">Regular Price</label>
+                    <input type="number" name="regularPrice" id="regularPrice" value="<%= product.regularPrice %>">
+
+                    <label for="salePrice">Sale Price</label>
+                    <input type="number" name="salePrice" id="salePrice" value="<%= product.salePrice %>">
+
+                    <label for="quantity">Quantity</label>
+                    <input type="number" name="quantity" id="quantity" value="<%= product.quantity %>">
+
+
+
+
+                    <h4>Specifications</h4>
+                    <label for="RAM">RAM</label>
+                    <select name="RAM" id="RAM">
+                        <% ram.forEach((data)=>{ %>
+                            <option value="<%= data._id  %>"
+                                <%=product.specifications.ram?.toString()===data._id.toString() ? 'selected' : '' %>>
+                                <%= data.value %>
+                            </option>
+                            <% }) %>
+
                     </select>
 
-                <label for="displaySize">Display Size</label>
-                <select  name="displaySize" id="displaySize">
-                    <% display.forEach((data)=>{ %>
-                        <option value="<%= data._id  %>" <%= product.specifications.display?.toString() === data._id.toString() ? 'selected' : '' %> >
-                        <%= data.value %>
-                        </option>
-                        <% }) %>
-                    
-                    </select>
-                <label for="storage">Storage</label>
-                <select  name="storage" id="storage" >
-                    <% storage.forEach((data)=>{ %>
-                        <option value="<%= data._id  %>" selected="<%= data.value %>"<%= product.specifications.storage?.toString() === data._id.toString() ? 'selected' : '' %>>
-                        <%= data.value %>
-                        </option>
-                        <% }) %>
-                    
+                    <label for="processor">Processor</label>
+                    <select name="processor" id="processor">
+                        <% processor.forEach((data)=>{ %>
+                            <option value="<%= data._id  %>"
+                                <%=product.specifications.processor?.toString()===data._id.toString() ? 'selected' : ''
+                                %>>
+                                <%= data.value %>
+                            </option>
+                            <% }) %>
+
                     </select>
 
-                <div class="crop-section">
-                    <label for="productImage1">Product Image 1</label>
-                    <input type="file" name="productImage1" id="productImage1" accept="image/*">
-                    <img id="imagePreview1" src="/uploads/products/<%= product.productImage[0] %>" alt="Image Preview 1" style="display:block;">
-                    <button type="button" id="cropButton1" style="display:inline-block;">Crop Image 1</button>
-                </div>
+                    <label for="displaySize">Display Size</label>
+                    <select name="displaySize" id="displaySize">
+                        <% display.forEach((data)=>{ %>
+                            <option value="<%= data._id  %>"
+                                <%=product.specifications.display?.toString()===data._id.toString() ? 'selected' : '' %>
+                                >
+                                <%= data.value %>
+                            </option>
+                            <% }) %>
 
-                <div class="crop-section">
-                    <label for="productImage2">Product Image 2</label>
-                    <input type="file" name="productImage2" id="productImage2" accept="image/*">
-                    <img id="imagePreview2" src="/uploads/products/<%= product.productImage[1] %>" alt="Image Preview 2" style="display:block;">
-                    <button type="button" id="cropButton2" style="display:inline-block;">Crop Image 2</button>
-                </div>
+                    </select>
+                    <label for="storage">Storage</label>
+                    <select name="storage" id="storage">
+                        <% storage.forEach((data)=>{ %>
+                            <option value="<%= data._id  %>" selected="<%= data.value %>"
+                                <%=product.specifications.storage?.toString()===data._id.toString() ? 'selected' : '' %>
+                                >
+                                <%= data.value %>
+                            </option>
+                            <% }) %>
 
-                <div class="crop-section">
-                    <label for="productImage3">Product Image 3</label>
-                    <input type="file" name="productImage3" id="productImage3" accept="image/*">
-                    <img id="imagePreview3" src="/uploads/products/<%= product.productImage[2] %>" alt="Image Preview 3" style="display:block;">
-                    <button type="button" id="cropButton3" style="display:inline-block;">Crop Image 3</button>
-                </div>
-              <input type="text" value="<%=product._id %>" hidden id="productId">
-                <div id="cropModal" class="crop-modal">
-                    <div class="modal-content">
-                        <img id="imageToCrop" alt="Image to Crop">
-                        <div class="button-group">
-                            <button type="button" id="saveCrop">Save Cropped Image</button>
-                            <button type="button" id="cancelCrop">Cancel</button>
+                    </select>
+
+                    <div class="crop-section">
+                        <label for="productImage1">Product Image 1</label>
+                        <input type="file" name="productImage1" id="productImage1" accept="image/*">
+                        <img id="imagePreview1" src="/uploads/products/<%= product.productImage[0] %>"
+                            alt="Image Preview 1" style="display:block;">
+                        <button type="button" id="cropButton1" style="display:inline-block;">Crop Image 1</button>
+                    </div>
+
+                    <div class="crop-section">
+                        <label for="productImage2">Product Image 2</label>
+                        <input type="file" name="productImage2" id="productImage2" accept="image/*">
+                        <img id="imagePreview2" src="/uploads/products/<%= product.productImage[1] %>"
+                            alt="Image Preview 2" style="display:block;">
+                        <button type="button" id="cropButton2" style="display:inline-block;">Crop Image 2</button>
+                    </div>
+
+                    <div class="crop-section">
+                        <label for="productImage3">Product Image 3</label>
+                        <input type="file" name="productImage3" id="productImage3" accept="image/*">
+                        <img id="imagePreview3" src="/uploads/products/<%= product.productImage[2] %>"
+                            alt="Image Preview 3" style="display:block;">
+                        <button type="button" id="cropButton3" style="display:inline-block;">Crop Image 3</button>
+                    </div>
+                    <input type="text" value="<%=product._id %>" hidden id="productId">
+                    <div id="cropModal" class="crop-modal">
+                        <div class="modal-content">
+                            <img id="imageToCrop" alt="Image to Crop">
+                            <div class="button-group">
+                                <button type="button" id="saveCrop">Save Cropped Image</button>
+                                <button type="button" id="cancelCrop">Cancel</button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="center-button">
-                    <button type="submit" class="submit-button">Update Product</button>
-                </div>
-            </form>
+                    <div class="center-button">
+                        <button type="submit" class="submit-button">Update Product</button>
+                    </div>
+                </form>
 
-            <a href="/admin/products" class="back-button" style="color: #ff9d00;margin: 299px;">Back to Products</a>
-        </div>
+                <a href="/admin/products" class="back-button" style="color: #ff9d00;margin: 299px;">Back to Products</a>
+            </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>
     <script>
 
-let cropper;
-        let currentImageIndex = null; 
+        let cropper;
+        let currentImageIndex = null;
         const imageInputs = [
             document.getElementById('productImage1'),
             document.getElementById('productImage2'),
@@ -156,10 +169,10 @@ let cropper;
         const cancelCropButton = document.getElementById('cancelCrop');
         const imageToCrop = document.getElementById('imageToCrop');
 
-      
+
         imageInputs.forEach((input, index) => {
             input.addEventListener('change', function (event) {
-                
+
                 const file = event.target.files[0];
                 if (file) {
                     const reader = new FileReader();
@@ -174,29 +187,29 @@ let cropper;
 
 
 
-                        currentImageIndex = index; 
-                cropModal.style.display = 'flex';
-                imageToCrop.src = imagePreviews[index].src;
+                        currentImageIndex = index;
+                        cropModal.style.display = 'flex';
+                        imageToCrop.src = imagePreviews[index].src;
 
-                cropper = new Cropper(imageToCrop, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    autoCropArea: 0.8,
-                    zoomable: true,
-                    movable: true,
-                });
+                        cropper = new Cropper(imageToCrop, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 0.8,
+                            zoomable: true,
+                            movable: true,
+                        });
                     };
                     reader.readAsDataURL(file);
                 }
-           
-                
+
+
             });
         });
 
-        
+
         cropButtons.forEach((button, index) => {
             button.addEventListener('click', function () {
-                currentImageIndex = index; 
+                currentImageIndex = index;
                 cropModal.style.display = 'flex';
                 imageToCrop.src = imagePreviews[index].src;
 
@@ -212,47 +225,47 @@ let cropper;
 
 
 
-       
 
-   
+
+
         saveCropButton.addEventListener('click', function () {
             if (cropper) {
                 const canvas = cropper.getCroppedCanvas();
                 const croppedImageDataUrl = canvas.toDataURL();
                 const blob = dataURItoBlob(croppedImageDataUrl);
-                    console.log(blob)
-               
+                console.log(blob)
+
                 imagePreviews[currentImageIndex].src = croppedImageDataUrl;
-              
-            
+
+
                 cropper.destroy();
                 cropModal.style.display = 'none'
                 const productId = document.getElementById("productId").value;
                 const formData = new FormData()
-                formData.append("productImage",blob)
-                formData.append("index",currentImageIndex)
+                formData.append("productImage", blob)
+                formData.append("index", currentImageIndex)
                 fetch(`/products/update-image/${productId}`, {
-            method: 'PUT',
-            body:formData
-        }).then((response) => response.json())
-            .then((result) => {
-                console.log(result);
-                if (result.message) {
-                    swal({
-                        title: 'image updated successfully',
-                        text: "image has been added!",
-                        icon: 'success',
-                        confirmButtonText: 'Okay'
+                    method: 'PUT',
+                    body: formData
+                }).then((response) => response.json())
+                    .then((result) => {
+                        console.log(result);
+                        if (result.message) {
+                            swal({
+                                title: 'image updated successfully',
+                                text: "image has been added!",
+                                icon: 'success',
+                                confirmButtonText: 'Okay'
+                            })
+                        } else {
+                            console.error('Error:', result.message);
+
+                        }
                     })
-                } else {
-                    console.error('Error:', result.message);
-              
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                
-            });
+                    .catch((error) => {
+                        console.error('Error:', error);
+
+                    });
 
 
 
@@ -293,137 +306,143 @@ let cropper;
 
 
         productForm.addEventListener("submit", function (event) {
-    event.preventDefault();
-    const productId = document.getElementById("productId").value;
-    const name = document.getElementById("name").value;
-    const description = document.getElementById("description").value;
-    const quantity = document.getElementById("quantity").value;
+            event.preventDefault();
+            const productId = document.getElementById("productId").value;
+            const name = document.getElementById("name").value;
+            const description = document.getElementById("description").value;
+            const quantity = document.getElementById("quantity").value;
 
-    const RAM = document.getElementById("RAM").value;
-    const processor = document.getElementById("processor").value;
-    const displaySize = document.getElementById("displaySize").value;
-    const storage = document.getElementById("storage").value;
-    const brand = document.getElementById("brand").value;
-    const category = document.getElementById("category").value;
-    const regularPrice = parseFloat(document.getElementById("regularPrice").value);
-    const salePrice = parseFloat(document.getElementById("salePrice").value);
+            const RAM = document.getElementById("RAM").value;
+            const processor = document.getElementById("processor").value;
+            const displaySize = document.getElementById("displaySize").value;
+            const storage = document.getElementById("storage").value;
+            const brand = document.getElementById("brand").value;
+            const category = document.getElementById("category").value;
+            const regularPrice = parseFloat(document.getElementById("regularPrice").value);
+            const salePrice = document.getElementById("salePrice").value
 
-    console.log(name,description,displaySize,quantity,regularPrice,salePrice,category,brand,RAM,processor,storage)
+            console.log(name, description, displaySize, quantity, regularPrice, salePrice, category, brand, RAM, processor, storage)
 
-    let errorMessage = "";
-
- 
-    if (!name) {
-        errorMessage = "Product name is required.";
-    } else if (!description) {
-        errorMessage = "Product description is required.";
-    } else if (!brand) {
-        errorMessage = "Product brand is required.";
-    } else if (!category) {
-        errorMessage = "Product category is required.";
-    } else if (!regularPrice) {
-        errorMessage = "Regular price is required.";
-    } else if (!salePrice) {
-        errorMessage = "Sale price is required.";
-    } else if (!quantity) {
-        errorMessage = "Quantity is required.";
-    } else if (!RAM) {
-        errorMessage = "RAM is required.";
-    } else if (!processor) {
-        errorMessage = "Processor is required.";
-    } else if (!displaySize) {
-        errorMessage = "Display size is required.";
-    } else if (!storage) {
-        errorMessage = "Storage is required.";
-    } else if (!productImage1) {
-        errorMessage = "Product image 1 is required.";
-    } else if (!productImage2) {
-        errorMessage = "Product image 2 is required.";
-    } else if (!productImage3) {
-        errorMessage = "Product image 3 is required.";
-    } else if (isNaN(regularPrice) || regularPrice <= 0) {
-        errorMessage = "Regular price must be a positive number.";
-    } else if (isNaN(salePrice) || salePrice < 0) {
-        errorMessage = "Sale price must be a positive number.";
-    } else if (quantity && (isNaN(quantity) || parseInt(quantity) < 0)) {
-        errorMessage = "Quantity must be a positive integer.";
-    } else if (salePrice > regularPrice) {
-        errorMessage = "Sale price cannot be greater than the regular price.";
-    }
+            let errorMessage = "";
 
 
-    if (errorMessage) {
-        swal({
-            title: 'Validation Error',
-            text: errorMessage,
-            icon: 'error',
-            confirmButtonText: 'Okay'
-        });
-    } else {
-       
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("description", description);
-        formData.append("quantity", quantity);
+            if (!name) {
+                errorMessage = "Product name is required.";
+            } else if (!description) {
+                errorMessage = "Product description is required.";
+            } else if (!brand) {
+                errorMessage = "Product brand is required.";
+            } else if (!category) {
+                errorMessage = "Product category is required.";
+            } else if (!regularPrice) {
+                errorMessage = "Regular price is required.";
+            } else if (!salePrice) {
+                errorMessage = "Sale price is required.";
+            } else if (!quantity) {
+                errorMessage = "Quantity is required.";
+            } else if (!RAM) {
+                errorMessage = "RAM is required.";
+            } else if (!processor) {
+                errorMessage = "Processor is required.";
+            } else if (!displaySize) {
+                errorMessage = "Display size is required.";
+            } else if (!storage) {
+                errorMessage = "Storage is required.";
+            } else if (!productImage1) {
+                errorMessage = "Product image 1 is required.";
+            } else if (!productImage2) {
+                errorMessage = "Product image 2 is required.";
+            } else if (!productImage3) {
+                errorMessage = "Product image 3 is required.";
+            } else if (isNaN(regularPrice) || regularPrice <= 0) {
+                errorMessage = "Regular price must be a positive number.";
+            } else if (isNaN(salePrice) || salePrice < 0) {
+                errorMessage = "Sale price must be a positive number.";
+            } else if (quantity && (isNaN(quantity) || parseInt(quantity) < 0)) {
+                errorMessage = "Quantity must be a positive integer.";
+            } else if (parseFloat(salePrice) > regularPrice) {
+                errorMessage = "Sale price cannot be greater than the regular price.";
+            } else if (/[eE]/.test(salePrice) ) {
+                errorMessage = "Sale price cannot contain scientific notation";
+            }
 
-        formData.append("RAM", RAM);
-        formData.append("processor", processor);
-        formData.append("displaySize", displaySize);
-        formData.append("storage", storage);
-        formData.append("brand", brand);
-        formData.append("category", category);
-        formData.append("regularPrice", regularPrice);
-        formData.append("salePrice", salePrice);
 
-        console.log(formData)
-        console.log(productId)
 
-  
-        fetch(`/products/update/${productId}`, {
-            method: 'PUT',
-            headers:{
-                'Content-Type': 'application/json'
-            },
-            body:JSON.stringify({
-                name: name,
-                description: description,
-                quantity: quantity,
-              
-                RAM: RAM,
-                processor: processor,
-                displaySize: displaySize,
-                storage: storage,
-                brand: brand,
-                category: category,
-                regularPrice: regularPrice,
-                salePrice: salePrice,
-                productId: productId
-            }),
-        }).then((response) => response.json())
-            .then((result) => {
-                console.log(result);
-                if (result.message) {
-                    swal({
-                        title: 'Product updated successfully',
-                        text: "Product has been added!",
-                        icon: 'success',
-                        confirmButtonText: 'Okay'
-                    }).then(() => {
-                        window.location.href = "/admin/products";
+     console.log(typeof(salePrice))
+                console.log(/[eE]/.test(String(salePrice)))
+            if (errorMessage) {
+                swal({
+                    title: 'Validation Error',
+                    text: errorMessage,
+                    icon: 'error',
+                    confirmButtonText: 'Okay'
+                });
+            } else {
+
+                const formData = new FormData();
+                formData.append("name", name);
+                formData.append("description", description);
+                formData.append("quantity", quantity);
+
+                formData.append("RAM", RAM);
+                formData.append("processor", processor);
+                formData.append("displaySize", displaySize);
+                formData.append("storage", storage);
+                formData.append("brand", brand);
+                formData.append("category", category);
+                formData.append("regularPrice", regularPrice);
+                formData.append("salePrice", salePrice);
+
+                console.log(formData)
+                console.log(productId)
+
+
+                fetch(`/products/update/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description,
+                        quantity: quantity,
+
+                        RAM: RAM,
+                        processor: processor,
+                        displaySize: displaySize,
+                        storage: storage,
+                        brand: brand,
+                        category: category,
+                        regularPrice: regularPrice,
+                        salePrice: salePrice,
+                        productId: productId
+                    }),
+                }).then((response) => response.json())
+                    .then((result) => {
+                        console.log(result);
+                        if (result.message) {
+                            swal({
+                                title: 'Product updated successfully',
+                                text: "Product has been added!",
+                                icon: 'success',
+                                confirmButtonText: 'Okay'
+                            }).then(() => {
+                                window.location.href = "/admin/products";
+                            });
+                        } else {
+                            console.error('Error:', result.message);
+
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+
                     });
-                } else {
-                    console.error('Error:', result.message);
-           
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-               
-            });
-    }
-});
+            }
+        });
 
-      
+
     </script>
 </body>
+
 </html>

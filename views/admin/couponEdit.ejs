@@ -130,11 +130,7 @@
                     </div>
 
                     <div class="form-row">
-                        <div>
-                            <label for="maxDiscount">Maximum Discount</label>
-                            <input type="number" id="maxDiscount" name="maxDiscount" required min="0" step="0.01"
-                                placeholder="Maximum discount limit" value="<%=coupon.maxDiscount %>">
-                        </div>
+                        
                         <div>
                             <label for="startDate">Start Date</label>
                             <input type="date" id="startDate" name="startDate" required value="<%= new Date(coupon.startDate).toISOString().split('T')[0] %>" > 
@@ -189,13 +185,13 @@
 
                 const code = document.getElementById("code").value;
             const discountValue = document.getElementById("discountValue").value;
-            const maxDiscount = document.getElementById("maxDiscount").value;
+          
             const startDate = document.getElementById("startDate").value;
             const expirationDate = document.getElementById("expirationDate").value;
             const maxUsage = document.getElementById("maxUsage").value;
             const minimumPrice = document.getElementById("minimumPrice").value;
 
-            if (code === "" || discountValue === "" || maxDiscount === "" || startDate === "" || expirationDate === "" || maxUsage === "" || minimumPrice === "") {
+            if (code === "" || discountValue === "" ||  startDate === "" || expirationDate === "" || maxUsage === "" || minimumPrice === "") {
                 Swal.fire({
                     toast: true,
                     position: 'top-end',
@@ -208,7 +204,45 @@
                 });
                 return;
             }
+            if(startDate>=expirationDate){
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    title: 'Start date should be before expiration date',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    icon: 'warning',
+                })
 
+            }
+
+            if (startDate >= expirationDate) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                title: 'Start date must be earlier than the expiration date',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                icon: 'warning',
+            });
+            return;
+        }
+
+            if(discountValue > 100){
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    title: 'Discount value should not be more than 100%',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    icon: 'warning',
+                });
+                return;
+            }
+                
             const response  = await fetch(`/coupon/edit/${couponId}`,{
                 method: "POST",
                 headers: {
@@ -217,7 +251,7 @@
                 body: JSON.stringify({
                     code: code,
                     discountValue: discountValue,
-                    maxDiscount: maxDiscount,
+                 
                     startDate: startDate,
                     expirationDate: expirationDate,
                     maxUsage: maxUsage,

@@ -9,6 +9,7 @@ const Wallet  = require("../../models/wallet")
 const Transaction = require("../../models/waletTrancations");
 const pdf=require("html-pdf")
 const ejs=require("ejs");
+const PDFDocument = require('pdfkit-table');
 
 
 const loadLogin = (req, res) => {
@@ -28,11 +29,11 @@ const login = async (req, res) => {
     const { email, password } = req.body;
    console.log(password)
     try {
-        // email exists 
+   
         const user = await userSchema.findOne({ email: email, isAdmin: true });
 
         if (!user) {
-            //  is not an admin
+           
             return res.render("adminLogin", { message: "Invalid email or password.", messageType: "error" });
         }
 
@@ -44,7 +45,7 @@ const login = async (req, res) => {
         }
         req.session.isAdmin = true;
 
-        //   req.session.user = user
+        
         return res.redirect("/admin/dashboard");
 
     } catch (error) {
@@ -55,17 +56,95 @@ const login = async (req, res) => {
 
 const loadDashboard = async (req, res) => {
   
-        try {
-            res.render("adminDashboard");
-        } catch (error) {
-            res.redirect("/pageerror");
-        }
+    try {
+        const [topProducts, topCategories, topBrands] = await Promise.all([
+        
+          Order.aggregate([
+            { $match: { orderStatus: "Delivered" } },
+            { $unwind: "$items" },
+            {
+              $group: {
+                _id: "$items.ProductId",
+                total: { $sum: "$items.quantity" }
+              }
+            },
+            
+            { $sort: { total: -1 } },
+            { $limit: 10 },
+            {
+              $lookup: {
+                from: "products",
+                localField: "_id",
+                foreignField: "_id",
+                as: "productDetails"
+              }
+            },
+            { $unwind: "$productDetails" },
+            {
+              $project: {
+                _id: 0,
+                productId: "$_id",
+                name: "$productDetails.name",
+                totalSold: "$total"
+              }
+            }
+          ]),
+    
+      
+          Order.aggregate([
+            { $match: { orderStatus: "Delivered" } },
+            { $unwind: "$items" },
+            {
+              $group: {
+                _id: "$items.ProductId",
+                total: { $sum: "$items.quantity" }
+              }
+            },
+            { $sort: { total: -1 } },
+            { $limit: 10 },
+            {
+              $lookup: {
+                from: "products",
+                localField: "_id",
+                foreignField: "_id",
+                as: "productDetails"
+              }
+            },
+            { $unwind: "$productDetails" },
+            {
+              $group: {
+                _id: "$productDetails.category",
+                total: { $sum: "$total" }
+              }
+            },
+            {
+              $lookup: {
+                from: "categories",
+                localField: "_id",
+                foreignField: "_id",
+                as: "categoryDetails"
+              }
+            },
+            { $unwind: "$categoryDetails" }
+          ]),
+    
+      
+          
+        ]);
+        console.log("topProducts",topProducts)
+        console.log("topCategories",topCategories)
+ 
+        res.render('adminDashboard', { topProducts, topCategories,  });
+      } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching data');
+      }
     } 
 
 
 const loadAllProducts = async (req, res) => {
     try {
-        //search the product
+      
         const searchQuery = req.query.search || '';
         const currentPage = parseInt(req.query.page) || 1;
         const pageSize = 5;
@@ -109,9 +188,9 @@ const ToggleProductBlock = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
 
-        // Toggle the product's isBlocked status
+        
         product.isBlocked = !product.isBlocked;
-        await product.save(); // Save the updated product status
+        await product.save(); 
 
         const statusMessage = product.isBlocked ? "Product unlisted successfully!" : "Product listed successfully!";
 
@@ -131,13 +210,13 @@ const ToggleProductBlock = async (req, res) => {
 
 const  LoadVariantManagement= async(req, res)=>{
     try {
-        // Fetch variants for each category
+        
         const ramVariants = await Variant.find({ category: 'ram' });
         const processorVariants = await Variant.find({ category: 'processor' });
         const displayVariants = await Variant.find({ category: 'display' });
         const storageVariants = await Variant.find({ category: 'storage' });
 
-        // Render the view with variants
+        
         res.render('variantmanagement', {
             ramVariants,
             processorVariants,
@@ -296,6 +375,12 @@ const approve = async(req, res)=>{
       
         const item = order.items.find(item => item._id.toString() === itemId)
         item.status = "Returned"
+        const allItemsReturned = order.items.every(item => item.status === "Returned");
+        if (allItemsReturned) {
+            order.orderStatus = "Returned";
+        }
+
+        
         await order.save()
         
         const wallet  =  await Wallet.findOne({ userId: userId })
@@ -476,77 +561,135 @@ const salesRepoetLoad = async (req, res) => {
 
 
 const downloadPdf = async (req, res) => {
-    
-      
     try {
-
         const { startDate, endDate } = req.query;
         console.log("Start Date:", startDate, "End Date:", endDate);
-        let matching  = {}
 
-        if(startDate && endDate){
+        let matching = {};
+
+        if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
             end.setHours(23, 59, 59, 999);
-            matching = { createdAt: { $gte: start, $lte: end } }
-
-
+            matching = { createdAt: { $gte: start, $lte: end } };
         }
-        let orders = [];
-        let totalSales = 0;
-        let totalDiscount = 0;
-        let totalOrders = 0
 
-         orders = await Order.find(matching).populate('userId', 'name').populate('coupon').populate("items.ProductId","name salePrice")
+        const orders = await Order.find(matching)
+            .populate('userId', 'name')
+            .populate('coupon')
+            .populate('items.ProductId', 'name salePrice');
 
-         const salesData = await Order.aggregate([
-            { $match: { matching } },
+        const salesData = await Order.aggregate([
+            { $match: matching },
             { $group: { _id: null, totalSales: { $sum: "$payableAmount" } } }
         ]);
-        console.log("Sales Data:", salesData);
-
-        totalSales = salesData[0]?.totalSales || 0;
 
         const discountData = await Order.aggregate([
-            { $match: { matching} },
+            { $match: matching },
             { $group: { _id: null, totalDiscount: { $sum: "$couponDiscount" } } }
         ]);
-        console.log("Discount Data:", discountData);
-        totalOrders  = await Order.find(matching).countDocuments()
 
-      
-      
-      
-        totalDiscount = discountData[0]?.totalDiscount || 0;
-
-        const html  =  await ejs.renderFile("views/admin/salesReport.ejs",{
-            orders: orders,
-            totalSales: totalSales,
-            totalDiscount: totalDiscount,
-            startDate,
-            endDate,
-            totalOrders
-        })
-        pdf.create(html).toStream((err,stream)=>{
-            if(err){
-                console.log(err)
-                res.status(500).send("An error occurred while generating the PDF.")
-            }
-            res.set({"Content-Type":"application/pdf",
-                'Content-Disposition': 'attachment; filename="salesReport.pdf"'
-            })
-            stream.pipe(res)
-        })
-    }
-
+        const totalOrders = await Order.find(matching).countDocuments();
+        const totalSales = salesData[0]?.totalSales || 0;
+        const totalDiscount = discountData[0]?.totalDiscount || 0;
 
         
-     catch (error) {
-        console.log(error)
+        const doc = new PDFDocument({
+            margin: 30,
+            size: 'A4'
+        });
+
+        
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="salesReport.pdf"');
+
+        
+        doc.pipe(res);
+
+        
+        const checkPageSpace = async (doc, neededSpace) => {
+            const currentHeight = doc.y;
+            const pageHeight = doc.page.height - doc.page.margins.bottom;
+            
+            if (currentHeight + neededSpace > pageHeight) {
+                doc.addPage();
+                return true;
+            }
+            return false;
+        };
+
+        
+        doc.fontSize(18).text('Sales Report', { align: 'center' });
+        doc.moveDown();
+
+        
+        const summaryTableData = {
+            headers: ['Period', 'Total Orders', 'Total Sales', 'Total Discount'],
+            rows: [[
+                `${startDate || 'N/A'} to ${endDate || 'N/A'}`,
+                totalOrders.toString(),
+                `${totalSales.toFixed(2)}`,
+                `${totalDiscount.toFixed(2)}`
+            ]]
+        };
+
+        await doc.table(summaryTableData, {
+            prepareHeader: () => doc.font('Helvetica-Bold').fontSize(10),
+            prepareRow: () => doc.font('Helvetica').fontSize(10),
+            width: doc.page.width - 60,
+            padding: 5,
+        });
+
+        doc.moveDown(2);
+
+        
+        for (const order of orders) {
+            
+            await checkPageSpace(doc, 200); 
+
+            
+            doc.font('Helvetica-Bold').fontSize(12)
+                .text(`Order Details - Customer: ${order.userId?.name || 'Unknown'}`);
+            doc.moveDown();
+
+            
+            const itemRows = order.items.map(item => [
+                item.ProductId?.name || 'Unknown',
+                `${item.ProductId?.salePrice || 0}`,
+                item.quantity.toString(),
+                `${((item.ProductId?.salePrice || 0) * item.quantity).toFixed(2)}`
+            ]);
+
+            const itemsTableData = {
+                headers: ['Product', 'Price', 'Quantity', 'Subtotal'],
+                rows: itemRows
+            };
+
+            await doc.table(itemsTableData, {
+                prepareHeader: () => doc.font('Helvetica-Bold').fontSize(10),
+                prepareRow: () => doc.font('Helvetica').fontSize(10),
+                width: doc.page.width - 60,
+                padding: 5,
+                divider: {
+                    header: { disabled: false, width: 1, opacity: 1 },
+                    horizontal: { disabled: false, width: 0.5, opacity: 0.5 }
+                },
+            });
+
+            
+            doc.font('Helvetica').fontSize(10)
+                .text(`Total Amount: ${order.payableAmount.toFixed(2)}`, { align: 'right' })
+                .text(`Discount Applied: ${order.couponDiscount.toFixed(2)}`, { align: 'right' });
+
+            doc.moveDown(2);
+        }
+
+        doc.end();
+    } catch (error) {
+        console.error("Error generating PDF:", error);
+        res.status(500).send("An error occurred while generating the PDF.");
     }
-} 
-
-
+};
 module.exports = {
     loadLogin,
     login,
