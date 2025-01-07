@@ -54,7 +54,7 @@
                     <h3>Images:</h3>
                     <div class="product-images">
                         <% product.productImage.forEach((image, index) => { %>
-                            <img src="/uploads/products/<%= image %>" alt="Product Image <%= index + 1 %>" class="product-image" width="150">
+                            <img src="<%= image %>" alt="Product Image <%= index + 1 %>" class="product-image" width="150">
                         <% }) %>
                     </div>
                 </div>

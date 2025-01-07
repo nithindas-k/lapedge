@@ -88,7 +88,7 @@ a {
     flex-direction: row; }
     @media (min-width: 768px) {
       .custom-navbar .custom-navbar-cta {
-        margin-left: 40px !important; } }
+        margin-left: 4  0px !important; } }
     .custom-navbar .custom-navbar-cta li {
       margin-left: 0px;
       margin-right: 0px; }

@@ -61,156 +61,141 @@
     <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>
     <script>
 
-        document.getElementById("form-data").addEventListener("submit",function(event){
+let cropper;
+let croppedImageBlob; // Variable to store the cropped image blob
+const imageInput = document.getElementById('image');
+const imagePreview = document.getElementById('imagePreview');
+const cropModal = document.getElementById('cropModal');
+const cropButton = document.getElementById('cropButton');
+const saveCropButton = document.getElementById('saveCrop');
+const cancelCropButton = document.getElementById('cancelCrop');
+const imageToCrop = document.getElementById('imageToCrop');
 
-            event.preventDefault();
+// Form submission handler
+document.getElementById("form-data").addEventListener("submit", function(event) {
+    event.preventDefault();
 
-            const name  = document.getElementById("name").value
-            const description  = document.getElementById("description").value
+    const name = document.getElementById("name").value;
+    const description = document.getElementById("description").value;
 
-
-             if(name.trim() == ""){
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Please enter category name!'
-                });
-                return;
-             }
-
-             if(description.trim() == ""){
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Please enter category description!'
-                });
-                return;
-             }
-
-
-
-
-             this.submit();
-
-
-
-
-
-
-
-        })
-
-
-
-
-
-
-
-
-
-
-        let cropper;
-        const imageInput = document.getElementById('image');
-        const imagePreview = document.getElementById('imagePreview');
-        const cropModal = document.getElementById('cropModal');
-        const cropButton = document.getElementById('cropButton');
-        const saveCropButton = document.getElementById('saveCrop');
-        const cancelCropButton = document.getElementById('cancelCrop');
-        const imageToCrop = document.getElementById('imageToCrop');
-
-        imageInput.addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                    cropButton.style.display = 'inline-block';
-                };
-                reader.readAsDataURL(file);
-            }
+    if(name.trim() == "") {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please enter category name!'
         });
+        return;
+    }
 
-        cropButton.addEventListener('click', function () {
-            cropModal.style.display = 'flex';
-            imageToCrop.src = imagePreview.src;
-
-           
-            cropper = new Cropper(imageToCrop, {
-                aspectRatio: 1,
-                viewMode: 1,
-                autoCropArea: 0.8,
-                zoomable: true,
-                movable: true,
-            });
+    if(description.trim() == "") {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please enter category description!'
         });
+        return;
+    }
 
-        saveCropButton.addEventListener('click', function () {
-            const canvas = cropper.getCroppedCanvas();
-            const croppedImageDataUrl = canvas.toDataURL(); 
-       
-            const blob = dataURItoBlob(croppedImageDataUrl);
+    // Create FormData from the form
+    const formData = new FormData(this);
 
-         
-            const formData = new FormData(document.querySelector('.category-form'));
-            formData.set('image', blob, 'cropped-image.png'); 
+    // If we have a cropped image, add it to the formData
+    if (croppedImageBlob) {
+        formData.set('image', croppedImageBlob, 'cropped-image.png');
+    }
 
-           
-            fetch('/category/create', {
+    // Send the form data to the server
+    fetch('/category/create', {
         method: 'POST',
         body: formData
     })
-        .then(async (response) => {
-            const data = await response.json();
-            if (response.ok && data.success) {
-                swal({
-                    title: "Success",
-                    text: data.message,
-                    icon: "success",
-                    button: "OK",
-                }).then(() => {
-                    window.location.href = "/admin/categories"; 
-                });
-            } else {
-                swal({
-                    title: "Error",
-                    text: data.message,
-                    icon: "error",
-                    button: "OK",
-                });
-            }
-        })
-        .catch(error => {
+    .then(async (response) => {
+        const data = await response.json();
+        if (response.ok && data.success) {
+            swal({
+                title: "Success",
+                text: data.message,
+                icon: "success",
+                button: "OK",
+            }).then(() => {
+                window.location.href = "/category";
+            });
+        } else {
             swal({
                 title: "Error",
-                text: "An unexpected error occurred.",
+                text: data.message,
                 icon: "error",
                 button: "OK",
             });
-            console.error('Error:', error);
+        }
+    })
+    .catch(error => {
+        swal({
+            title: "Error",
+            text: "An unexpected error occurred.",
+            icon: "error",
+            button: "OK",
         });
-
-    cropModal.style.display = 'none'; 
-    cropper.destroy(); 
+        console.error('Error:', error);
+    });
 });
 
-     
-        function dataURItoBlob(dataURI) {
-            const byteString = atob(dataURI.split(',')[1]);
-            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            return new Blob([ab], { type: mimeString });
-        }
+imageInput.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+            cropButton.style.display = 'inline-block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
 
-        cancelCropButton.addEventListener('click', function () {
-            cropModal.style.display = 'none';
-            cropper.destroy(); 
-        });
+cropButton.addEventListener('click', function() {
+    cropModal.style.display = 'flex';
+    imageToCrop.src = imagePreview.src;
+    
+    cropper = new Cropper(imageToCrop, {
+        aspectRatio: 1,
+        viewMode: 1,
+        autoCropArea: 0.8,
+        zoomable: true,
+        movable: true,
+    });
+});
+
+saveCropButton.addEventListener('click', function() {
+    const canvas = cropper.getCroppedCanvas();
+    const croppedImageDataUrl = canvas.toDataURL();
+    
+    // Store the cropped image blob
+    croppedImageBlob = dataURItoBlob(croppedImageDataUrl);
+    
+    // Update preview
+    imagePreview.src = croppedImageDataUrl;
+    
+    // Close modal and cleanup
+    cropModal.style.display = 'none';
+    cropper.destroy();
+});
+
+function dataURItoBlob(dataURI) {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+}
+
+cancelCropButton.addEventListener('click', function() {
+    cropModal.style.display = 'none';
+    cropper.destroy();
+});
     </script>
 </body>
 

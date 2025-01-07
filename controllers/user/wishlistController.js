@@ -17,13 +17,14 @@ const Wishlist = require("../../models/wishlistModel")
 
 const loadWishlist = async (req, res) => {
   try {
+    if (!req.session.user) {
+      return res.redirect("/login")
+    }
     const userId = req.session.userData._id
 
     let userWishlist = await wishlist.findOne({ userId }).populate("items")
     console.log(userWishlist)
-    if (!req.session.user) {
-      return res.redirect("/login")
-    }
+  
     res.render("wishlist", {
       userWishlist: userWishlist
     })

@@ -149,176 +149,162 @@
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>
     <script>
-        let cropper;
-        let currentImageIndex = null;  
-        const imageInputs = [
-            document.getElementById('productImage1'),
-            document.getElementById('productImage2'),
-            document.getElementById('productImage3')
-        ];
-        const imagePreviews = [
-            document.getElementById('imagePreview1'),
-            document.getElementById('imagePreview2'),
-            document.getElementById('imagePreview3')
-        ];
-        const cropButtons = [
-            document.getElementById('cropButton1'),
-            document.getElementById('cropButton2'),
-            document.getElementById('cropButton3')
-        ];
-        const cropModal = document.getElementById('cropModal');
-        const saveCropButton = document.getElementById('saveCrop');
-        const cancelCropButton = document.getElementById('cancelCrop');
-        const imageToCrop = document.getElementById('imageToCrop');
+       let cropper;
+let currentImageIndex = null;
+let croppedImages = new Array(3).fill(null);
 
-        
-        imageInputs.forEach((input, index) => {
-            input.addEventListener('change', function (event) {
-               
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        imagePreviews[index].src = e.target.result;
-                        imagePreviews[index].style.display = 'block';
-                        cropButtons[index].style.display = 'inline-block';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        });
+// Initialize DOM elements
+const imageInputs = [
+    document.getElementById('productImage1'),
+    document.getElementById('productImage2'),
+    document.getElementById('productImage3')
+];
+const imagePreviews = [
+    document.getElementById('imagePreview1'),
+    document.getElementById('imagePreview2'),
+    document.getElementById('imagePreview3')
+];
+const cropButtons = [
+    document.getElementById('cropButton1'),
+    document.getElementById('cropButton2'),
+    document.getElementById('cropButton3')
+];
+const cropModal = document.getElementById('cropModal');
+const saveCropButton = document.getElementById('saveCrop');
+const cancelCropButton = document.getElementById('cancelCrop');
+const imageToCrop = document.getElementById('imageToCrop');
+const productForm = document.getElementById("productForm");
 
-     
-        cropButtons.forEach((button, index) => {
-            button.addEventListener('click', function () {
-                currentImageIndex = index; 
-                cropModal.style.display = 'flex';
-                imageToCrop.src = imagePreviews[index].src;
-
-                cropper = new Cropper(imageToCrop, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    autoCropArea: 0.8,
-                    zoomable: true,
-                    movable: true,
+// Handle image input changes
+imageInputs.forEach((input, index) => {
+    input.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                swal({
+                    title: 'Invalid File',
+                    text: 'Please select an image file',
+                    icon: 'error',
+                    confirmButtonText: 'Okay'
                 });
-            });
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreviews[index].src = e.target.result;
+                imagePreviews[index].style.display = 'block';
+                cropButtons[index].style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+});
+
+// Handle crop button clicks
+cropButtons.forEach((button, index) => {
+    button.addEventListener('click', function() {
+        currentImageIndex = index;
+        cropModal.style.display = 'flex';
+        imageToCrop.src = imagePreviews[index].src;
+
+        if (cropper) {
+            cropper.destroy();
+        }
+
+        cropper = new Cropper(imageToCrop, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 0.8,
+            zoomable: true,
+            movable: true,
+            minCropBoxWidth: 200,
+            minCropBoxHeight: 200
+        });
+    });
+});
+
+// Handle save crop button
+saveCropButton.addEventListener('click', function() {
+    if (cropper) {
+        const canvas = cropper.getCroppedCanvas({
+            width: 800,  // Set maximum dimensions for the cropped image
+            height: 800,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
         });
 
+        const croppedImageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        const blob = dataURItoBlob(croppedImageDataUrl);
         
-        saveCropButton.addEventListener('click', function () {
-            if (cropper) {
-                const canvas = cropper.getCroppedCanvas();
-                const croppedImageDataUrl = canvas.toDataURL();
-                const blob = dataURItoBlob(croppedImageDataUrl);
+        // Store cropped image
+        croppedImages[currentImageIndex] = blob;
+        imagePreviews[currentImageIndex].src = croppedImageDataUrl;
+        
+        cropper.destroy();
+        cropModal.style.display = 'none';
+    }
+});
 
-               
-                imagePreviews[currentImageIndex].src = croppedImageDataUrl;
+// Handle cancel crop button
+cancelCropButton.addEventListener('click', function() {
+    if (cropper) {
+        cropper.destroy();
+        cropModal.style.display = 'none';
+    }
+});
 
-                
-                const formData = new FormData(document.querySelector('.product-form'));
-                formData.set('productImage' + (currentImageIndex + 1), blob, 'cropped-product-image' + (currentImageIndex + 1) + '.png');
+// Convert Data URI to Blob
+function dataURItoBlob(dataURI) {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    
+    return new Blob([ab], { type: mimeString });
+}
 
-                
-
-              
-                cropper.destroy();
-                cropModal.style.display = 'none';
-            }
-        });
-
-      
-        cancelCropButton.addEventListener('click', function () {
-            if (cropper) {
-                cropper.destroy();
-                cropModal.style.display = 'none';
-            }
-        });
-
-       
-        function dataURItoBlob(dataURI) {
-            const byteString = atob(dataURI.split(',')[1]);
-            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            return new Blob([ab], { type: mimeString });
-        }
-        function dataURItoBlob(dataURI) {
-            const byteString = atob(dataURI.split(',')[1]);
-            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            return new Blob([ab], { type: mimeString });
-        }
-
-        const productForm = document.getElementById("productForm")
-
-
-        productForm.addEventListener("submit", function (event) {
+// Form submission handler
+productForm.addEventListener("submit", function(event) {
     event.preventDefault();
     
-    const name = document.getElementById("name").value;
-    const description = document.getElementById("description").value;
-    const quantity = document.getElementById("quantity").value;
-   
+    // Get form values
+    const name = document.getElementById("name").value.trim();
+    const description = document.getElementById("description").value.trim();
+    const brand = document.getElementById("brand").value.trim();
+    const category = document.getElementById("category").value;
+    const regularPrice = parseFloat(document.getElementById("regularPrice").value);
+    const salePrice = parseFloat(document.getElementById("salePrice").value);
+    const quantity = parseInt(document.getElementById("quantity").value);
     const RAM = document.getElementById("RAM").value;
     const processor = document.getElementById("processor").value;
     const displaySize = document.getElementById("displaySize").value;
     const storage = document.getElementById("storage").value;
-    const brand = document.getElementById("brand").value;
-    const category = document.getElementById("category").value;
-    const regularPrice = parseFloat(document.getElementById("regularPrice").value);
-    const salePrice = parseFloat(document.getElementById("salePrice").value);
-    const productImage1 = document.getElementById("productImage1").files[0];
-    const productImage2 = document.getElementById("productImage2").files[0];
-    const productImage3 = document.getElementById("productImage3").files[0];
 
+    // Validation
     let errorMessage = "";
-
     
-    if (!name) {
-        errorMessage = "Product name is required.";
-    } else if (!description) {
-        errorMessage = "Product description is required.";
-    } else if (!brand) {
-        errorMessage = "Product brand is required.";
-    } else if (!category) {
-        errorMessage = "Product category is required.";
-    } else if (!regularPrice) {
-        errorMessage = "Regular price is required.";
-    } else if (!salePrice) {
-        errorMessage = "Sale price is required.";
-    } else if (!quantity) {
-        errorMessage = "Quantity is required.";
-    } else if (!RAM) {
-        errorMessage = "RAM is required.";
-    } else if (!processor) {
-        errorMessage = "Processor is required.";
-    } else if (!displaySize) {
-        errorMessage = "Display size is required.";
-    } else if (!storage) {
-        errorMessage = "Storage is required.";
-    } else if (!productImage1) {
-        errorMessage = "Product image 1 is required.";
-    } else if (!productImage2) {
-        errorMessage = "Product image 2 is required.";
-    } else if (!productImage3) {
-        errorMessage = "Product image 3 is required.";
-    } else if (isNaN(regularPrice) || regularPrice <= 0) {
-        errorMessage = "Regular price must be a positive number.";
-    } else if (isNaN(salePrice) || salePrice < 0) {
-        errorMessage = "Sale price must be a positive number.";
-    } else if (quantity && (isNaN(quantity) || parseInt(quantity) < 0)) {
-        errorMessage = "Quantity must be a positive integer.";
-    } else if (salePrice > regularPrice) {
-        errorMessage = "Sale price cannot be greater than the regular price.";
-    }
+    if (!name) errorMessage = "Product name is required.";
+    else if (!description) errorMessage = "Product description is required.";
+    else if (!brand) errorMessage = "Product brand is required.";
+    else if (!category) errorMessage = "Product category is required.";
+    else if (!regularPrice || regularPrice <= 0) errorMessage = "Regular price must be a positive number.";
+    else if (!salePrice || salePrice < 0) errorMessage = "Sale price must be a non-negative number.";
+    else if (!quantity || quantity < 0) errorMessage = "Quantity must be a non-negative number.";
+    else if (salePrice > regularPrice) errorMessage = "Sale price cannot be greater than regular price.";
+    else if (!RAM) errorMessage = "RAM specification is required.";
+    else if (!processor) errorMessage = "Processor specification is required.";
+    else if (!displaySize) errorMessage = "Display size specification is required.";
+    else if (!storage) errorMessage = "Storage specification is required.";
+    else if (!croppedImages[0]) errorMessage = "First product image is required.";
+    else if (!croppedImages[1]) errorMessage = "Second product image is required.";
+    else if (!croppedImages[2]) errorMessage = "Third product image is required.";
 
     if (errorMessage) {
         swal({
@@ -327,59 +313,86 @@
             icon: 'error',
             confirmButtonText: 'Okay'
         });
-    } else {
-        
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("description", description);
-        formData.append("quantity", quantity);
-      
-        formData.append("RAM", RAM);
-        formData.append("processor", processor);
-        formData.append("displaySize", displaySize);
-        formData.append("storage", storage);
-        formData.append("brand", brand);
-        formData.append("category", category);
-        formData.append("regularPrice", regularPrice);
-        formData.append("salePrice", salePrice);
-        formData.append("productImage1", productImage1);
-        formData.append("productImage2", productImage2);
-        formData.append("productImage3", productImage3);
-
-       
-        fetch('/products/add', {
-            method: 'POST',
-            body: formData,
-        }).then((response) => response.json())
-            .then((result) => {
-                console.log(result);
-                if (result.message) {
-                    swal({
-                        title: 'Product Created successfully',
-                        text: "Product has been added!",
-                        icon: 'success',
-                        confirmButtonText: 'Okay'
-                    }).then(() => {
-                        window.location.href = "/admin/products";
-                    });
-                } else {
-                    console.error('Error:', result.message);
-                   
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-               
-            });
+        return;
     }
+
+    // Create FormData and append values
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("brand", brand);
+    formData.append("category", category);
+    formData.append("regularPrice", regularPrice);
+    formData.append("salePrice", salePrice);
+    formData.append("quantity", quantity);
+    formData.append("RAM", RAM);
+    formData.append("processor", processor);
+    formData.append("displaySize", displaySize);
+    formData.append("storage", storage);
+
+    // Append cropped images
+    croppedImages.forEach((blob, index) => {
+        if (blob) {
+            formData.append('images', blob, `product-image-${index + 1}.jpg`);
+        }
+    });
+
+    // Show loading state
+    const submitButton = document.querySelector('.submit-button');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = 'Creating Product...';
+    submitButton.disabled = true;
+
+    // Submit form
+    fetch('/products/add', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(result => {
+        if (result.message) {
+            swal({
+                title: 'Success',
+                text: "Product has been created successfully!",
+                icon: 'success',
+                confirmButtonText: 'Okay'
+            }).then(() => {
+                window.location.href = "/admin/products";
+            });
+        } else {
+            throw new Error(result.error || 'Failed to create product');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        swal({
+            title: 'Error',
+            text: "Failed to create product. Please try again.",
+            icon: 'error',
+            confirmButtonText: 'Okay'
+        });
+    })
+    .finally(() => {
+        // Reset button state
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+    });
 });
 
 
-
-
-
-
-
+window.onclick = function(event) {
+    if (event.target === cropModal) {
+        if (cropper) {
+            cropper.destroy();
+            cropModal.style.display = 'none';
+        }
+    }
+};
 
 
     </script>

@@ -52,14 +52,13 @@
               <a class="nav-link" href="/">Home</a>
             </li>
             <li><a class="nav-link" href="/shop">Shop</a></li>
-            <li><a class="nav-link" href="about.html">About us</a></li>
-            <li><a class="nav-link" href="services.html">Services</a></li>
+
             <% if(userCredit){ %>
               <li><a class="nav-link" href="/logout">Logout</a></li>
               <% }else{ %>
                 <li><a class="nav-link" href="/login">Login</a></li>
                 <% } %>
-                  <li><a class="nav-link" href="contact.html">wishlist</a></li> 
+                  <li><a class="nav-link" href="/wishlist">wishlist</a></li> 
           </ul>
 
           <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
@@ -67,7 +66,7 @@
             <li><a class="nav-link" href="/account/<%= userData._id  %>"><img src="images/user.svg"></a></li>
             <% } %>
             <li><a class="nav-link" href="/cart"><img src="images/cart.svg"></a></li>
-            <li><a   class="nav-link" href="/wishlist"><img  style="width: 30px; height: 30px; margin-left: 10px;" src="/images/2055203-ff9800.svg"></a></li>
+            <!-- <li><a   class="nav-link" href="/wishlist"><img  style="width: 30px; height: 30px; margin-left: 10px;" src="/images/2055203-ff9800.svg"></a></li> -->
           </ul>
         </div>
       </div>
@@ -266,7 +265,7 @@
           <% category.forEach((data)=>{ %>
             <div class=" col-md-3 ">
               <a href="/shop" class="category__item swiper-slide ">
-                <img src="/uploads/<%= data.image%>" alt="" class="category__img" />
+                <img src="<%= data.image%>" alt="" class="category__img" />
                 <h3 class="category__title">
                   <%= data.name %>
                 </h3>
@@ -303,8 +302,8 @@
               <div class="product__item">
                 <div class="product__banner">
                   <a href="/productDetails/<%= data._id %>" class="product__images">
-                    <img src="/uploads/products/<%= data.productImage[0] %>" alt="" class="product__img default" />
-                    <img src="/uploads/products/<%= data.productImage[1] %>" alt="" class="product__img hover" />
+                    <img src="<%= data.productImage[0] %>" alt="" class="product__img default" />
+                    <img src="<%= data.productImage[1] %>" alt="" class="product__img hover" />
                   </a>
                   <div class="product__actions">
                     <a href="/productDetails/<%= data._id %>" class="action__btn" aria-label="Quick View">

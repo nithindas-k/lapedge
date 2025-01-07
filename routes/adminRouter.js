@@ -67,6 +67,8 @@ router.get("/salesreport",adminAuth,adminController.salesRepoetLoad)
 //dowload 
 router.get("/download",adminAuth,adminController.downloadPdf)
 
+router.get("/sales-chart",adminAuth,adminController.sales)
+
 
 
 module.exports = router;

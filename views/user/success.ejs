@@ -524,13 +524,13 @@
                     <%=order.paymentStatus %>
                   </p>
                 </div>
-
+               
                 <div class="order-details">
                   <h2 style="color: #FDA208; margin-bottom: 15px;">Order Items</h2>
                   <div class="order-items">
                     <% order.items.forEach((data,index)=>{ %>
                       <div class="order-item">
-                        <img src="/uploads/products/<%= data.ProductId.productImage[0] %>" />
+                        <img src="<%= data.ProductId.productImage[0] %>" />
                         <div class="order-item-details">
                           <h3>
                             <%=data.ProductId.name%>
@@ -622,7 +622,7 @@
 
       </main>
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-      
+
       <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
@@ -763,18 +763,18 @@
           }
         }
 
-        document.getElementById("continue-payment")?.addEventListener("click",  async function (event) {
+        document.getElementById("continue-payment")?.addEventListener("click", async function (event) {
           event.preventDefault();
 
-         
-          const orderId =  document.getElementById("orderId").value
+
+          const orderId = document.getElementById("orderId").value
 
           const response = await fetch(`/order/retry-razorpay/${orderId}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-           
+
           });
 
           if (!response.ok) {
@@ -806,7 +806,7 @@
                     razorpay_payment_id: response.razorpay_payment_id,
                     razorpay_order_id: response.razorpay_order_id,
                     razorpay_signature: response.razorpay_signature,
-                  
+
                   })
                 });
 
@@ -826,7 +826,9 @@
                     timer: 2000,
                     timerProgressBar: true,
                   })
-
+                 .then(()=>{
+                  window.location.reload()
+                 })
 
 
 
@@ -863,27 +865,78 @@
 
           const rzp = new Razorpay(options);
           rzp.open()
-          
 
-         
 
-          
+
+
+
 
         })
-        
+
 
         document.getElementById("Invoice").addEventListener("click", async function (event) {
-         
-          const orderId =  document.getElementById("orderId").value
-          console.log(orderId)
-          const response = await fetch(`/invoice/${orderId}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
+          try {
+            const orderId = document.getElementById("orderId").value;
 
-        })
+            
+            const response = await fetch(`/invoice/${orderId}`, {
+              method: 'GET',
+              headers: {
+                'Accept': 'application/pdf', 
+              },
+            });
+
+            
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            
+            const blob = await response.blob();
+
+            
+            const url = window.URL.createObjectURL(blob);
+
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `invoice-${orderId}.pdf`;
+
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+          
+            window.URL.revokeObjectURL(url);
+
+            
+            Swal.fire({
+              icon: 'success',
+              title: 'Invoice downloaded successfully!',
+              toast: true,
+              position: 'top-right',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+
+          } catch (error) {
+            console.error('Error downloading invoice:', error);
+
+            
+            Swal.fire({
+              icon: 'error',
+              title: 'Failed to download invoice',
+              text: 'Please try again later',
+              toast: true,
+              position: 'top-right',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true
+            });
+          }
+        });
 
       </script>
 </body>

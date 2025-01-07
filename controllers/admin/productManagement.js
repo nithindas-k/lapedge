@@ -4,8 +4,9 @@ const userSchema = require("../../models/userSchema")
 const path = require('path');
 const fs = require('fs');
 const variantSchema = require("../../models/variantModel")
-const { request } = require("http");
 
+
+const { handleUpload } = require('../../config/cloud');
 
 const LoadAddProduct = async (req, res) => {
     try {
@@ -13,11 +14,11 @@ const LoadAddProduct = async (req, res) => {
         const processor = await variantSchema.find({ isBlocked: false, category: "processor" }).populate("category")
         const display = await variantSchema.find({ isBlocked: false, category: "display" }).populate("category")
         const storage = await variantSchema.find({ isBlocked: false, category: "storage" }).populate("category")
-        console.log(ram)
+        console.log(ram)      
 
 
 
-        const category = await categorySchema.find({ isListed: true });
+        const category = await categorySchema.find({ isListed: true });   
         res.render('addProduct',
             { category: category, message: null, ram: ram, processor: processor, display: display, storage: storage })
 
@@ -34,27 +35,31 @@ const CreateProduct = async (req, res) => {
     try {
         const { name, description, brand, category, regularPrice, salePrice, quantity, RAM, processor, displaySize, storage } = req.body;
 
-        let qstatus  = ""
+        let qstatus = "";
 
-        if(quantity <=5){
-            qstatus = "Hurry up !"
-        }else if(quantity>5){
-            qstatus = "Available"
-        }else if(quantity == 0){
-            qstatus = "Out Of Stock"
+        if (quantity <= 5 && quantity > 0) {
+            qstatus = "Hurry up!";
+        } else if (quantity > 5) {
+            qstatus = "Available";
+        } else if (quantity === 0) {
+            qstatus = "Out of Stock";
         }
-            
-
 
         const images = [];
-        for (let i = 1; i <= 5; i++) {
-            const field = `productImage${i}`;
-            if (req.files[field]) {
-                req.files[field].forEach(file => images.push(file.filename));
+        const fileFields = ['productImage1', 'productImage2', 'productImage3'];
+
+        
+        if (req.files && req.files.length > 0) {
+            for (let i = 0; i < req.files.length; i++) {
+                const b64 = Buffer.from(req.files[i].buffer).toString("base64");
+                let dataURI = "data:" + req.files[i].mimetype + ";base64," + b64;
+                const cldRes = await handleUpload(dataURI)
+                const path = cldRes.secure_url
+                images.push(path)
             }
         }
 
-
+    
         const newProduct = new productSchema({
             name,
             description,
@@ -63,19 +68,18 @@ const CreateProduct = async (req, res) => {
             regularPrice,
             salePrice,
             quantity,
-            status:qstatus,
+            status: qstatus,
             specifications: {
                 RAM,
                 processor,
                 displaySize,
                 storage,
             },
-            productImage: [...images],
+            productImage: images
         });
 
-
+        // Save the new product in the database
         await newProduct.save();
-
 
         const products = await productSchema.find();
 
@@ -84,7 +88,7 @@ const CreateProduct = async (req, res) => {
             product: newProduct,
             products: products
         });
-    } catch (error) {
+    } catch (error) {   
         console.error(error);
         res.status(500).json({
             message: 'Error creating product',
@@ -92,6 +96,9 @@ const CreateProduct = async (req, res) => {
         });
     }
 };
+
+
+
 
 const getProducts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -167,7 +174,7 @@ const updateProduct = async (req, res) => {
             qstatus = "Available"
         }else if(quantity <=5){
            
-            qstatus = "Hurry up !"
+            qstatus = "Hurry up!"
         }
 
 
@@ -202,22 +209,43 @@ const updateProduct = async (req, res) => {
 };
 
 const updateimage = async (req, res) => {
-
     try {
+        const productId = req.params.productId;
+        const imageIndex = req.body.index;
 
-        const productdata = await productSchema.findOne({ _id: req.params.productId })
+        if (!req.file) {
+            return res.status(400).json({ error: "No image file provided" });
+        }
 
+        const productData = await productSchema.findById(productId);
+        
+        if (!productData) {
+            return res.status(404).json({ error: "Product not found" });
+        }
 
-        productdata.productImage[req.body.index] = req.file.filename
+        const b64 = Buffer.from(req.file.buffer).toString("base64");
+        let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+        const result = await handleUpload(dataURI);
 
-        await productdata.save()
-        res.json({ message: "Image updated successfully", image: req.file.filename })
+        
+        // Update the specific image in the array
+        productData.productImage[imageIndex] = result.secure_url;
+        
+        await productData.save();
+
+        res.json({ 
+            message: "Image updated successfully", 
+            image: result.secure_url 
+        });
 
     } catch (error) {
-        console.log(error.message)
+        console.error('Error updating image:', error);
+        res.status(500).json({ 
+            error: "Failed to update image",
+            details: error.message 
+        });
     }
-
-}
+};
 
 
 

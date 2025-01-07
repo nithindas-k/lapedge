@@ -27,6 +27,7 @@
 
 </head>
 <body>
+    
     <nav class="custom-navbar navbar navbar navbar-expand-md navbar-dark " arial-label="Furni navigation bar">
 
         <div class="container">
@@ -46,14 +47,12 @@
                         <a class="nav-link" href="/shop">Shop</a>
                     </li>
 
-                    <li><a class="nav-link" href="about.html">About us</a></li>
-                    <li><a class="nav-link" href="services.html">Services</a></li>
                     <% if(userCredit){ %>
                         <li><a class="nav-link" href="/logout">Logout</a></li>
                     <% }else{ %>
                         <li><a class="nav-link" href="/login">Login</a></li>
                     <% } %>
-                    <li><a class="nav-link" href="contact.html">wishlist</a></li>
+                    <li><a class="nav-link" href="/wishlist">wishlist</a></li>
                     
                 </ul>
                 <!-- <div class="header__search">
@@ -71,7 +70,7 @@
                 <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
                     <li><a class="nav-link" href="/account/<%=userData._id %>"><img src="/images/user.svg"></a></li>
                     <li><a class="nav-link" href="/cart"><img src="/images/cart.svg"></a></li>
-                    <li><a   class="nav-link" href="/wishlist"><img  style="width: 30px; height: 30px; margin-left: 10px;" src="/images/2055203-ff9800.svg"></a></li>
+                    <!-- <li><a   class="nav-link" href="/wishlist"><img  style="width: 30px; height: 30px; margin-left: 10px;" src="/images/2055203-ff9800.svg"></a></li> -->
 
 
 

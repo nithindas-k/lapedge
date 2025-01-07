@@ -147,71 +147,63 @@
     <script src="https://unpkg.com/cropperjs/dist/cropper.min.js"></script>
     <script>
 
-        let cropper;
-        let currentImageIndex = null;
-        const imageInputs = [
-            document.getElementById('productImage1'),
-            document.getElementById('productImage2'),
-            document.getElementById('productImage3')
-        ];
-        const imagePreviews = [
-            document.getElementById('imagePreview1'),
-            document.getElementById('imagePreview2'),
-            document.getElementById('imagePreview3')
-        ];
-        const cropButtons = [
-            document.getElementById('cropButton1'),
-            document.getElementById('cropButton2'),
-            document.getElementById('cropButton3')
-        ];
-        const cropModal = document.getElementById('cropModal');
-        const saveCropButton = document.getElementById('saveCrop');
-        const cancelCropButton = document.getElementById('cancelCrop');
-        const imageToCrop = document.getElementById('imageToCrop');
+let cropper;
+let currentImageIndex = null;
+let croppedImages = new Array(3).fill(null);
 
+// Initialize DOM elements
+const imageInputs = [
+    document.getElementById('productImage1'),
+    document.getElementById('productImage2'),
+    document.getElementById('productImage3')
+];
+const imagePreviews = [
+    document.getElementById('imagePreview1'),
+    document.getElementById('imagePreview2'),
+    document.getElementById('imagePreview3')
+];
+const cropButtons = [
+    document.getElementById('cropButton1'),
+    document.getElementById('cropButton2'),
+    document.getElementById('cropButton3')
+];
+const cropModal = document.getElementById('cropModal');
+const saveCropButton = document.getElementById('saveCrop');
+const cancelCropButton = document.getElementById('cancelCrop');
+const imageToCrop = document.getElementById('imageToCrop');
+const productForm = document.getElementById("productForm");
 
-        imageInputs.forEach((input, index) => {
-            input.addEventListener('change', function (event) {
+// Handle image input changes
+imageInputs.forEach((input, index) => {
+    input.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                swal({
+                    title: 'Invalid File',
+                    text: 'Please select an image file',
+                    icon: 'error',
+                    confirmButtonText: 'Okay'
+                });
+                input.value = '';
+                return;
+            }
 
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        imagePreviews[index].src = e.target.result;
-                        imagePreviews[index].style.display = 'block';
-                        cropButtons[index].style.display = 'inline-block';
-
-
-
-
-
-
-
-                        currentImageIndex = index;
-                        cropModal.style.display = 'flex';
-                        imageToCrop.src = imagePreviews[index].src;
-
-                        cropper = new Cropper(imageToCrop, {
-                            aspectRatio: 1,
-                            viewMode: 1,
-                            autoCropArea: 0.8,
-                            zoomable: true,
-                            movable: true,
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                }
-
-
-            });
-        });
-
-
-        cropButtons.forEach((button, index) => {
-            button.addEventListener('click', function () {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreviews[index].src = e.target.result;
+                imagePreviews[index].style.display = 'block';
+                cropButtons[index].style.display = 'inline-block';
+                
+                // Automatically open crop modal
                 currentImageIndex = index;
                 cropModal.style.display = 'flex';
-                imageToCrop.src = imagePreviews[index].src;
+                imageToCrop.src = e.target.result;
+
+                if (cropper) {
+                    cropper.destroy();
+                }
 
                 cropper = new Cropper(imageToCrop, {
                     aspectRatio: 1,
@@ -220,228 +212,221 @@
                     zoomable: true,
                     movable: true,
                 });
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+});
+
+// Handle crop button clicks for existing images
+cropButtons.forEach((button, index) => {
+    button.addEventListener('click', function() {
+        currentImageIndex = index;
+        cropModal.style.display = 'flex';
+        imageToCrop.src = imagePreviews[index].src;
+
+        if (cropper) {
+            cropper.destroy();
+        }
+
+        cropper = new Cropper(imageToCrop, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 0.8,
+            zoomable: true,
+            movable: true,
+        });
+    });
+});
+
+// Handle save crop button
+saveCropButton.addEventListener('click', async function() {
+    if (cropper) {
+        const canvas = cropper.getCroppedCanvas({
+            width: 800,
+            height: 800,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
+        });
+
+        const croppedImageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        const blob = dataURItoBlob(croppedImageDataUrl);
+        
+        // Store cropped image
+        croppedImages[currentImageIndex] = blob;
+        imagePreviews[currentImageIndex].src = croppedImageDataUrl;
+
+        // Upload cropped image immediately
+        const productId = document.getElementById("productId").value;
+        const formData = new FormData();
+        formData.append("productImage", blob, 'cropped-image.jpg');
+        formData.append("index", currentImageIndex);
+
+        try {
+            const response = await fetch(`/products/update-image/${productId}`, {
+                method: 'PUT',
+                body: formData
             });
-        });
-
-
-
-
-
-
-        saveCropButton.addEventListener('click', function () {
-            if (cropper) {
-                const canvas = cropper.getCroppedCanvas();
-                const croppedImageDataUrl = canvas.toDataURL();
-                const blob = dataURItoBlob(croppedImageDataUrl);
-                console.log(blob)
-
-                imagePreviews[currentImageIndex].src = croppedImageDataUrl;
-
-
-                cropper.destroy();
-                cropModal.style.display = 'none'
-                const productId = document.getElementById("productId").value;
-                const formData = new FormData()
-                formData.append("productImage", blob)
-                formData.append("index", currentImageIndex)
-                fetch(`/products/update-image/${productId}`, {
-                    method: 'PUT',
-                    body: formData
-                }).then((response) => response.json())
-                    .then((result) => {
-                        console.log(result);
-                        if (result.message) {
-                            swal({
-                                title: 'image updated successfully',
-                                text: "image has been added!",
-                                icon: 'success',
-                                confirmButtonText: 'Okay'
-                            })
-                        } else {
-                            console.error('Error:', result.message);
-
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-
-                    });
-
-
-
-            }
-        });
-
-
-        cancelCropButton.addEventListener('click', function () {
-            if (cropper) {
-                cropper.destroy();
-                cropModal.style.display = 'none';
-            }
-
-        });
-
-        function dataURItoBlob(dataURI) {
-            const byteString = atob(dataURI.split(',')[1]);
-            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            return new Blob([ab], { type: mimeString });
-        }
-        function dataURItoBlob(dataURI) {
-            const byteString = atob(dataURI.split(',')[1]);
-            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            return new Blob([ab], { type: mimeString });
-        }
-
-        const productForm = document.getElementById("productForm")
-
-
-        productForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-            const productId = document.getElementById("productId").value;
-            const name = document.getElementById("name").value;
-            const description = document.getElementById("description").value;
-            const quantity = document.getElementById("quantity").value;
-
-            const RAM = document.getElementById("RAM").value;
-            const processor = document.getElementById("processor").value;
-            const displaySize = document.getElementById("displaySize").value;
-            const storage = document.getElementById("storage").value;
-            const brand = document.getElementById("brand").value;
-            const category = document.getElementById("category").value;
-            const regularPrice = parseFloat(document.getElementById("regularPrice").value);
-            const salePrice = document.getElementById("salePrice").value
-
-            console.log(name, description, displaySize, quantity, regularPrice, salePrice, category, brand, RAM, processor, storage)
-
-            let errorMessage = "";
-
-
-            if (!name) {
-                errorMessage = "Product name is required.";
-            } else if (!description) {
-                errorMessage = "Product description is required.";
-            } else if (!brand) {
-                errorMessage = "Product brand is required.";
-            } else if (!category) {
-                errorMessage = "Product category is required.";
-            } else if (!regularPrice) {
-                errorMessage = "Regular price is required.";
-            } else if (!salePrice) {
-                errorMessage = "Sale price is required.";
-            } else if (!quantity) {
-                errorMessage = "Quantity is required.";
-            } else if (!RAM) {
-                errorMessage = "RAM is required.";
-            } else if (!processor) {
-                errorMessage = "Processor is required.";
-            } else if (!displaySize) {
-                errorMessage = "Display size is required.";
-            } else if (!storage) {
-                errorMessage = "Storage is required.";
-            } else if (!productImage1) {
-                errorMessage = "Product image 1 is required.";
-            } else if (!productImage2) {
-                errorMessage = "Product image 2 is required.";
-            } else if (!productImage3) {
-                errorMessage = "Product image 3 is required.";
-            } else if (isNaN(regularPrice) || regularPrice <= 0) {
-                errorMessage = "Regular price must be a positive number.";
-            } else if (isNaN(salePrice) || salePrice < 0) {
-                errorMessage = "Sale price must be a positive number.";
-            } else if (quantity && (isNaN(quantity) || parseInt(quantity) < 0)) {
-                errorMessage = "Quantity must be a positive integer.";
-            } else if (parseFloat(salePrice) > regularPrice) {
-                errorMessage = "Sale price cannot be greater than the regular price.";
-            } else if (/[eE]/.test(salePrice) ) {
-                errorMessage = "Sale price cannot contain scientific notation";
-            }
-
-
-
-     console.log(typeof(salePrice))
-                console.log(/[eE]/.test(String(salePrice)))
-            if (errorMessage) {
+            
+            const result = await response.json();
+            
+            if (result.message) {
                 swal({
-                    title: 'Validation Error',
-                    text: errorMessage,
-                    icon: 'error',
+                    title: 'Success',
+                    text: "Image updated successfully!",
+                    icon: 'success',
                     confirmButtonText: 'Okay'
                 });
             } else {
-
-                const formData = new FormData();
-                formData.append("name", name);
-                formData.append("description", description);
-                formData.append("quantity", quantity);
-
-                formData.append("RAM", RAM);
-                formData.append("processor", processor);
-                formData.append("displaySize", displaySize);
-                formData.append("storage", storage);
-                formData.append("brand", brand);
-                formData.append("category", category);
-                formData.append("regularPrice", regularPrice);
-                formData.append("salePrice", salePrice);
-
-                console.log(formData)
-                console.log(productId)
-
-
-                fetch(`/products/update/${productId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name: name,
-                        description: description,
-                        quantity: quantity,
-
-                        RAM: RAM,
-                        processor: processor,
-                        displaySize: displaySize,
-                        storage: storage,
-                        brand: brand,
-                        category: category,
-                        regularPrice: regularPrice,
-                        salePrice: salePrice,
-                        productId: productId
-                    }),
-                }).then((response) => response.json())
-                    .then((result) => {
-                        console.log(result);
-                        if (result.message) {
-                            swal({
-                                title: 'Product updated successfully',
-                                text: "Product has been added!",
-                                icon: 'success',
-                                confirmButtonText: 'Okay'
-                            }).then(() => {
-                                window.location.href = "/admin/products";
-                            });
-                        } else {
-                            console.error('Error:', result.message);
-
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-
-                    });
+                throw new Error(result.error || 'Failed to update image');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            swal({
+                title: 'Error',
+                text: "Failed to update image. Please try again.",
+                icon: 'error',
+                confirmButtonText: 'Okay'
+            });
+        }
+
+        cropper.destroy();
+        cropModal.style.display = 'none';
+    }
+});
+
+// Handle cancel crop button
+cancelCropButton.addEventListener('click', function() {
+    if (cropper) {
+        cropper.destroy();
+        cropModal.style.display = 'none';
+    }
+});
+
+// Convert Data URI to Blob
+function dataURItoBlob(dataURI) {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    
+    return new Blob([ab], { type: mimeString });
+}
+
+// Form submission handler
+productForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+    
+    const productId = document.getElementById("productId").value;
+    const name = document.getElementById("name").value.trim();
+    const description = document.getElementById("description").value.trim();
+    const brand = document.getElementById("brand").value.trim();
+    const category = document.getElementById("category").value;
+    const regularPrice = parseFloat(document.getElementById("regularPrice").value);
+    const salePrice = document.getElementById("salePrice").value;
+    const quantity = parseInt(document.getElementById("quantity").value);
+    const RAM = document.getElementById("RAM").value;
+    const processor = document.getElementById("processor").value;
+    const displaySize = document.getElementById("displaySize").value;
+    const storage = document.getElementById("storage").value;
+
+    // Validation
+    let errorMessage = "";
+    
+    if (!name) errorMessage = "Product name is required.";
+    else if (!description) errorMessage = "Product description is required.";
+    else if (!brand) errorMessage = "Product brand is required.";
+    else if (!category) errorMessage = "Product category is required.";
+    else if (!regularPrice || regularPrice <= 0) errorMessage = "Regular price must be a positive number.";
+    else if (!salePrice || salePrice < 0) errorMessage = "Sale price must be a non-negative number.";
+    else if (!quantity || quantity < 0) errorMessage = "Quantity must be a non-negative number.";
+    else if (parseFloat(salePrice) > regularPrice) errorMessage = "Sale price cannot be greater than regular price.";
+    else if (!RAM) errorMessage = "RAM specification is required.";
+    else if (!processor) errorMessage = "Processor specification is required.";
+    else if (!displaySize) errorMessage = "Display size specification is required.";
+    else if (!storage) errorMessage = "Storage specification is required.";
+    else if (/[eE]/.test(String(salePrice))) errorMessage = "Sale price cannot contain scientific notation";
+
+    if (errorMessage) {
+        swal({
+            title: 'Validation Error',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'Okay'
+        });
+        return;
+    }
+
+    // Show loading state
+    const submitButton = document.querySelector('.submit-button');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = 'Updating Product...';
+    submitButton.disabled = true;
+
+    try {
+        const response = await fetch(`/products/update/${productId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name,
+                description,
+                quantity,
+                RAM,
+                processor,
+                displaySize,
+                storage,
+                brand,
+                category,
+                regularPrice,
+                salePrice,
+                productId
+            })
         });
 
+        const result = await response.json();
 
+        if (result.message) {
+            swal({
+                title: 'Success',
+                text: "Product has been updated successfully!",
+                icon: 'success',
+                confirmButtonText: 'Okay'
+            }).then(() => {
+                window.location.href = "/admin/products";
+            });
+        } else {
+            throw new Error(result.error || 'Failed to update product');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        swal({
+            title: 'Error',
+            text: "Failed to update product. Please try again.",
+            icon: 'error',
+            confirmButtonText: 'Okay'
+        });
+    } finally {
+        // Reset button state
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+    }
+});
+
+// Close modal if user clicks outside
+window.onclick = function(event) {
+    if (event.target === cropModal) {
+        if (cropper) {
+            cropper.destroy();
+            cropModal.style.display = 'none';
+        }
+    }
+};
     </script>
 </body>
 

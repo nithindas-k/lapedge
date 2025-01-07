@@ -158,7 +158,7 @@ const loadAllProducts = async (req, res) => {
 
         const products = await productSchema.find(searchFilter).skip(skip).limit(pageSize).populate("category")
 
-        // filter  products count 
+        
         const totalProducts = await productSchema.countDocuments(searchFilter);
         const totalPages = Math.ceil(totalProducts / pageSize);
 
@@ -227,7 +227,7 @@ const  LoadVariantManagement= async(req, res)=>{
         console.error('Error loading variant management:', error);
         res.status(500).send('Error loading variant management page');
     }
-}
+} 
     
 const loadAllOrder = async(req, res)=>{
   try {
@@ -577,7 +577,8 @@ const downloadPdf = async (req, res) => {
         const orders = await Order.find(matching)
             .populate('userId', 'name')
             .populate('coupon')
-            .populate('items.ProductId', 'name salePrice');
+            .populate('items.ProductId', 'name salePrice')
+            .sort({ createdAt: -1 });
 
         const salesData = await Order.aggregate([
             { $match: matching },
@@ -589,99 +590,119 @@ const downloadPdf = async (req, res) => {
             { $group: { _id: null, totalDiscount: { $sum: "$couponDiscount" } } }
         ]);
 
-        const totalOrders = await Order.find(matching).countDocuments();
         const totalSales = salesData[0]?.totalSales || 0;
         const totalDiscount = discountData[0]?.totalDiscount || 0;
 
         
+        const formatPrice = (num) => {
+            return num.toLocaleString('en-IN', {
+                maximumFractionDigits: 2,
+                minimumFractionDigits: 2
+            });
+        };
+
         const doc = new PDFDocument({
-            margin: 30,
-            size: 'A4'
+            margin: 50,
+            size: 'A4',
+            layout: 'landscape'
         });
 
-        
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="salesReport.pdf"');
-
-        
         doc.pipe(res);
 
         
-        const checkPageSpace = async (doc, neededSpace) => {
-            const currentHeight = doc.y;
-            const pageHeight = doc.page.height - doc.page.margins.bottom;
-            
-            if (currentHeight + neededSpace > pageHeight) {
-                doc.addPage();
-                return true;
-            }
-            return false;
-        };
-
-        
-        doc.fontSize(18).text('Sales Report', { align: 'center' });
+        doc.fontSize(16).font('Helvetica-Bold').text('SALES REPORT', { align: 'center' });
+        doc.fontSize(10).font('Helvetica')
+            .text(`Period: ${startDate || 'All Time'} to ${endDate || 'Present'}`, { align: 'center' });
         doc.moveDown();
 
+        const tableRows = [];
         
-        const summaryTableData = {
-            headers: ['Period', 'Total Orders', 'Total Sales', 'Total Discount'],
-            rows: [[
-                `${startDate || 'N/A'} to ${endDate || 'N/A'}`,
-                totalOrders.toString(),
-                `${totalSales.toFixed(2)}`,
-                `${totalDiscount.toFixed(2)}`
-            ]]
-        };
+        // Headers
+        const headers = [
+            'Date',
+            'Order ID',
+            'Customer',
+            'Product',
+            'Quantity',
+            'Unit Price',
+            'Subtotal',
+            'Discount',
+            'Final Amount'
+        ];
 
-        await doc.table(summaryTableData, {
-            prepareHeader: () => doc.font('Helvetica-Bold').fontSize(10),
-            prepareRow: () => doc.font('Helvetica').fontSize(10),
-            width: doc.page.width - 60,
-            padding: 5,
+        // Populate rows
+        orders.forEach(order => {
+            order.items.forEach((item, index) => {
+                const row = [
+                    index === 0 ? new Date(order.createdAt).toLocaleDateString('en-IN') : '',
+                    index === 0 ? order._id.toString().slice(-6) : '',
+                    index === 0 ? (order.userId?.name || 'Unknown') : '',
+                    item.ProductId?.name || 'Unknown',
+                    item.quantity.toString(),
+                    formatPrice(item.ProductId?.salePrice || 0),
+                    formatPrice((item.ProductId?.salePrice || 0) * item.quantity),
+                    index === 0 ? formatPrice(order.couponDiscount) : '',
+                    index === 0 ? formatPrice(order.payableAmount) : ''
+                ];
+                tableRows.push(row);
+            });
         });
 
-        doc.moveDown(2);
+        // Add grand total row
+        tableRows.push([
+            'GRAND TOTAL',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            formatPrice(totalDiscount),
+            formatPrice(totalSales)
+        ]);
+
+
+        const tableData = {
+            headers: headers,
+            rows: tableRows
+        };
+
+        await doc.table(tableData, {
+            prepareHeader: () => doc.font('Helvetica-Bold').fontSize(10),
+            prepareRow: (row, indexCount) => {
+                doc.font('Helvetica').fontSize(9);
+                // Bold for grand total row
+                if (indexCount === tableRows.length - 1) {
+                    doc.font('Helvetica-Bold');
+                }
+            },
+            width: doc.page.width - 100,
+            padding: 5,
+            divider: {
+                header: { disabled: false, width: 1, opacity: 1 },
+                horizontal: { disabled: false, width: 0.5, opacity: 0.2 }
+            },
+            align: {
+                4: 'center',    // Quantity
+                5: 'right',     // Unit Price
+                6: 'right',     // Subtotal
+                7: 'right',     // Discount
+                8: 'right'      // Final Amount
+            }
+        });
 
         
-        for (const order of orders) {
-            
-            await checkPageSpace(doc, 200); 
-
-            
-            doc.font('Helvetica-Bold').fontSize(12)
-                .text(`Order Details - Customer: ${order.userId?.name || 'Unknown'}`);
-            doc.moveDown();
-
-            
-            const itemRows = order.items.map(item => [
-                item.ProductId?.name || 'Unknown',
-                `${item.ProductId?.salePrice || 0}`,
-                item.quantity.toString(),
-                `${((item.ProductId?.salePrice || 0) * item.quantity).toFixed(2)}`
-            ]);
-
-            const itemsTableData = {
-                headers: ['Product', 'Price', 'Quantity', 'Subtotal'],
-                rows: itemRows
-            };
-
-            await doc.table(itemsTableData, {
-                prepareHeader: () => doc.font('Helvetica-Bold').fontSize(10),
-                prepareRow: () => doc.font('Helvetica').fontSize(10),
-                width: doc.page.width - 60,
-                padding: 5,
-                divider: {
-                    header: { disabled: false, width: 1, opacity: 1 },
-                    horizontal: { disabled: false, width: 0.5, opacity: 0.5 }
-                },
-            });
-
-            
-            doc.font('Helvetica').fontSize(10)
-                .text(`Total Amount: ${order.payableAmount.toFixed(2)}`, { align: 'right' })
-                .text(`Discount Applied: ${order.couponDiscount.toFixed(2)}`, { align: 'right' });
-
-            doc.moveDown(2);
+        const totalPages = doc.bufferedPageRange().count;
+        for (let i = 0; i < totalPages; i++) {
+            doc.switchToPage(i);
+            doc.fontSize(8).text(
+                `Page ${i + 1} of ${totalPages}`,
+                0,
+                doc.page.height - 30,
+                { align: 'center' }
+            );
         }
 
         doc.end();
@@ -690,6 +711,114 @@ const downloadPdf = async (req, res) => {
         res.status(500).send("An error occurred while generating the PDF.");
     }
 };
+
+
+const sales = async (req, res) => {
+    try {
+        const { startDate, endDate, interval } = req.query;
+        
+        // Set the date range (default: last month to today)
+        const query = {
+            createdAt: {
+                $gte: startDate ? new Date(startDate) : new Date(new Date().setMonth(new Date().getMonth() - 1)), 
+                $lte: endDate ? new Date(endDate) : new Date() 
+            }
+        };
+
+        let groupBy = {};
+        let dateFormat = {}; // To sort by year, month, or day
+
+        switch (interval) {
+            case 'weekly':
+                groupBy = {
+                    _id: { $week: "$createdAt" }, // Group by week of the year
+                    totalSales: { $sum: "$totalAmount" },
+                    count: { $sum: 1 }
+                };
+                dateFormat = { _id: 1 }; // Sort by week
+                break;
+
+            case 'monthly':
+                groupBy = {
+                    _id: { $month: "$createdAt" },  // Group by month (1-12)
+                    totalSales: { $sum: "$totalAmount" },
+                    count: { $sum: 1 }
+                };
+                dateFormat = { _id: 1 }; // Sort by month
+                break;
+
+            case 'yearly':
+                groupBy = {
+                    _id: { $year: "$createdAt" }, // Group by year
+                    totalSales: { $sum: "$totalAmount" },
+                    count: { $sum: 1 }
+                };
+                dateFormat = { _id: 1 }; // Sort by year
+                break;
+
+            default: // Default to daily aggregation
+                groupBy = {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" },
+                        day: { $dayOfMonth: "$createdAt" }
+                    },
+                    totalSales: { $sum: "$totalAmount" },
+                    count: { $sum: 1 }
+                };
+                dateFormat = { "_id.year": 1, "_id.month": 1, "_id.day": 1 }; // Sort by date (year, month, day)
+                break;
+        }
+
+        // Perform aggregation on the sales data
+        const salesData = await Order.aggregate([
+            { $match: query },
+            { $group: groupBy },
+            { $sort: dateFormat }
+        ]);
+
+        // Format the _id for display purposes based on the selected interval
+        const formattedData = salesData.map(item => {
+            let formattedId;
+            switch (interval) {
+                case 'weekly':
+                    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                    formattedId = daysOfWeek[item._id - 1]; // Convert 1-7 to day names
+                    break;
+                case 'monthly':
+                    formattedId = `Day ${item._id}`;  // Day of the month
+                    break;
+                case 'yearly':
+                    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                    formattedId = months[item._id - 1]; // Convert 1-12 to month names
+                    break;
+                default:
+                    formattedId = `${item._id.day}-${item._id.month}-${item._id.year}`;
+                    break;
+            }
+            return {
+                ...item,
+                _id: formattedId
+            };
+        });
+
+        // Send the response with formatted sales data
+        res.status(200).json({
+            success: true,
+            data: formattedData
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error fetching sales data",
+            error: error.message
+        });
+    }
+};
+
+
+
 module.exports = {
     loadLogin,
     login,
@@ -707,5 +836,6 @@ module.exports = {
     AllReturn,
     approveAll,
     salesRepoetLoad,
-    downloadPdf
+    downloadPdf,
+    sales
 }

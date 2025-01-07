@@ -97,16 +97,16 @@
           <div class="details__container container grid">
             <div class="details__group" style="position: relative; overflow: hidden;">
               <div id="zoom-image">
-                <img id="mainImage" src="/uploads/products/<%= product.productImage[0] %>" alt=""
+                <img id="mainImage" src="<%= product.productImage[0] %>" alt=""
                   class="details__img" />
               </div>
 
 
               <div class="details__small-images grid">
 
-                <img src="/uploads/products/<%= product.productImage[1] %>" alt="" class="details__small-img"
+                <img src="<%= product.productImage[1] %>" alt="" class="details__small-img"
                   onclick="swapImage(this)" />
-                <img src="/uploads/products/<%= product.productImage[2] %>" alt="" class="details__small-img"
+                <img src="<%= product.productImage[2] %>" alt="" class="details__small-img"
                   onclick="swapImage(this)" />
               </div>
             </div>

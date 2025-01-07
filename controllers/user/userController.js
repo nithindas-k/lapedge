@@ -12,6 +12,9 @@ const couponSchema = require("../../models/couponModel")
 const offerSchema = require("../../models/offerModel")
 const razorpay = require('../../config/razorpay');
 const PDFDocument = require('pdfkit');
+const path = require('path');
+console.log('Email:', env.NODEMAILER_EMAIL);
+console.log('Password exists:', !!env.NODEMAILER_PASSWORD);
 
 
 
@@ -469,9 +472,9 @@ const loadproductDetails = async (req, res) => {
         let wishlisted = false
         if (userId) {
             const wishlist = await wishlistSchema.findOne({ userId: userId })
-             wishlisted = wishlist && wishlist.items.includes(id)
+            wishlisted = wishlist && wishlist.items.includes(id)
         }
-        
+
 
 
         const product = await productSchema.findOne({ _id: id }).populate('specifications.RAM').populate('specifications.processor').populate('specifications.displaySize').populate('specifications.storage');
@@ -788,21 +791,21 @@ const loadProductsFilter = async (req, res) => {
 }
 
 
-const loadOrderFailure  =  async (req, res) => {
+const loadOrderFailure = async (req, res) => {
     try {
         if (!req.session.user) {
             return res.redirect("/login")
         }
 
         const { razorpayId } = req.params
-        console.log("-------------------------------------",razorpayId)
-
-      
+        console.log("-------------------------------------", razorpayId)
 
 
 
 
-        const orderDetails = await Order.findOne({razorpayOrderId:razorpayId}).populate("items.ProductId")
+
+
+        const orderDetails = await Order.findOne({ razorpayOrderId: razorpayId }).populate("items.ProductId")
         const totalAmount = orderDetails.items.reduce((accumulator, item) => {
             return accumulator + item.totalPrice;
         }, 0);
@@ -831,29 +834,29 @@ const loadOrderFailure  =  async (req, res) => {
         })
 
 
-        
+
     } catch (error) {
         console.log(error)
-        
+
     }
 }
 
-const retryPayment =  async (req , res )=>{
+const retryPayment = async (req, res) => {
     try {
-        const {orderId} = req.params
+        const { orderId } = req.params
 
         const order = await Order.findById(orderId).populate("userId")
         console.log(order)
         const oldOrderId = order.razorpayOrderId
 
-       const user  = await userSchema.findOne({_id: order.userId})
+        const user = await userSchema.findOne({ _id: order.userId })
 
 
 
 
-        
-             
-        let amountInPaise  =  Math.round(parseFloat(order.totalAmount)*100);
+
+
+        let amountInPaise = Math.round(parseFloat(order.totalAmount) * 100);
 
         console.log(amountInPaise)
 
@@ -864,37 +867,37 @@ const retryPayment =  async (req , res )=>{
             receipt: `order_${Date.now()}`,
             payment_capture: 1
         };
-           
-            
-            const razorpayOrder = await razorpay.orders.create(orderOptions);
-            order.razorpayOrderId = razorpayOrder.id
-            await order.save()
-
-            console.log("++++++++++++++++++++++++++++++++++++",razorpayOrder)
 
 
+        const razorpayOrder = await razorpay.orders.create(orderOptions);
+        order.razorpayOrderId = razorpayOrder.id
+        await order.save()
 
-            const response = {
-                success: true,
-                razorpayKey: process.env.RAZORPAY_KEY_ID,
-                amount: amountInPaise,
-                orderId: razorpayOrder.id,
-                order_id: orderId ,
-                
-                prefill: {
-                    name:  user.name || '',
-                    email: user.email || '',
-                    contact: user.phone || ''
-                }
-            };
+        console.log("++++++++++++++++++++++++++++++++++++", razorpayOrder)
 
-            return res.status(200).json(response);
+
+
+        const response = {
+            success: true,
+            razorpayKey: process.env.RAZORPAY_KEY_ID,
+            amount: amountInPaise,
+            orderId: razorpayOrder.id,
+            order_id: orderId,
+
+            prefill: {
+                name: user.name || '',
+                email: user.email || '',
+                contact: user.phone || ''
+            }
+        };
+
+        return res.status(200).json(response);
 
 
     } catch (error) {
 
         console.log(error)
-        
+
     }
 
 }
@@ -905,7 +908,6 @@ const loadInvoice = async (req, res) => {
         const { orderId } = req.params;
         console.log('Generating invoice for order:', orderId);
 
-        // Fetch order with populated fields
         const order = await Order.findById(orderId)
             .populate('userId', 'name email address phone')
             .populate('items.ProductId', 'name salePrice');
@@ -914,89 +916,162 @@ const loadInvoice = async (req, res) => {
             return res.status(404).send('Order not found');
         }
 
-        // Create PDF document
+    
         const doc = new PDFDocument({
-            margin: 30,
+            margin: 50,
             size: 'A4',
+            bufferPages: true
         });
 
-        // Set response headers
+        
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="invoice-${orderId}.pdf"`);
 
-        // Pipe the document to the response
+
         doc.pipe(res);
 
-        // Helper function for drawing table rows
-        const drawRow = (y, cols) => {
-            cols.forEach(([text, xOffset, width]) => {
-                doc.text(text, xOffset, y, { width, ellipsis: true });
+        
+        const pageWidth = doc.page.width;
+        const pageHeight = doc.page.height; 
+        const imageWidth = 500;           
+        const imageHeight = 150;         
+        const centerX = (pageWidth - imageWidth) / 2; 
+        const centerY = (pageHeight - imageHeight) / 2; 
+
+        
+        doc.save(); 
+        doc.fillOpacity(0.2) 
+            .image(path.join(__dirname, '../../public/images/mainlogo.png'), centerX, centerY, { width: imageWidth });
+        doc.restore(); 
+
+
+
+        
+        doc.font('Helvetica-Bold')
+            .fontSize(25)
+            .text('INVOICE', 50, 50, { align: 'right' });
+
+        
+        doc.font('Helvetica')
+            .fontSize(10)
+            .text('lapedge', 50, 85)
+            .text('malappuram', 50, 100)
+            .text('malappuram, kerala, india', 50, 115)
+            .text('Phone:8921642524', 50, 130)
+            .text('Email: lapedge@gmail.com', 50, 145);
+
+
+        doc.strokeColor('#00000')
+            .lineWidth(1)
+            .moveTo(50, 170)
+            .lineTo(550, 170)
+            .stroke();
+
+
+        doc.fontSize(12)
+            .text('Invoice Number:', 50, 190)
+            .text(`INV-${order._id.toString().slice(-6)}`, 150, 190)
+            .text('Date:', 50, 205)
+            .text(new Date(order.createdAt).toLocaleDateString(), 150, 205)
+            .text('Order ID:', 50, 220, { fontSize: 1 })
+
+            .text(order._id.toString(), 150, 220);
+
+
+        doc.fontSize(14)
+            .text('Bill To:', 300, 190)
+            .fontSize(12)
+            .text(order.userId.name, 300, 205)
+            .text(order.userId.email, 300, 220)
+            .text(order.shippingAddress, 300, 235, {
+                width: 250,
+                leading: 5
             });
-        };
 
-        // Header
-        doc.fontSize(20).text('INVOICE', { align: 'center' });
-        doc.moveDown();
 
-        // Invoice Details
-        doc.fontSize(12).text(`Invoice Date: ${new Date(order.createdAt).toLocaleDateString()}`);
-        doc.text(`Invoice Number: INV-${order._id.toString().slice(-6)}`);
-        doc.text(`Order Status: ${order.orderStatus}`);
-        doc.text(`Payment Status: ${order.paymentStatus}`);
-        doc.moveDown();
+        let y = 300;
+        const tableTop = y;
+        doc.font('Helvetica-Bold')
+            .fontSize(10)
+            .text('Item', 50, y, { width: 190 })
+            .text('Quantity', 250, y, { width: 90, align: 'center' })
+            .text('Unit Price', 340, y, { width: 90, align: 'right' })
+            .text('Total', 430, y, { width: 90, align: 'right' });
 
-        // Customer Details
-        doc.fontSize(14).text('Customer Details', { underline: true });
-        doc.fontSize(12).text(`Name: ${order.userId.name}`);
-        doc.text(`Email: ${order.userId.email}`);
-        doc.text(`Address: ${order.shippingAddress}`);
-        doc.moveDown();
-
-        // Items Table Header
-        let y = doc.y + 10;
-        doc.fontSize(14).text('Order Items', { underline: true });
         y += 20;
+        doc.strokeColor('#aaaaaa')
+            .lineWidth(1)
+            .moveTo(50, y)
+            .lineTo(550, y)
+            .stroke();
 
-        doc.fontSize(12).text('Product', 30, y, { width: 200 });
-        doc.text('Price', 250, y, { width: 100, align: 'right' });
-        doc.text('Quantity', 350, y, { width: 100, align: 'right' });
-        doc.text('Subtotal', 450, y, { width: 100, align: 'right' });
-        doc.moveTo(30, y + 15).lineTo(550, y + 15).stroke();
-        y += 20;
 
-        // Items Table Rows
+        doc.font('Helvetica');
         order.items.forEach(item => {
-            const productName = item.ProductId?.name || 'Unknown';
-            const price = `₹${item.ProductId?.salePrice || 0}`;
-            const quantity = item.quantity.toString();
-            const subtotal = `₹${((item.ProductId?.salePrice || 0) * item.quantity).toFixed(2)}`;
-
-            drawRow(y, [
-                [productName, 30, 200],
-                [price, 250, 100],
-                [quantity, 350, 100],
-                [subtotal, 450, 100],
-            ]);
             y += 20;
+
+
+            if ((y - tableTop) / 20 % 2 === 0) {
+                doc.fillColor('#f6f6f6')
+                    .rect(50, y - 10, 500, 20)
+                    .fill()
+                    .fillColor('#000000');
+            }
+
+            doc.text(item.ProductId.name, 50, y, { width: 190 })
+                .text(item.quantity.toString(), 250, y, { width: 90, align: 'center' })
+                .text(`${item.unitPrice.toFixed(2)}`, 340, y, { width: 90, align: 'right' })
+                .text(`${item.totalPrice.toFixed(2)}`, 430, y, { width: 90, align: 'right' });
         });
 
-        doc.moveDown();
 
-        // Payment Summary
-        doc.fontSize(14).text('Payment Summary', { underline: true });
-        doc.fontSize(12).text(`Subtotal: ₹${order.totalAmount.toFixed(2)}`);
-        doc.text(`Discount: ₹${order.couponDiscount.toFixed(2)}`);
-        doc.text(`Total Amount: ₹${order.payableAmount.toFixed(2)}`);
-        doc.moveDown();
+        y += 40;
+        doc.strokeColor('#aaaaaa')
+            .lineWidth(1)
+            .moveTo(50, y)
+            .lineTo(550, y)
+            .stroke();
 
-        // Footer
+        y += 20;
+        doc.font('Helvetica-Bold')
+            .text('Subtotal:', 350, y, { width: 90, align: 'right' })
+            .text(`${order.totalAmount.toFixed(2)}`, 430, y, { width: 90, align: 'right' });
+
+        y += 20;
+        doc.text('Discount:', 350, y, { width: 90, align: 'right' })
+            .text(`${order.couponDiscount.toFixed(2)}`, 430, y, { width: 90, align: 'right' });
+
+        y += 20;
+        doc.fontSize(12)
+            .text('Total Amount:', 350, y, { width: 90, align: 'right' })
+            .text(`${order.payableAmount.toFixed(2)}`, 430, y, { width: 90, align: 'right' });
+
+
+        y += 40;
         doc.fontSize(10)
-            .text('Thank you for your business!', { align: 'center' })
+            .text('Payment Details', 50, y)
+            .font('Helvetica')
+            .fontSize(10)
+            .text(`Payment Method: ${order.paymentMethod}`, 50, y + 15)
+            .text(`Payment Status: ${order.paymentStatus}`, 50, y + 30);
+
+        doc.fontSize(10)
+            .text('Thank you for your business!', 50, 700, { align: 'center' })
             .moveDown()
             .fontSize(8)
-            .text('This is a computer-generated document and needs no signature.', { align: 'center' });
+            .text('For any queries, please contact our customer support.', { align: 'center' })
+            .moveDown()
+            .text('This is a computer-generated document and does not require a signature.', { align: 'center', color: '#666666' });
 
-        // Finalize the PDF
+        // Add page numbers
+        const pageCount = doc.bufferedPageRange().count;
+        for (let i = 0; i < pageCount; i++) {
+            doc.switchToPage(i);
+            doc.fontSize(8)
+                .text(`Page ${i + 1} of ${pageCount}`, 50, 750, { align: 'center' });
+        }
+
+
         doc.end();
 
     } catch (error) {

@@ -25,7 +25,7 @@ const loadWalletPage = async (req , res )=>{
 
         const userId = req.session.userData._id
         const wallet  = await Wallet.findOne({userId:userId})
-        const transaction  =  await Transaction.find({userId:userId}).sort({date:-1})
+        const transaction  =  await Transaction.find({userId:userId}).sort({date:-1})     
 
         console.log(transaction)
         res.render("wallet",{

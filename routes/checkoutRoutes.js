@@ -9,4 +9,4 @@ router.get("/",checkoutController.loadCheckout)
 
 
 
-module.exports = router
+module.exports = router 
