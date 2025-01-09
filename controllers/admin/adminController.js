@@ -57,7 +57,9 @@ const login = async (req, res) => {
 const loadDashboard = async (req, res) => {
   
     try {
-        const [topProducts, topCategories, topBrands] = await Promise.all([
+    
+        const [topProducts, topCategories] = await Promise.all([
+            
         
           Order.aggregate([
             { $match: { orderStatus: "Delivered" } },
@@ -71,6 +73,11 @@ const loadDashboard = async (req, res) => {
             
             { $sort: { total: -1 } },
             { $limit: 10 },
+            {
+                $addFields: {
+                    _id: { $toObjectId: "$_id" }  
+                }
+            },
             {
               $lookup: {
                 from: "products",
@@ -103,6 +110,12 @@ const loadDashboard = async (req, res) => {
             { $sort: { total: -1 } },
             { $limit: 10 },
             {
+                $addFields: {
+                    _id: { $toObjectId: "$_id" }  
+                }
+            },
+            
+            {
               $lookup: {
                 from: "products",
                 localField: "_id",
@@ -110,12 +123,18 @@ const loadDashboard = async (req, res) => {
                 as: "productDetails"
               }
             },
+            
             { $unwind: "$productDetails" },
             {
               $group: {
                 _id: "$productDetails.category",
                 total: { $sum: "$total" }
               }
+            },
+            {
+                $addFields: {
+                    _id: { $toObjectId: "$_id" }  
+                }
             },
             {
               $lookup: {
@@ -717,7 +736,7 @@ const sales = async (req, res) => {
     try {
         const { startDate, endDate, interval } = req.query;
         
-        // Set the date range (default: last month to today)
+        
         const query = {
             createdAt: {
                 $gte: startDate ? new Date(startDate) : new Date(new Date().setMonth(new Date().getMonth() - 1)), 
@@ -726,37 +745,37 @@ const sales = async (req, res) => {
         };
 
         let groupBy = {};
-        let dateFormat = {}; // To sort by year, month, or day
+        let dateFormat = {}; 
 
         switch (interval) {
             case 'weekly':
                 groupBy = {
-                    _id: { $week: "$createdAt" }, // Group by week of the year
+                    _id: { $week: "$createdAt" }, 
                     totalSales: { $sum: "$totalAmount" },
                     count: { $sum: 1 }
                 };
-                dateFormat = { _id: 1 }; // Sort by week
+                dateFormat = { _id: 1 };
                 break;
 
             case 'monthly':
                 groupBy = {
-                    _id: { $month: "$createdAt" },  // Group by month (1-12)
+                    _id: { $month: "$createdAt" },
                     totalSales: { $sum: "$totalAmount" },
                     count: { $sum: 1 }
                 };
-                dateFormat = { _id: 1 }; // Sort by month
+                dateFormat = { _id: 1 }; 
                 break;
 
             case 'yearly':
                 groupBy = {
-                    _id: { $year: "$createdAt" }, // Group by year
+                    _id: { $year: "$createdAt" }, 
                     totalSales: { $sum: "$totalAmount" },
                     count: { $sum: 1 }
                 };
-                dateFormat = { _id: 1 }; // Sort by year
+                dateFormat = { _id: 1 }; 
                 break;
 
-            default: // Default to daily aggregation
+            default: 
                 groupBy = {
                     _id: {
                         year: { $year: "$createdAt" },
@@ -766,31 +785,30 @@ const sales = async (req, res) => {
                     totalSales: { $sum: "$totalAmount" },
                     count: { $sum: 1 }
                 };
-                dateFormat = { "_id.year": 1, "_id.month": 1, "_id.day": 1 }; // Sort by date (year, month, day)
+                dateFormat = { "_id.year": 1, "_id.month": 1, "_id.day": 1 };
                 break;
         }
 
-        // Perform aggregation on the sales data
+     
         const salesData = await Order.aggregate([
             { $match: query },
             { $group: groupBy },
             { $sort: dateFormat }
         ]);
 
-        // Format the _id for display purposes based on the selected interval
         const formattedData = salesData.map(item => {
             let formattedId;
             switch (interval) {
                 case 'weekly':
                     const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-                    formattedId = daysOfWeek[item._id - 1]; // Convert 1-7 to day names
+                    formattedId = daysOfWeek[item._id - 1];
                     break;
                 case 'monthly':
-                    formattedId = `Day ${item._id}`;  // Day of the month
+                    formattedId = `Day ${item._id}`; 
                     break;
                 case 'yearly':
                     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                    formattedId = months[item._id - 1]; // Convert 1-12 to month names
+                    formattedId = months[item._id - 1]; 
                     break;
                 default:
                     formattedId = `${item._id.day}-${item._id.month}-${item._id.year}`;
@@ -802,7 +820,7 @@ const sales = async (req, res) => {
             };
         });
 
-        // Send the response with formatted sales data
+      
         res.status(200).json({
             success: true,
             data: formattedData

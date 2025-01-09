@@ -434,18 +434,18 @@
    function updateProductDisplay(products) {
   const productContainer = document.querySelector('.products__container.grid');
   
-  // Clear existing products
+  
   productContainer.innerHTML = '';
 
-  // Render new products
+  
   products.forEach(product => {
     const productElement = document.createElement('div');
     productElement.classList.add('product__item');
     productElement.innerHTML = `
       <div class="product__banner">
         <a href="/productDetails/${product._id}" class="product__images">
-          <img src="/uploads/products/${product.productImage[0]}" alt="" class="product__img default" />
-          <img src="/uploads/products/${product.productImage[1]}" alt="" class="product__img hover" />
+          <img src="${product.productImage[0]}" alt="" class="product__img default" />
+          <img src="${product.productImage[1]}" alt="" class="product__img hover" />
         </a>
         <div class="product__actions">
           <a href="/productDetails/${product._id}" class="action__btn" aria-label="Quick View">

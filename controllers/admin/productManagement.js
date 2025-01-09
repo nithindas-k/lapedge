@@ -14,11 +14,11 @@ const LoadAddProduct = async (req, res) => {
         const processor = await variantSchema.find({ isBlocked: false, category: "processor" }).populate("category")
         const display = await variantSchema.find({ isBlocked: false, category: "display" }).populate("category")
         const storage = await variantSchema.find({ isBlocked: false, category: "storage" }).populate("category")
-        console.log(ram)      
+        console.log(ram)
 
 
 
-        const category = await categorySchema.find({ isListed: true });   
+        const category = await categorySchema.find({ isListed: true });
         res.render('addProduct',
             { category: category, message: null, ram: ram, processor: processor, display: display, storage: storage })
 
@@ -48,7 +48,7 @@ const CreateProduct = async (req, res) => {
         const images = [];
         const fileFields = ['productImage1', 'productImage2', 'productImage3'];
 
-        
+
         if (req.files && req.files.length > 0) {
             for (let i = 0; i < req.files.length; i++) {
                 const b64 = Buffer.from(req.files[i].buffer).toString("base64");
@@ -59,7 +59,7 @@ const CreateProduct = async (req, res) => {
             }
         }
 
-    
+
         const newProduct = new productSchema({
             name,
             description,
@@ -88,7 +88,7 @@ const CreateProduct = async (req, res) => {
             product: newProduct,
             products: products
         });
-    } catch (error) {   
+    } catch (error) {
         console.error(error);
         res.status(500).json({
             message: 'Error creating product',
@@ -167,13 +167,13 @@ const updateProduct = async (req, res) => {
         const { name, description, brand, category, regularPrice, salePrice, quantity, RAM, processor, displaySize, storage } = req.body;
         console.log(RAM, processor, displaySize, storage, storage)
 
-            let qstatus  = ""
-        if(quantity == 0){
-             qstatus = "Out Of Stock"
-        }else if(quantity>5){
+        let qstatus = ""
+        if (quantity == 0) {
+            qstatus = "Out Of Stock"
+        } else if (quantity > 5) {
             qstatus = "Available"
-        }else if(quantity <=5){
-           
+        } else if (quantity <= 5) {
+
             qstatus = "Hurry up!"
         }
 
@@ -218,7 +218,7 @@ const updateimage = async (req, res) => {
         }
 
         const productData = await productSchema.findById(productId);
-        
+
         if (!productData) {
             return res.status(404).json({ error: "Product not found" });
         }
@@ -227,22 +227,22 @@ const updateimage = async (req, res) => {
         let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
         const result = await handleUpload(dataURI);
 
-        
-        // Update the specific image in the array
+
+
         productData.productImage[imageIndex] = result.secure_url;
-        
+
         await productData.save();
 
-        res.json({ 
-            message: "Image updated successfully", 
-            image: result.secure_url 
+        res.json({
+            message: "Image updated successfully",
+            image: result.secure_url
         });
 
     } catch (error) {
         console.error('Error updating image:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: "Failed to update image",
-            details: error.message 
+            details: error.message
         });
     }
 };

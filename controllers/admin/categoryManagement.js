@@ -45,11 +45,11 @@ const loadCreateCategory = (req, res) => {
 const createCategory = async (req, res) => {
     try {
         const { name, description } = req.body;
-       // const image = req.file ? req.file.filename : null;
-       const b64 = Buffer.from(req.file.buffer).toString("base64");
-       let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
-       const cldRes = await handleUpload(dataURI);
-       const image = cldRes.secure_url;
+
+        const b64 = Buffer.from(req.file.buffer).toString("base64");
+        let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+        const cldRes = await handleUpload(dataURI);
+        const image = cldRes.secure_url;
         const existingCategory = await categorySchema.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
 
         if (existingCategory) {
@@ -106,7 +106,7 @@ const updateCategory = async (req, res) => {
             // const imageFilename = `${Date.now()}.jpg`;
             // const imagePath = path.join(uploadDir, imageFilename);
 
-      
+
             // fs.writeFileSync(imagePath, base64Data, 'base64');
             // updatedData.image = imageFilename;
             const b64 = Buffer.from(req.file.buffer).toString("base64");

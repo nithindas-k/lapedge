@@ -11,8 +11,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/editCategory.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-
-   
 </head>
 
 <body>
@@ -27,8 +25,7 @@
                 <h1>Edit Category</h1>
             </div>
 
-           
-            <form  id="form-check" method="POST" action="/category/edit/<%= category._id %>" enctype="multipart/form-data">
+            <form id="form-check" method="POST" action="/category/edit/<%= category._id %>" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="name">Category Name</label>
                     <input type="text" id="name" name="name" value="<%= category.name %>" required>
@@ -41,19 +38,20 @@
 
                 <div class="form-group">
                     <label for="image">Upload New Image</label>
-                    <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+                    <input type="file" id="image" name="image" accept="image/jpeg,image/png,image/gif" onchange="handleImageSelect(event)">
                     <button type="button" id="cropButton" style="display:none;">Crop Image</button>
+                    <!-- Add preview container -->
+                    <div id="previewContainer" style="margin-top: 10px; display: none;">
+                        <img id="imagePreview" src="" alt="Preview" style="max-width: 200px; max-height: 200px;">
+                    </div>
                 </div>
 
-            
                 <input type="hidden" id="croppedImage" name="croppedImage">
 
-               
                 <% if (category.image) { %>
                 <div class="form-group">
                     <label>Current Image</label>
-                    <img src="/uploads/<%= category.image %>?v=<%= Date.now() %>" alt="Category Image" width="100">
-
+                    <img src="<%= category.image %>?v=<%= Date.now() %>" alt="Category Image" width="100">
                 </div>
                 <% } %>
 
@@ -63,7 +61,6 @@
                 </div>
             </form>
         </div>
-
     </div>
 
     <div id="cropModal" class="crop-modal">
@@ -77,47 +74,6 @@
     </div>
 
     <script>
-
-          document.getElementById("form-check").addEventListener("submit",function(event) {
-            event.preventDefault();
-
-            const name = document.getElementById("name").value
-            const description = document.getElementById("description").value
-
-                        if(name.trim() == ""){
-                            Swal.fire({
-                                title: 'Error',
-                                text: 'Please enter category name.',
-                                icon: 'error',
-                                
-                            })
-                            return;
-                        }
-                        if(description.trim() == ""){
-                            Swal.fire({
-                                title: 'Error',
-                                text: 'Please enter description',
-                                icon: 'error',
-                            })
-                            return;  
-
-                        }
-
-
-
-                        this.submit();
-
-
-          })
-
-
-
-
-
-
-
-
-
         let cropper;
         const imageInput = document.getElementById('image');
         const cropModal = document.getElementById('cropModal');
@@ -126,61 +82,130 @@
         const cancelCropButton = document.getElementById('cancelCrop');
         const imageToCrop = document.getElementById('imageToCrop');
         const croppedImageInput = document.getElementById('croppedImage');
-        const name = document.getElementById('name');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewContainer = document.getElementById('previewContainer');
 
-    
-        
-        
-    
-        imageInput.addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    imageToCrop.src = e.target.result;
-                    cropModal.style.display = 'flex';
-                    cropper = new Cropper(imageToCrop, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        autoCropArea: 0.8,
-                    });
-                    cropButton.style.display = 'inline-block'; 
-                };
-                reader.readAsDataURL(file);
+        // Function to validate file type
+        function validateFileType(file) {
+            const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+            if (!validImageTypes.includes(file.type)) {
+                return false;
             }
-        });
-    
-        cropButton.addEventListener('click', function () {
-            cropModal.style.display = 'flex';
-        });
-    
-        saveCropButton.addEventListener('click', function () {
+            return true;
+        }
+
+        // Function to handle image selection
+        function handleImageSelect(event) {
+            const file = event.target.files[0];
+            
+            if (!file) {
+                return;
+            }
+
+            // Validate file type
+            if (!validateFileType(file)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid File Type',
+                    text: 'Please upload only image files (JPEG, PNG, GIF)',
+                    confirmButtonColor: '#d33',
+                });
+                event.target.value = ''; // Clear the file input
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imageToCrop.src = e.target.result;
+                cropModal.style.display = 'flex';
+                if (cropper) {
+                    cropper.destroy();
+                }
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 0.8,
+                });
+                cropButton.style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+  
+        saveCropButton.addEventListener('click', function() {
             const canvas = cropper.getCroppedCanvas({
                 width: 300,
                 height: 300,
             });
-            const croppedImage = canvas.toDataURL('image/jpeg');
-            croppedImageInput.value = croppedImage;
+            
+            
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                imagePreview.src = url;
+                previewContainer.style.display = 'block';
+            }, 'image/jpeg');
+
+           
+            croppedImageInput.value = canvas.toDataURL('image/jpeg');
             cropModal.style.display = 'none';
-            cropper.destroy(); 
+            cropper.destroy();
         });
-    
-        cancelCropButton.addEventListener('click', function () {
+
+     
+        cancelCropButton.addEventListener('click', function() {
             cropModal.style.display = 'none';
-            cropper.destroy(); 
+            cropper.destroy();
+            imageInput.value = ''; 
+            previewContainer.style.display = 'none';
         });
-    
-        
+
+        document.getElementById("form-check").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById("name").value;
+            const description = document.getElementById("description").value;
+            const imageFile = document.getElementById("image").files[0];
+
+            if (name.trim() == "") {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Please enter category name.',
+                    icon: 'error',
+                });
+                return;
+            }
+
+            if (description.trim() == "") {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Please enter description',
+                    icon: 'error',
+                });
+                return;
+            }
+
+            if (imageFile && !validateFileType(imageFile)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid File Type',
+                    text: 'Please upload only image files (JPEG, PNG, GIF)',
+                    confirmButtonColor: '#d33',
+                });
+                return;
+            }
+
+            this.submit();
+        });
+
+     
         function getQueryParam(param) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(param);
         }
-    
-  
+
         const status = getQueryParam('status');
         const message = getQueryParam('message');
-    
-        
+
         if (status === 'success') {
             Swal.fire({
                 icon: 'success',
@@ -190,7 +215,6 @@
                 timer: 2000
             });
         } else if (status === 'error') {
-            
             const errorMessage = message || 'There was an error updating the category. Please try again.';
             Swal.fire({
                 icon: 'error',
@@ -201,8 +225,5 @@
             });
         }
     </script>
-    
-
 </body>
-
 </html>

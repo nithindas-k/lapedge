@@ -229,7 +229,7 @@
                                     <%= order._id %>
                                 </td>
                                 <td>
-                                    <%= order.userId.name %>
+                                    <%= order.userId?.name %>
                                 </td>
                                 <td>
                                     <%= new Date(order.createdAt).toLocaleString() %>

@@ -524,7 +524,7 @@
                     <%=order.paymentStatus %>
                   </p>
                 </div>
-               
+
                 <div class="order-details">
                   <h2 style="color: #FDA208; margin-bottom: 15px;">Order Items</h2>
                   <div class="order-items">
@@ -825,16 +825,13 @@
                     showConfirmButton: false,
                     timer: 2000,
                     timerProgressBar: true,
-                  })
-                 .then(()=>{
-                  window.location.reload()
-                 })
+                  });
 
-
-
+                  window.location.href = `/order-confirmation/${orderId}`;
                 } else {
                   throw new Error(verifyResult.message || 'Payment verification failed');
                 }
+
               } catch (err) {
                 console.error('Payment verification error:', err);
                 Swal.fire({
@@ -878,39 +875,39 @@
           try {
             const orderId = document.getElementById("orderId").value;
 
-            
+
             const response = await fetch(`/invoice/${orderId}`, {
               method: 'GET',
               headers: {
-                'Accept': 'application/pdf', 
+                'Accept': 'application/pdf',
               },
             });
 
-            
+
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            
+
             const blob = await response.blob();
 
-            
+
             const url = window.URL.createObjectURL(blob);
 
-            
+
             const link = document.createElement('a');
             link.href = url;
             link.download = `invoice-${orderId}.pdf`;
 
-            
+
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
-          
+
             window.URL.revokeObjectURL(url);
 
-            
+
             Swal.fire({
               icon: 'success',
               title: 'Invoice downloaded successfully!',
@@ -924,7 +921,7 @@
           } catch (error) {
             console.error('Error downloading invoice:', error);
 
-            
+
             Swal.fire({
               icon: 'error',
               title: 'Failed to download invoice',

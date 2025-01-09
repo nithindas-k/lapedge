@@ -141,9 +141,9 @@ console.log(req.session.userData)
 
 const editAddress = async (req, res) => {
     try {
-        const { addressId } = req.params; // Get addressId from params
+        const { addressId } = req.params; 
         console.log(" address id  first"+addressId  )
-        const { name, address, city, state, pincode, phone } = req.body; // Get updated address details from body
+        const { name, address, city, state, pincode, phone } = req.body; 
         console.log(name, address, city, state, pincode, phone)
 
         const user = await userSchema.findById(req.session.userData._id); 

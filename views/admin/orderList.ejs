@@ -203,12 +203,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                        <% orders.forEach((order)=>{ %>
+                        <% orders.forEach((order,index)=>{ %>
                     <tr>
-                        <td>1</td>
+                        <td><%=index+1 %></td>
                         <td><%=order._id %></td>
                         <td><%=new Date(order.orderDate).toLocaleDateString() %></td>  
-                        <td><%= order.userId.name %></td>
+                        <td><%= order.userId?.name %></td>
                         <td>₹1<%= order.totalAmount %></td>
                         <td><%=order.paymentMethod %></td>
                         <td>
