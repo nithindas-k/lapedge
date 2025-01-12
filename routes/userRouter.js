@@ -88,6 +88,7 @@ router.post("/order/retry-razorpay/:orderId",userController.retryPayment)
 router.get("/productsFilter",userController.loadProductsFilter)
 
 router.get("/Invoice/:orderId",userController.loadInvoice)
+router.get("/404",userController.errorpage)
 
 
  

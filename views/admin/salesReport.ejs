@@ -181,6 +181,12 @@
                 <div class="header">
                     <h1>Sales Report</h1>
                 </div>
+                <div class="summary-card">
+                    <h3>Total Orders</h3>
+                    <p><%=totalOrders %></p>
+                </div>
+                <br>
+                
 
                 <div class="filter-controls">
                     <div class="date-input">
@@ -193,6 +199,8 @@
                     </div>
                     <button class="filter-btn" onclick="filterReport()">Filter</button>
                 </div>
+            
+                
 
                 <div class="summary-cards">
                     <div class="summary-card">
@@ -203,8 +211,9 @@
                     </div>
                     <div class="summary-card">
                         <h3>Total Orders</h3>
-                        <p><%=totalOrders %></p>
+                        <p><%=totalOrderWithDate %></p>
                     </div>
+                  
                     <div class="summary-card">
                         <h3>Total Discounts</h3>
                         <p>₹<%=totalDiscount %>
@@ -247,6 +256,7 @@
 
                 <div class="download-buttons">
                    <a href="/admin/download?startDate=<%=startDate %>&endDate=<%=endDate %>"><button class="download-btn" >Download PDF</button></a> 
+                   <button class="download-btn" onclick="downloadExcel()">Download EXCEL</button>
                    <a href="/admin/dashboard"> <button class="download-btn">Back</button>
                    </div></a>
             </div>
@@ -277,7 +287,73 @@
 
 
 
+async function downloadExcel() {
+    try {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        if (!startDate || !endDate) {
+            Swal.fire({
+                toast: true,
+                icon: 'warning',
+                title: 'Please select both start and end dates',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            return;
+        }
 
+        // Show loading indicator
+        Swal.fire({
+            title: 'Generating Excel',
+            text: 'Please wait...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const response = await fetch(`/admin/downloadexcel?startDate=${startDate}&endDate=${endDate}`);
+        
+        if (!response.ok) throw new Error('Download failed');
+        
+        // Create blob and trigger download
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `SalesReport-${new Date().toLocaleDateString('en-IN')}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        // Close loading indicator
+        Swal.close();
+
+        // Show success message
+        Swal.fire({
+            toast: true,
+            icon: 'success',
+            title: 'Excel file downloaded successfully',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+
+    } catch (error) {
+        console.error('Error downloading Excel:', error);
+        Swal.fire({
+            toast: true,
+            icon: 'error',
+            title: 'Failed to download Excel file',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+    }
+}
 
     </script>
 

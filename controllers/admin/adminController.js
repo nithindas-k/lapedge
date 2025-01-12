@@ -10,6 +10,7 @@ const Transaction = require("../../models/waletTrancations");
 const pdf=require("html-pdf")
 const ejs=require("ejs");
 const PDFDocument = require('pdfkit-table');
+const xlsx = require('xlsx');
 
 
 const loadLogin = (req, res) => {
@@ -525,34 +526,39 @@ const salesRepoetLoad = async (req, res) => {
             let totalSales = 0;
             let totalDiscount = 0;
             let totalOrders=0
+            let totalOrderWithDate = 0
 
         if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
             end.setHours(23, 59, 59, 999);
 
+            totalOrderWithDate =  await Order.find({ orderStatus:"Delivered", paymentStatus:"Success",createdAt: { $gte: start, $lte: end }}).countDocuments()
+
             console.log("Parsed Dates - Start:", start, "End:", end);
 
            
             orders = await Order.find(
-                { createdAt: { $gte: start, $lte: end } },
+                { orderStatus:"Delivered",paymentStatus:"Success", createdAt: { $gte: start, $lte: end }},
                 'orderId createdAt payableAmount paymentStatus couponDiscount'
             ).populate('userId', 'name').populate('coupon');
             console.log("Fetched Orders:", orders);
 
-             totalOrders = await Order.countDocuments()
+             totalOrders = await Order.find({orderStatus:"Delivered",paymentStatus:"Success"}).countDocuments()
             
             const salesData = await Order.aggregate([
-                { $match: { createdAt: { $gte: start, $lte: end } } },
+                { $match: { orderStatus:"Delivered",createdAt: { $gte: start, $lte: end } } },
                 { $group: { _id: null, totalSales: { $sum: "$payableAmount" } } }
             ]);
             console.log("Sales Data:", salesData);
 
             totalSales = salesData[0]?.totalSales || 0;
 
+
+
            
             const discountData = await Order.aggregate([
-                { $match: { createdAt: { $gte: start, $lte: end } } },
+                { $match: {orderStatus:"Delivered",paymentStatus:"Success", createdAt: { $gte: start, $lte: end } } },
                 { $group: { _id: null, totalDiscount: { $sum: "$couponDiscount" } } }
             ]);
             console.log("Discount Data:", discountData);
@@ -568,7 +574,8 @@ const salesRepoetLoad = async (req, res) => {
             totalDiscount: totalDiscount,
             startDate,
             endDate,
-            totalOrders
+            totalOrders,
+            totalOrderWithDate
         });
     } catch (error) {
         console.log(error)
@@ -590,7 +597,7 @@ const downloadPdf = async (req, res) => {
             const start = new Date(startDate);
             const end = new Date(endDate);
             end.setHours(23, 59, 59, 999);
-            matching = { createdAt: { $gte: start, $lte: end } };
+            matching = { orderStatus:"Delivered",paymentStatus:"Success",createdAt: { $gte: start, $lte: end } };
         }
 
         const orders = await Order.find(matching)
@@ -836,6 +843,145 @@ const sales = async (req, res) => {
 };
 
 
+const downloadExcel = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        console.log("Start Date:", startDate, "End Date:", endDate);
+
+        let matching = { orderStatus: "Delivered", paymentStatus: "Success" };
+
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            matching.createdAt = { $gte: start, $lte: end };
+        }
+
+        const orders = await Order.find(matching)
+            .populate('userId', 'name')
+            .populate('items.ProductId', 'name salePrice')
+            .sort({ createdAt: -1 });
+
+        
+        let totalAmount = 0;
+        let totalDiscount = 0;
+
+        
+        const excelRows = [];
+
+        excelRows.push([
+            'Date',
+            'Order ID',
+            'Customer',
+            'Product',
+            'Quantity',
+            'Unit Price',
+            'Subtotal',
+            'Discount',
+            'Final Amount'
+        ]);
+
+
+        orders.forEach(order => {
+            order.items.forEach((item, index) => {
+                const unitPrice = item.ProductId?.salePrice || 0;
+                const subtotal = unitPrice * item.quantity;
+                const discount = order.couponDiscount || 0;
+                const finalAmount = order.payableAmount;
+
+                totalAmount += finalAmount;
+                totalDiscount += discount;
+
+                excelRows.push([
+                    new Date(order.createdAt).toLocaleDateString('en-IN'),
+                    order._id.toString().slice(-6),
+                    order.userId?.name || 'Unknown',
+                    item.ProductId?.name || 'Unknown',
+                    item.quantity,
+                    unitPrice.toFixed(2),
+                    subtotal.toFixed(2),
+                    discount.toFixed(2),
+                    finalAmount.toFixed(2)
+                ]);
+            });
+        });
+
+        
+        excelRows.push([
+            'GRAND TOTAL',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            totalDiscount.toFixed(2),
+            totalAmount.toFixed(2)
+        ]);
+
+        
+        const workbook = xlsx.utils.book_new();
+        const worksheet = xlsx.utils.aoa_to_sheet(excelRows);
+    
+        const colWidths = [
+            { wch: 12 },
+            { wch: 10 },  
+            { wch: 20 }, 
+            { wch: 30 },  
+            { wch: 10 },  
+            { wch: 12 }, 
+            { wch: 12 },  
+            { wch: 12 },  
+            { wch: 12 }   
+        ];
+        worksheet['!cols'] = colWidths;
+
+
+        const range = xlsx.utils.decode_range(worksheet['!ref']);
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+            const address = xlsx.utils.encode_cell({ r: 0, c: C });
+            if (!worksheet[address]) continue;
+            worksheet[address].s = {
+                font: { bold: true },
+                fill: { fgColor: { rgb: "D3D3D3" } }
+            };
+        }
+
+     
+        const lastRow = excelRows.length - 1;
+        for (let C = 0; C <= range.e.c; ++C) {
+            const address = xlsx.utils.encode_cell({ r: lastRow, c: C });
+            if (!worksheet[address]) continue;
+            worksheet[address].s = {
+                font: { bold: true }
+            };
+        }
+
+        xlsx.utils.book_append_sheet(workbook, worksheet, 'Sales Report');
+
+   
+        const buffer = xlsx.write(workbook, { type: 'buffer' });
+
+     
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        res.setHeader(
+            'Content-Disposition',
+            `attachment; filename=SalesReport-${new Date().toLocaleDateString('en-IN')}.xlsx`
+        );
+
+        
+        res.send(buffer);
+
+    } catch (error) {
+        console.error("Error generating Excel:", error);
+        res.status(500).send("An error occurred while generating the Excel file.");
+    }
+};
+
+
 
 module.exports = {
     loadLogin,
@@ -855,5 +1001,6 @@ module.exports = {
     approveAll,
     salesRepoetLoad,
     downloadPdf,
-    sales
+    sales,
+    downloadExcel
 }

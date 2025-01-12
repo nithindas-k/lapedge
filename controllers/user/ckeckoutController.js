@@ -17,6 +17,9 @@ const loadCheckout = async  (req, res) => {
       
         const userId = await req.session.userData._id
         const userCart = await cart.findOne({ user: userId }).populate('items.productId')
+        if(!userCart){
+            return res.redirect("/404")
+        }
         const user = await userSchema.findOne({_id:userId})
         const address =  user.addresses
  

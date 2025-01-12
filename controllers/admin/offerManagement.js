@@ -18,7 +18,7 @@ const loadOfferPage = async (req, res) => {
     } catch (error) {
 
         console.log('Offer page not found', error)
-        res.status(200).send('server error')
+        res.status(200).redirect('/404')
 
     }
 

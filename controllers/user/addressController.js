@@ -12,6 +12,9 @@ const product = require("../../models/productModel");
 const loadAddress = async (req, res) => {
     const {userId}  = req.params
     const user = await userSchema.findById(userId)
+    if(!user){
+        return res.redirect("/404")
+    }
 
 
 
@@ -24,6 +27,7 @@ const loadAddress = async (req, res) => {
         })
         
     } catch (error) {
+        res.redirect("/404")
         
     }
 }
@@ -47,6 +51,9 @@ console.log(req.session.userData)
         
         
     } catch (error) {
+        
+             res.redirect("/404")
+        
         
         
     }

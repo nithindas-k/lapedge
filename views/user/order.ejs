@@ -138,6 +138,9 @@
                       <div class="order-card">
                         <h3 id="orderId">Order Id : <%=order._id %>
                         </h3>
+                        <%for(let i=0;i<order.items.length;i++){ %>
+                      <img style="width: 70px; height: 70px; border-radius:50%; margin: 5px;" src="<%=order.items[i].ProductId?.productImage[i]%>" alt="">
+                       <% } %>
                         <p>Order Date : <%=new Date(order.orderDate).toLocaleDateString() %>
                         </p>
                         <p>Status : <%=order.orderStatus %>

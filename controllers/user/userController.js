@@ -53,7 +53,7 @@ const loadLoginPage = async (req, res) => {
     } catch (error) {
 
         console.log("login page not founded", error)
-        res.status(200).send("server error")
+        res.status(200).redirect("/404")
     }
 
 
@@ -124,7 +124,7 @@ const signup = async (req, res) => {
 
         //saveing the otp 
         req.session.UserOtp = otp
-        req.session.UserData = { name, email, password };
+        req.session.userData = { name, email, password, };
         req.session.email = email
         //OTP expiration  
         req.session.UserOtpTimestamp = Date.now();
@@ -201,10 +201,10 @@ const verifyOtp = async (req, res) => {
         }
 
         // otp check
-        console.log(userOtpInput, sessionOtp, req.session.UserData)
+        console.log(userOtpInput, sessionOtp, req.session.userData)
         if (userOtpInput === sessionOtp) {
 
-            const { name, email, password } = req.session.UserData;
+            const { name, email, password } = req.session.userData;
 
 
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -221,7 +221,7 @@ const verifyOtp = async (req, res) => {
 
 
             req.session.UserOtp = null;
-            req.session.UserData = newUser;
+            req.session.userData = newUser;
             req.session.UserOtpTimestamp = null;
 
 
@@ -268,7 +268,7 @@ const forgotOtp = async (req, res) => {
 
 
         req.session.UserOtp = otp;
-        req.session.UserData = user;
+        req.session.userData = user;
         console.log(`Forgot password otp: ${req.session.UserOtp}`)
         return res.json({ success: true, message: "OTP sent to your email ." });
 
@@ -286,7 +286,7 @@ const forgotOtpVerify = async (req, res) => {
 
 
         const sessionOtp = req.session.UserOtp;
-        //  const userData = req.session.UserData;
+        //  const userData = req.session.userData;
 
 
         if (!sessionOtp) {
@@ -478,13 +478,16 @@ const loadproductDetails = async (req, res) => {
 
 
         const product = await productSchema.findOne({ _id: id }).populate('specifications.RAM').populate('specifications.processor').populate('specifications.displaySize').populate('specifications.storage');
+        if(!product){
+            return res.redirect("/404")
+        }
         const products = await productSchema.find({ _id: { $ne: id }, isBlocked: false, name: { $eq: product.name } }).populate("category")
 
         return res.render("productDetails", { product: product, products: products, wishlisted: wishlisted })
 
     } catch (error) {
         console.log("productDetails page not founded", error)
-        res.status(200).send("server error")
+        res.status(200).redirect("/404")
     }
 
 }
@@ -497,12 +500,16 @@ const loadAccount = async (req, res) => {
         }
         const userId = req.session.userData._id
         const user = await userSchema.findById(userId)
+        if(!user){
+            return res.redirect("/404")
+        }
 
 
         res.render("account", {
             user: user
         })
     } catch (error) {
+        res.redirect("/404")    
 
     }
 
@@ -518,7 +525,11 @@ const loadOrders = async (req, res) => {
             return res.redirect("/login")
         }
         const userId = req.session.userData._id
-        const orders = await Order.find({ userId: userId }).sort({ orderDate: -1 })
+        const orders = await Order.find({ userId: userId }).sort({ orderDate: -1 }).populate("items.ProductId")
+        if(!orders){
+            return res.redirect("/404")
+        }
+        console.log(orders[0].items)
 
 
 
@@ -608,10 +619,14 @@ const loadOrderConfirmation = async (req, res) => {
     try {
         const { orderId } = req.params
 
-
+        
 
 
         const orderDetails = await Order.findById(orderId).populate("items.ProductId")
+        if(!orderDetails){
+            return res.redirect("/404")
+        }
+
         const totalAmount = orderDetails.items.reduce((accumulator, item) => {
             return accumulator + item.totalPrice;
         }, 0);
@@ -644,6 +659,7 @@ const loadOrderConfirmation = async (req, res) => {
             discountAmonut: discountAmonut || 0
         })
     } catch (error) {
+        res.redirect("/404")
 
 
         console.log(error)
@@ -687,7 +703,7 @@ const changePassword = async (req, res) => {
         const { newPassword } = req.body
 
 
-        const userId = req.session.UserData._id
+        const userId = req.session.userData._id
         const user = await userSchema.findById(userId)
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
@@ -1080,6 +1096,15 @@ const loadInvoice = async (req, res) => {
     }
 };
 
+const errorpage = async (req,res)=>{
+    try {
+        res.render("404")
+        
+    } catch (error) {
+        
+    }
+}
+
 
 
 module.exports = {
@@ -1109,7 +1134,8 @@ module.exports = {
     loadProductsFilter,
     loadOrderFailure,
     retryPayment,
-    loadInvoice
+    loadInvoice,
+    errorpage
 
 
 

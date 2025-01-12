@@ -490,6 +490,10 @@
                         <span>Shipping</span>
                         <span style="color: green;">Free Shipping</span>
                       </div>
+                      <div class="summary-row">
+                        <span>Discount</span>
+                        <span id="coupondiscount" style="color: rgb(0, 161, 0);">₹0</span>
+                      </div>
                       <div class="summary-row" style="font-weight: bold;">
                         <span>Total</span>
                         <span id="ttotal">₹<%=totalAmount %></span>
@@ -507,7 +511,7 @@
                       </div>
                       <div class="payment-option">
                         <input type="radio" name="payment" />
-                        <label>razorPay</label>
+                        <label>OnlinePayment</label>
                       </div>
                     </div>
 
@@ -703,7 +707,7 @@
 
             }
 
-          } else if (selectedPaymentMethod == "razorPay") {
+          } else if (selectedPaymentMethod == "OnlinePayment") {
     try {
         const ttotalElement = document.getElementById("ttotal");
         console.log(ttotalElement)
@@ -726,7 +730,7 @@
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`Check Your Cart !`);
         }
 
         const result = await response.json();
@@ -863,6 +867,8 @@
             if (result.success) {
 
               const totalAmountSpan = document.getElementById('ttotal');
+              const coupondiscount  =document.getElementById('coupondiscount')
+              coupondiscount.textContent = `₹${(totalAmount-result.totalAmount)}`
               totalAmountSpan.textContent = `₹${result.totalAmount}`;
 
 

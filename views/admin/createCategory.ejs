@@ -170,13 +170,13 @@ saveCropButton.addEventListener('click', function() {
     const canvas = cropper.getCroppedCanvas();
     const croppedImageDataUrl = canvas.toDataURL();
     
-    // Store the cropped image blob
+    
     croppedImageBlob = dataURItoBlob(croppedImageDataUrl);
     
-    // Update preview
+    
     imagePreview.src = croppedImageDataUrl;
     
-    // Close modal and cleanup
+    
     cropModal.style.display = 'none';
     cropper.destroy();
 });

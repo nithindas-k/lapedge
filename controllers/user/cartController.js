@@ -59,7 +59,7 @@ const addCart = async (req, res) => {
     }
     userId = req.session.userData._id
 
-    const product = await productSchema.findById(productId)
+    const product = await productSchema.findById(productId)    
 
     if (!product) {
       return res.status(400).json({ success: false, message: "Product not found" })

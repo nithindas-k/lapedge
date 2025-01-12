@@ -505,7 +505,7 @@
               </span>
             </h1>
 
-            <% if(order.paymentStatus=="Pending" && order.paymentMethod=="razorPay" && order.orderStatus!="Cancelled"
+            <% if(order.paymentStatus=="Pending" && order.paymentMethod=="OnlinePayment" && order.orderStatus!="Cancelled"
               ){%>
               <a href=""><button id="continue-payment"><b>continue payment</b></button></a>
               <% } %>
@@ -515,7 +515,8 @@
                     <%=order._id %>
                   </p>
                   <p><strong>Order Date : </strong>
-                    <%=order.orderDate %>
+                    <%= new Date(order.orderDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+
                   </p>
                   <p><strong>Payment Method : </strong>
                     <%=order.paymentMethod %>
