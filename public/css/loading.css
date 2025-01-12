@@ -1,0 +1,91 @@
+* {
+    border: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: hsl(223, 10%, 90%);
+    --fg: hsl(223, 10%, 10%);
+    --c1: hsl(3, 90%, 55%);
+    --c2: hsl(33, 90%, 55%);
+    --c3: hsl(223, 90%, 55%);
+    
+    /* Global timing variables */
+    --bounce-duration: 1s;
+    --bounce-delay-1: 0s;
+    --bounce-delay-2: 0.1s;
+    --bounce-delay-3: 0.2s;
+}
+
+body {
+    background: var(--bg);
+    color: var(--fg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font: 1em/1.5 sans-serif;
+}
+
+.pl1 {
+    display: flex;
+    justify-content: space-around;
+    width: 6em;
+    height: 6em;
+    margin: 1.5em;
+}
+
+.pl1__a, .pl1__b, .pl1__c {
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+    transform-origin: 50% 100%;
+}
+
+.pl1__a {
+    background: var(--c1);
+    animation: bounce1 var(--bounce-duration) linear infinite;
+    animation-delay: var(--bounce-delay-1);
+}
+
+.pl1__b {
+    background: var(--c2);
+    animation: bounce1 var(--bounce-duration) linear infinite;
+    animation-delay: var(--bounce-delay-2);
+}
+
+.pl1__c {
+    background: var(--c3);
+    animation: bounce1 var(--bounce-duration) linear infinite;
+    animation-delay: var(--bounce-delay-3);
+}
+
+/* Animations */
+@keyframes bounce1 {
+    from, to {
+        transform: translateY(0) scale(1, 1);
+        animation-timing-function: ease-in;
+    }
+    45% {
+        transform: translateY(5em) scale(1, 1);
+        animation-timing-function: linear;
+    }
+    50% {
+        transform: translateY(5em) scale(1.5, 0.5);
+        animation-timing-function: linear;
+    }
+    55% {
+        transform: translateY(5em) scale(1, 1);
+        animation-timing-function: ease-out;
+    }
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: hsl(223, 10%, 10%);
+        --fg: hsl(223, 10%, 90%);
+    }
+}
