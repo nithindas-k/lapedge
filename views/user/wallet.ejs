@@ -302,10 +302,7 @@
                                 <div class="transaction-details">
                                     <span class="transaction-title">Refund Received <%=data.associatedOrder %></span>
                                     <span class="transaction-date">
-                                        <%= new Date(data.date).toDateString() === new Date().toDateString() 
-                                            ? `Today, ${new Date(data.date).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}` 
-                                            : `${new Date(data.date).toLocaleString('en-US', { month: 'short', day: 'numeric' })}, ${new Date(data.createdAt).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}` 
-                                        %>
+                                        <%= new Date(data.date).toLocaleString('en-US', { month: 'short', day: 'numeric' }) %>
                                     </span>
                                 </div>
                             </div>
