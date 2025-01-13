@@ -529,7 +529,7 @@ const loadOrders = async (req, res) => {
         if(!orders){
             return res.redirect("/404")
         }
-        console.log(orders[0].items)
+        
 
 
 
@@ -541,6 +541,7 @@ const loadOrders = async (req, res) => {
 
 
     } catch (error) {
+        console.log(error)
 
     }
 

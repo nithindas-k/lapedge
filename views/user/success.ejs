@@ -505,8 +505,8 @@
               </span>
             </h1>
 
-            <% if(order.paymentStatus=="Pending" && order.paymentMethod=="OnlinePayment" && order.orderStatus!="Cancelled"
-              ){%>
+            <% if(order.paymentStatus=="Pending" && order.paymentMethod=="OnlinePayment" &&
+              order.orderStatus!="Cancelled" ){%>
               <a href=""><button id="continue-payment"><b>continue payment</b></button></a>
               <% } %>
                 <div class="order-details">
@@ -515,7 +515,8 @@
                     <%=order._id %>
                   </p>
                   <p><strong>Order Date : </strong>
-                    <%= new Date(order.orderDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                    <%= new Date(order.orderDate).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
+                      day: 'numeric' }) %>
 
                   </p>
                   <p><strong>Payment Method : </strong>
@@ -818,18 +819,28 @@
                 const verifyResult = await verifyResponse.json();
 
                 if (verifyResult.success) {
+                  const notificationSound = new Audio('/images/payment.m4a');
+                  notificationSound.play().catch((error) => {
+                    console.error('Error playing sound:', error);
+                  });
+
                   Swal.fire({
                     icon: 'success',
                     title: 'Payment successful!',
                     toast: true,
                     position: 'top-right',
                     showConfirmButton: false,
-                    timer: 2000,
+                    timer: 5000,
                     timerProgressBar: true,
                   });
 
-                  window.location.href = `/order-confirmation/${orderId}`;
-                } else {
+              
+                  setTimeout(() => {
+                    window.location.href = `/order-confirmation/${orderId}`;
+                  },6000); 
+                }
+
+                else {
                   throw new Error(verifyResult.message || 'Payment verification failed');
                 }
 

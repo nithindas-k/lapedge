@@ -253,6 +253,87 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+      document.getElementById("Pincode").addEventListener('blur', function() {
+    const pincode = this.value.trim();
+    if (pincode.length === 6) {
+   
+        Swal.fire({
+            title: 'Fetching location...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        fetch(`https://api.postalpincode.in/pincode/${pincode}`)
+            .then(response => response.json())
+            .then(data => {
+                Swal.close();
+                
+                if (data[0].Status === "Success") {
+                    const postOffice = data[0].PostOffice[0];
+                    
+      
+                    document.getElementById("City").value = postOffice.District;
+                    document.getElementById("State").value = postOffice.State;
+                    
+                  
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Location details found!',
+                        toast: true,
+                        position: 'top-right',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                } else {
+          
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid PIN Code',
+                        text: 'Please enter a valid Indian PIN code',
+                        toast: true,
+                        position: 'top-right',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                    
+             
+                    document.getElementById("City").value = '';
+                    document.getElementById("State").value = '';
+                }
+            })
+            .catch(error => {
+                Swal.close();
+                console.error('Error:', error);
+                
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Something went wrong!',
+                    text: 'Unable to fetch location details',
+                    toast: true,
+                    position: 'top-right',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            });
+    }
+});
+
+
+document.getElementById("Pincode").addEventListener('input', function() {
+
+    this.value = this.value.replace(/[^0-9]/g, '');
+
+    if (this.value.length > 6) {
+        this.value = this.value.slice(0, 6);
+    }
+});
 
 
 
