@@ -291,8 +291,8 @@
             const currentTotal = cartTotals.innerHTML.replace('₹', '')
             const newTotal = (parseInt(currentTotal) + parseInt(price))
              updateQuantityInBackend(input.dataset.itemId, currentValue + 1, newTotal)
-             console.log(currentValue +1 , parseInt(stock))
-            if(currentValue +1 > parseInt(stock)){
+             console.log(currentValue +1)
+            if(currentValue +1 >  Math.min( parseInt(stock),5)){
              return
              
             }

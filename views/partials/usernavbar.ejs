@@ -68,7 +68,10 @@
                 
 
                 <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
+                    <% if(userData?._id){ %>
+                   
                     <li><a class="nav-link" href="/account/<%=userData._id %>"><img src="/images/user.svg"></a></li>
+                    <% } %>
                     <li><a class="nav-link" href="/cart"><img src="/images/cart.svg"></a></li>
                     <!-- <li><a   class="nav-link" href="/wishlist"><img  style="width: 30px; height: 30px; margin-left: 10px;" src="/images/2055203-ff9800.svg"></a></li> -->
 

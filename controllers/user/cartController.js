@@ -156,8 +156,14 @@ const updateQuantity = async (req, res) => {
       return res.status(404).json({ success: false, message: "Item not found in cart" });
     }
 
+    if (parseInt(newQuantity) > 5) {
+      
+      return res.status(400).json({ success: false, message: "Max  Limit is 5" })
+
+    }
+
     if (parseInt(newQuantity) > item.productId.quantity) {
-      console.log("comjnj")
+      
       return res.status(400).json({ success: false, message: "Stock  Limit is exceeded" })
 
     }
