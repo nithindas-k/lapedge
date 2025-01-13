@@ -986,7 +986,7 @@ const downloadExcel = async (req, res) => {
 module.exports = {
     loadLogin,
     login,
-    loadDashboard,
+    loadDashboard,     
     error,
     loadAllProducts,
     ToggleProductBlock,

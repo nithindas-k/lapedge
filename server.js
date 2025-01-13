@@ -19,6 +19,7 @@ const wishlistRoutes = require("./routes/wishlistRouter")
 const couponRoutes  = require("./routes/couponRouters")
 const offerRoutes  = require("./routes/offerRoutes")
 const walletRoutes = require("./routes/walletRouter")
+const userController = require("./controllers/user/userController")
 db()
 
 
@@ -72,6 +73,7 @@ app.use("/wishlist",wishlistRoutes)
 app.use("/coupon", couponRoutes)
 app.use("/offer", offerRoutes)
 app.use("/wallet",walletRoutes)
+app.all("/*",userController.errorpage)
 
 
 

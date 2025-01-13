@@ -78,6 +78,10 @@ const addCart = async (req, res) => {
         return res.status(400).json({ success: false, message: "Stock  Limit is exceeded" })
 
       }
+      if(productInCart.quantity == 5){
+        return res.status(400).json({ success: false, message: " Limit is exceeded" })
+      }
+
       productInCart.quantity += parseInt(quantity);
       userCart.totalQuantity += parseInt(quantity);
       userCart.totalAmount += parseInt(quantity) * product.salePrice;

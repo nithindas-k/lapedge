@@ -46,6 +46,7 @@ const addWishlist = async (req, res) => {
 
 
     const product = await productSchema.findById(productId);
+    
 
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found" });
@@ -103,6 +104,8 @@ const addToCart = async (req, res) => {
 
     let productInCart = userCart.items.find(p => p.productId.toString() === productId);
 
+
+
     const wishlist = await Wishlist.findOne({ userId })
     const wishlistProduct = wishlist.items.find(item => item._id == productId)
     if (!wishlistProduct) {
@@ -113,7 +116,12 @@ const addToCart = async (req, res) => {
 
     if (productInCart) {
       if (productInCart.quantity + parseInt(quantity) > product.quantity) {
-        return res.status(400).json({ success: false, message: "Stock limit exceeded" });
+        return res.status(400).json({ success: false, message: "Product Already In cart" });
+      }
+      
+      
+      if(productInCart.quantity == 5){
+        return res.status(400).json({ success: false, message: "Product Already In cart " })
       }
 
       productInCart.quantity += parseInt(quantity);
