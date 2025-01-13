@@ -30,7 +30,7 @@ const loadWalletPage = async (req , res )=>{
         console.log(transaction)
         res.render("wallet",{
             wallet: wallet,
-            transaction: transaction
+            transaction: transaction            
         })
         
     } catch (error) {
