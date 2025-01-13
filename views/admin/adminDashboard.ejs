@@ -9,7 +9,7 @@
 </head>
 <body>
     <style>
-      /* Main Layout */
+     
 .main-div {
     display: flex;
     background: #0000;
@@ -21,7 +21,7 @@
     width: 100%;
 }
 
-/* Header and Filters */
+
 .dashboard-header {
     background: #1e1e1e;
     padding: 20px;
@@ -525,7 +525,7 @@ function setFilter(period) {
     const today = new Date();
     let startDate, endDate;
 
-    endDate = today.toISOString().split('T')[0]; // Today's date
+    endDate = today.toISOString().split('T')[0]; 
 
     switch (period) {
         case 'weekly':
@@ -571,7 +571,7 @@ async function updateChart() {
     }
 }
 
-// Set default date range (last 30 days)
+// 
 const today = new Date();
 const thirtyDaysAgo = new Date(today);
 thirtyDaysAgo.setDate(today.getDate() - 30);

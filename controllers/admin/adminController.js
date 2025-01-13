@@ -5,10 +5,10 @@ const Variant = require("../../models/variantModel")
 
 const productSchema = require("../../models/productModel")
 const Order = require("../../models/orderModel")
-const Wallet  = require("../../models/wallet")
+const Wallet = require("../../models/wallet")
 const Transaction = require("../../models/waletTrancations");
-const pdf=require("html-pdf")
-const ejs=require("ejs");
+const pdf = require("html-pdf")
+const ejs = require("ejs");
 const PDFDocument = require('pdfkit-table');
 const xlsx = require('xlsx');
 
@@ -28,25 +28,25 @@ const error = async (req, res) => {
 
 const login = async (req, res) => {
     const { email, password } = req.body;
-   console.log(password)
+    console.log(password)
     try {
-   
+
         const user = await userSchema.findOne({ email: email, isAdmin: true });
 
         if (!user) {
-           
+
             return res.render("adminLogin", { message: "Invalid email or password.", messageType: "error" });
         }
 
 
         const passwordMatch = await bcrypt.compare(password, user.password);
-            console.log(passwordMatch)
+        console.log(passwordMatch)
         if (!passwordMatch) {
             return res.render("adminLogin", { message: "Invalid  password.", messageType: "error" });
         }
         req.session.isAdmin = true;
 
-        
+
         return res.redirect("/admin/dashboard");
 
     } catch (error) {
@@ -56,115 +56,115 @@ const login = async (req, res) => {
 };
 
 const loadDashboard = async (req, res) => {
-  
+
     try {
-    
+
         const [topProducts, topCategories] = await Promise.all([
-            
-        
-          Order.aggregate([
-            { $match: { orderStatus: "Delivered" } },
-            { $unwind: "$items" },
-            {
-              $group: {
-                _id: "$items.ProductId",
-                total: { $sum: "$items.quantity" }
-              }
-            },
-            
-            { $sort: { total: -1 } },
-            { $limit: 10 },
-            {
-                $addFields: {
-                    _id: { $toObjectId: "$_id" }  
+
+
+            Order.aggregate([
+                { $match: { orderStatus: "Delivered" } },
+                { $unwind: "$items" },
+                {
+                    $group: {
+                        _id: "$items.ProductId",
+                        total: { $sum: "$items.quantity" }
+                    }
+                },
+
+                { $sort: { total: -1 } },
+                { $limit: 10 },
+                {
+                    $addFields: {
+                        _id: { $toObjectId: "$_id" }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "productDetails"
+                    }
+                },
+                { $unwind: "$productDetails" },
+                {
+                    $project: {
+                        _id: 0,
+                        productId: "$_id",
+                        name: "$productDetails.name",
+                        totalSold: "$total"
+                    }
                 }
-            },
-            {
-              $lookup: {
-                from: "products",
-                localField: "_id",
-                foreignField: "_id",
-                as: "productDetails"
-              }
-            },
-            { $unwind: "$productDetails" },
-            {
-              $project: {
-                _id: 0,
-                productId: "$_id",
-                name: "$productDetails.name",
-                totalSold: "$total"
-              }
-            }
-          ]),
-    
-      
-          Order.aggregate([
-            { $match: { orderStatus: "Delivered" } },
-            { $unwind: "$items" },
-            {
-              $group: {
-                _id: "$items.ProductId",
-                total: { $sum: "$items.quantity" }
-              }
-            },
-            { $sort: { total: -1 } },
-            { $limit: 10 },
-            {
-                $addFields: {
-                    _id: { $toObjectId: "$_id" }  
-                }
-            },
-            
-            {
-              $lookup: {
-                from: "products",
-                localField: "_id",
-                foreignField: "_id",
-                as: "productDetails"
-              }
-            },
-            
-            { $unwind: "$productDetails" },
-            {
-              $group: {
-                _id: "$productDetails.category",
-                total: { $sum: "$total" }
-              }
-            },
-            {
-                $addFields: {
-                    _id: { $toObjectId: "$_id" }  
-                }
-            },
-            {
-              $lookup: {
-                from: "categories",
-                localField: "_id",
-                foreignField: "_id",
-                as: "categoryDetails"
-              }
-            },
-            { $unwind: "$categoryDetails" }
-          ]),
-    
-      
-          
+            ]),
+
+
+            Order.aggregate([
+                { $match: { orderStatus: "Delivered" } },
+                { $unwind: "$items" },
+                {
+                    $group: {
+                        _id: "$items.ProductId",
+                        total: { $sum: "$items.quantity" }
+                    }
+                },
+                { $sort: { total: -1 } },
+                { $limit: 10 },
+                {
+                    $addFields: {
+                        _id: { $toObjectId: "$_id" }
+                    }
+                },
+
+                {
+                    $lookup: {
+                        from: "products",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "productDetails"
+                    }
+                },
+
+                { $unwind: "$productDetails" },
+                {
+                    $group: {
+                        _id: "$productDetails.category",
+                        total: { $sum: "$total" }
+                    }
+                },
+                {
+                    $addFields: {
+                        _id: { $toObjectId: "$_id" }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "categories",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "categoryDetails"
+                    }
+                },
+                { $unwind: "$categoryDetails" }
+            ]),
+
+
+
         ]);
-        console.log("topProducts",topProducts)
-        console.log("topCategories",topCategories)
- 
-        res.render('adminDashboard', { topProducts, topCategories,  });
-      } catch (err) {
+        console.log("topProducts", topProducts)
+        console.log("topCategories", topCategories)
+
+        res.render('adminDashboard', { topProducts, topCategories, });
+    } catch (err) {
         console.error(err);
         res.status(500).send('Error fetching data');
-      }
-    } 
+    }
+}
 
 
 const loadAllProducts = async (req, res) => {
     try {
-      
+
         const searchQuery = req.query.search || '';
         const currentPage = parseInt(req.query.page) || 1;
         const pageSize = 5;
@@ -178,7 +178,7 @@ const loadAllProducts = async (req, res) => {
 
         const products = await productSchema.find(searchFilter).skip(skip).limit(pageSize).populate("category")
 
-        
+
         const totalProducts = await productSchema.countDocuments(searchFilter);
         const totalPages = Math.ceil(totalProducts / pageSize);
 
@@ -208,9 +208,9 @@ const ToggleProductBlock = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
 
-        
+
         product.isBlocked = !product.isBlocked;
-        await product.save(); 
+        await product.save();
 
         const statusMessage = product.isBlocked ? "Product unlisted successfully!" : "Product listed successfully!";
 
@@ -228,15 +228,15 @@ const ToggleProductBlock = async (req, res) => {
     }
 };
 
-const  LoadVariantManagement= async(req, res)=>{
+const LoadVariantManagement = async (req, res) => {
     try {
-        
+
         const ramVariants = await Variant.find({ category: 'ram' });
         const processorVariants = await Variant.find({ category: 'processor' });
         const displayVariants = await Variant.find({ category: 'display' });
         const storageVariants = await Variant.find({ category: 'storage' });
 
-        
+
         res.render('variantmanagement', {
             ramVariants,
             processorVariants,
@@ -247,60 +247,62 @@ const  LoadVariantManagement= async(req, res)=>{
         console.error('Error loading variant management:', error);
         res.status(500).send('Error loading variant management page');
     }
-} 
-    
-const loadAllOrder = async(req, res)=>{
-  try {
-    const orders = await Order.find().populate("userId").populate("items.ProductId")
+}
 
-    res.render("orderList",{
-        orders:orders
-    })
-    
-  } catch (error) {
-    
-  }
+const loadAllOrder = async (req, res) => {
+    try {
+        const orders = await Order.find().populate("userId").populate("items.ProductId")
+
+        res.render("orderList", {
+            orders: orders
+        })
+
+    } catch (error) {
+
+    }
 
 
 
 }
 
-const loadOrderDetails = async(req, res)=>{
+const loadOrderDetails = async (req, res) => {
     try {
 
-        const {orderId}= req.params
+        const { orderId } = req.params
 
         console.log('Loading order details', orderId)
         const order = await Order.findById(orderId).populate("userId").populate("items.ProductId")
 
-   
-        res.render("orderFullDetails",{
-            order:order
+
+        res.render("orderFullDetails", {
+            order: order
         })
-        
+
     } catch (error) {
-        
+
     }
 
 
 }
 
 
-const updateOrderStatus = async(req, res)=>{
+const updateOrderStatus = async (req, res) => {
     try {
 
-        const {orderId} = req.params
-        const {status} = req.body
+        const { orderId } = req.params
+        const { status } = req.body
         const order = await Order.findById(orderId)
         order.orderStatus = status
+        order.paymentStatus = "Success"
         order.items.forEach(element => {
             element.status = status
+
         });
         await order.save()
-        
-        res.status(200).json({ success : true , message: "Order status updated successfully"})
 
-        
+        res.status(200).json({ success: true, message: "Order status updated successfully" })
+
+
     } catch (error) {
         console.log(error)
     }
@@ -312,24 +314,24 @@ const updateOrderStatus = async(req, res)=>{
 
 }
 
-const updatecancelOrder = async(req, res)=>{
+const updatecancelOrder = async (req, res) => {
     try {
-        
-        const {orderId} = req.params
+
+        const { orderId } = req.params
         console.log(orderId)
         const order = await Order.findById(orderId).populate("userId")
-        const userId  = order.userId
-        for(let item of order.items){
-            const product  = await productSchema.findById(item.ProductId)
-            
-            if(product){
+        const userId = order.userId
+        for (let item of order.items) {
+            const product = await productSchema.findById(item.ProductId)
+
+            if (product) {
                 product.quantity += item.quantity
                 await product.save()
             }
         }
 
 
-        
+
         order.orderStatus = "Cancelled"
         order.items.forEach(element => {
             element.status = "Cancelled"
@@ -339,7 +341,7 @@ const updatecancelOrder = async(req, res)=>{
             $inc: {
                 balance: order.payableAmount
             }
-        }, { upsert: true, new: true }) 
+        }, { upsert: true, new: true })
         await Transaction.create({
             userId: order.userId,
             walletId: userWallet._id,
@@ -348,51 +350,51 @@ const updatecancelOrder = async(req, res)=>{
             associatedOrder: order._id
         })
         console.log(userWallet)
-        
+
 
         await order.save()
-        
-        res.status(200).json({ success : true , message: "Order cancelled successfully"})
-        
+
+        res.status(200).json({ success: true, message: "Order cancelled successfully" })
+
     } catch (error) {
         console.log(error)
-        
+
     }
 }
 
 
 
-const returnRequestCancel  =  async(req, res)=>{
+const returnRequestCancel = async (req, res) => {
     try {
-        const {itemId} = req.params
-        const {orderId} =req.body
+        const { itemId } = req.params
+        const { orderId } = req.body
 
         const order = await Order.findById(orderId)
         const item = order.items.find(item => item._id.toString() === itemId)
         item.status = "Delivered"
         item.reason = null
         await order.save()
-        
-        res.status(200).json({ success : true , message: "Return request cancelled successfully"})
-        
-        
-       
-        
+
+        res.status(200).json({ success: true, message: "Return request cancelled successfully" })
+
+
+
+
     } catch (error) {
 
         console.log(error)
-        
+
     }
 }
 
-const approve = async(req, res)=>{
+const approve = async (req, res) => {
 
     try {
-        const {itemId } = req.params
-        const {orderId} = req.body
-        const order = await Order.findById(orderId).populate("userId","_id")
-       const  userId = order.userId._id
-      
+        const { itemId } = req.params
+        const { orderId } = req.body
+        const order = await Order.findById(orderId).populate("userId", "_id")
+        const userId = order.userId._id
+
         const item = order.items.find(item => item._id.toString() === itemId)
         item.status = "Returned"
         const allItemsReturned = order.items.every(item => item.status === "Returned");
@@ -400,55 +402,55 @@ const approve = async(req, res)=>{
             order.orderStatus = "Returned";
         }
 
-        
+
         await order.save()
-        
-        const wallet  =  await Wallet.findOne({ userId: userId })
+
+        const wallet = await Wallet.findOne({ userId: userId })
         const walletId = wallet._id
-        if(!wallet){
+        if (!wallet) {
             const newWallet = new Wallet({ userId: userId, balance: 0 })
             await newWallet.save()
         }
         let amount = item.totalPrice
-        if(order.couponDiscount > 0){
+        if (order.couponDiscount > 0) {
             console.log("trueeeeeeeeeeeeeeeeee")
 
-            
-           
-                var proptionalDiscount = item.totalPrice / order.totalAmount * order.couponDiscount
-                amount = item.totalPrice - proptionalDiscount.toFixed()
+
+
+            var proptionalDiscount = item.totalPrice / order.totalAmount * order.couponDiscount
+            amount = item.totalPrice - proptionalDiscount.toFixed()
 
 
 
-                    console.log("+++++++++++++++++",amount)
+            console.log("+++++++++++++++++", amount)
 
         }
         wallet.balance += amount
         await wallet.save()
-        
-        const transaction = new Transaction({ walletId:walletId, userId: userId, amount: amount, type: "credit" })
+
+        const transaction = new Transaction({ walletId: walletId, userId: userId, amount: amount, type: "credit" })
         await transaction.save()
 
-     
 
 
-        
-        res.status(200).json({ success : true , message: "Order Returned successfully"})
 
 
-        
+        res.status(200).json({ success: true, message: "Order Returned successfully" })
+
+
+
     } catch (error) {
         console.log(error)
-        
+
     }
 }
 
 
-const AllReturn  = async (req ,res) => {
+const AllReturn = async (req, res) => {
     try {
 
-        const {orderId}= req.params
-        const {returnReason}= req.body
+        const { orderId } = req.params
+        const { returnReason } = req.body
 
         const order = await Order.findById(orderId).populate("items.ProductId")
         order.returnReason = returnReason
@@ -457,61 +459,61 @@ const AllReturn  = async (req ,res) => {
         });
         order.orderStatus = "Return Requested"
         await order.save()
-        
-        res.status(200).json({ success : true , message: "Return request sent successfully"})
+
+        res.status(200).json({ success: true, message: "Return request sent successfully" })
 
 
 
-       
 
-        
-        
-        
+
+
+
+
     } catch (error) {
         console.log(error)
-        
+
     }
 
 }
 
-const approveAll = async (req ,res) => {
+const approveAll = async (req, res) => {
     try {
-        const {orderId}= req.body
-       
-        const order = await Order.findById(orderId).populate("userId","_id")
-        const  userId = order.userId._id.toString();
+        const { orderId } = req.body
+
+        const order = await Order.findById(orderId).populate("userId", "_id")
+        const userId = order.userId._id.toString();
 
         const item = await order.items
-        for(let data  of item) {
+        for (let data of item) {
             data.status = "Returned"
 
         }
-        
 
- 
 
-     
 
- 
-       
 
-        
+
+
+
+
+
+
         order.orderStatus = "Returned"
-        const wallet = await Wallet.findOne({userId:userId})
-  
+        const wallet = await Wallet.findOne({ userId: userId })
+
         wallet.balance += order.payableAmount
         await wallet.save()
         const transaction = new Transaction({ walletId: wallet._id, userId: userId, amount: order.payableAmount, type: "credit" })
         await transaction.save()
         await order.save()
 
-                res.status(200).json({ success : true , message: "All items returned successfully"})
+        res.status(200).json({ success: true, message: "All items returned successfully" })
 
-       
-        
+
+
 
     } catch (error) {
-        
+
         console.log(error)
     }
 
@@ -522,32 +524,32 @@ const salesRepoetLoad = async (req, res) => {
         const { startDate, endDate } = req.query;
         console.log("Start Date:", startDate, "End Date:", endDate);
 
-            let orders = [];
-            let totalSales = 0;
-            let totalDiscount = 0;
-            let totalOrders=0
-            let totalOrderWithDate = 0
+        let orders = [];
+        let totalSales = 0;
+        let totalDiscount = 0;
+        let totalOrders = 0
+        let totalOrderWithDate = 0
 
         if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
             end.setHours(23, 59, 59, 999);
 
-            totalOrderWithDate =  await Order.find({ orderStatus:"Delivered", paymentStatus:"Success",createdAt: { $gte: start, $lte: end }}).countDocuments()
+            totalOrderWithDate = await Order.find({ orderStatus: "Delivered", createdAt: { $gte: start, $lte: end } }).countDocuments()
 
             console.log("Parsed Dates - Start:", start, "End:", end);
 
-           
+
             orders = await Order.find(
-                { orderStatus:"Delivered",paymentStatus:"Success", createdAt: { $gte: start, $lte: end }},
+                { orderStatus: "Delivered", createdAt: { $gte: start, $lte: end } },
                 'orderId createdAt payableAmount paymentStatus couponDiscount'
             ).populate('userId', 'name').populate('coupon');
             console.log("Fetched Orders:", orders);
 
-             totalOrders = await Order.find({orderStatus:"Delivered",paymentStatus:"Success"}).countDocuments()
-            
+            totalOrders = await Order.find({ orderStatus: "Delivered" }).countDocuments()
+
             const salesData = await Order.aggregate([
-                { $match: { orderStatus:"Delivered",createdAt: { $gte: start, $lte: end } } },
+                { $match: { orderStatus: "Delivered", createdAt: { $gte: start, $lte: end } } },
                 { $group: { _id: null, totalSales: { $sum: "$payableAmount" } } }
             ]);
             console.log("Sales Data:", salesData);
@@ -556,9 +558,9 @@ const salesRepoetLoad = async (req, res) => {
 
 
 
-           
+
             const discountData = await Order.aggregate([
-                { $match: {orderStatus:"Delivered",paymentStatus:"Success", createdAt: { $gte: start, $lte: end } } },
+                { $match: { orderStatus: "Delivered", createdAt: { $gte: start, $lte: end } } },
                 { $group: { _id: null, totalDiscount: { $sum: "$couponDiscount" } } }
             ]);
             console.log("Discount Data:", discountData);
@@ -566,7 +568,7 @@ const salesRepoetLoad = async (req, res) => {
             totalDiscount = discountData[0]?.totalDiscount || 0;
         }
 
-        console.log("+++++++++++++++++++++++++++++++++++++++++"+ orders, totalSales, totalDiscount, startDate, endDate );
+        console.log("+++++++++++++++++++++++++++++++++++++++++" + orders, totalSales, totalDiscount, startDate, endDate);
 
         res.render("salesReport", {
             orders: orders,
@@ -597,7 +599,7 @@ const downloadPdf = async (req, res) => {
             const start = new Date(startDate);
             const end = new Date(endDate);
             end.setHours(23, 59, 59, 999);
-            matching = { orderStatus:"Delivered",paymentStatus:"Success",createdAt: { $gte: start, $lte: end } };
+            matching = { orderStatus: "Delivered", createdAt: { $gte: start, $lte: end } };
         }
 
         const orders = await Order.find(matching)
@@ -619,7 +621,7 @@ const downloadPdf = async (req, res) => {
         const totalSales = salesData[0]?.totalSales || 0;
         const totalDiscount = discountData[0]?.totalDiscount || 0;
 
-        
+
         const formatPrice = (num) => {
             return num.toLocaleString('en-IN', {
                 maximumFractionDigits: 2,
@@ -637,14 +639,14 @@ const downloadPdf = async (req, res) => {
         res.setHeader('Content-Disposition', 'attachment; filename="salesReport.pdf"');
         doc.pipe(res);
 
-        
+
         doc.fontSize(16).font('Helvetica-Bold').text('SALES REPORT', { align: 'center' });
         doc.fontSize(10).font('Helvetica')
             .text(`Period: ${startDate || 'All Time'} to ${endDate || 'Present'}`, { align: 'center' });
         doc.moveDown();
 
         const tableRows = [];
-        
+
         // Headers
         const headers = [
             'Date',
@@ -658,7 +660,7 @@ const downloadPdf = async (req, res) => {
             'Final Amount'
         ];
 
-        // Populate rows
+
         orders.forEach(order => {
             order.items.forEach((item, index) => {
                 const row = [
@@ -719,7 +721,7 @@ const downloadPdf = async (req, res) => {
             }
         });
 
-        
+
         const totalPages = doc.bufferedPageRange().count;
         for (let i = 0; i < totalPages; i++) {
             doc.switchToPage(i);
@@ -742,22 +744,23 @@ const downloadPdf = async (req, res) => {
 const sales = async (req, res) => {
     try {
         const { startDate, endDate, interval } = req.query;
-        
-        
+
+
         const query = {
             createdAt: {
-                $gte: startDate ? new Date(startDate) : new Date(new Date().setMonth(new Date().getMonth() - 1)), 
-                $lte: endDate ? new Date(endDate) : new Date() 
-            }
+                $gte: startDate ? new Date(startDate) : new Date(new Date().setMonth(new Date().getMonth() - 1)),
+                $lte: endDate ? new Date(endDate) : new Date()
+            },
+            orderStatus: "Delivered"
         };
 
         let groupBy = {};
-        let dateFormat = {}; 
+        let dateFormat = {};
 
         switch (interval) {
             case 'weekly':
                 groupBy = {
-                    _id: { $week: "$createdAt" }, 
+                    _id: { $week: "$createdAt" },
                     totalSales: { $sum: "$totalAmount" },
                     count: { $sum: 1 }
                 };
@@ -770,19 +773,19 @@ const sales = async (req, res) => {
                     totalSales: { $sum: "$totalAmount" },
                     count: { $sum: 1 }
                 };
-                dateFormat = { _id: 1 }; 
+                dateFormat = { _id: 1 };
                 break;
 
             case 'yearly':
                 groupBy = {
-                    _id: { $year: "$createdAt" }, 
+                    _id: { $year: "$createdAt" },
                     totalSales: { $sum: "$totalAmount" },
                     count: { $sum: 1 }
                 };
-                dateFormat = { _id: 1 }; 
+                dateFormat = { _id: 1 };
                 break;
 
-            default: 
+            default:
                 groupBy = {
                     _id: {
                         year: { $year: "$createdAt" },
@@ -796,7 +799,6 @@ const sales = async (req, res) => {
                 break;
         }
 
-     
         const salesData = await Order.aggregate([
             { $match: query },
             { $group: groupBy },
@@ -811,11 +813,11 @@ const sales = async (req, res) => {
                     formattedId = daysOfWeek[item._id - 1];
                     break;
                 case 'monthly':
-                    formattedId = `Day ${item._id}`; 
+                    formattedId = `Day ${item._id}`;
                     break;
                 case 'yearly':
                     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                    formattedId = months[item._id - 1]; 
+                    formattedId = months[item._id - 1];
                     break;
                 default:
                     formattedId = `${item._id.day}-${item._id.month}-${item._id.year}`;
@@ -827,7 +829,6 @@ const sales = async (req, res) => {
             };
         });
 
-      
         res.status(200).json({
             success: true,
             data: formattedData
@@ -862,11 +863,11 @@ const downloadExcel = async (req, res) => {
             .populate('items.ProductId', 'name salePrice')
             .sort({ createdAt: -1 });
 
-        
+
         let totalAmount = 0;
         let totalDiscount = 0;
 
-        
+
         const excelRows = [];
 
         excelRows.push([
@@ -906,7 +907,7 @@ const downloadExcel = async (req, res) => {
             });
         });
 
-        
+
         excelRows.push([
             'GRAND TOTAL',
             '',
@@ -919,20 +920,20 @@ const downloadExcel = async (req, res) => {
             totalAmount.toFixed(2)
         ]);
 
-        
+
         const workbook = xlsx.utils.book_new();
         const worksheet = xlsx.utils.aoa_to_sheet(excelRows);
-    
+
         const colWidths = [
             { wch: 12 },
-            { wch: 10 },  
-            { wch: 20 }, 
-            { wch: 30 },  
-            { wch: 10 },  
-            { wch: 12 }, 
-            { wch: 12 },  
-            { wch: 12 },  
-            { wch: 12 }   
+            { wch: 10 },
+            { wch: 20 },
+            { wch: 30 },
+            { wch: 10 },
+            { wch: 12 },
+            { wch: 12 },
+            { wch: 12 },
+            { wch: 12 }
         ];
         worksheet['!cols'] = colWidths;
 
@@ -947,7 +948,7 @@ const downloadExcel = async (req, res) => {
             };
         }
 
-     
+
         const lastRow = excelRows.length - 1;
         for (let C = 0; C <= range.e.c; ++C) {
             const address = xlsx.utils.encode_cell({ r: lastRow, c: C });
@@ -959,10 +960,10 @@ const downloadExcel = async (req, res) => {
 
         xlsx.utils.book_append_sheet(workbook, worksheet, 'Sales Report');
 
-   
+
         const buffer = xlsx.write(workbook, { type: 'buffer' });
 
-     
+
         res.setHeader(
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -972,7 +973,7 @@ const downloadExcel = async (req, res) => {
             `attachment; filename=SalesReport-${new Date().toLocaleDateString('en-IN')}.xlsx`
         );
 
-        
+
         res.send(buffer);
 
     } catch (error) {
@@ -986,7 +987,7 @@ const downloadExcel = async (req, res) => {
 module.exports = {
     loadLogin,
     login,
-    loadDashboard,     
+    loadDashboard,
     error,
     loadAllProducts,
     ToggleProductBlock,

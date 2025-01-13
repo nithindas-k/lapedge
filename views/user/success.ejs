@@ -550,12 +550,12 @@
                         </div>
                         <input type="hidden" value="<%=index+1%> " id="index-">
 
-                        <% if(data.status !=='Cancelled' && data.status !=='Returned' && data.status
-                          !=="Return Requested" && order.orderStatus!="Return Requested" ) { %>
+                        <% if (data.status !=='Cancelled' && data.status !=='Returned' && data.status
+                          !=='Return Requested' && data.orderStatus !=='Return Requested' ) { %>
                           <button type="button" class="<%= data.status === 'Delivered' ? 'return-btn' : 'cancel-btn' %>"
                             data-order-id="<%= data._id %>"
                             data-action="<%= data.status === 'Delivered' ? 'return' : 'cancel' %>"
-                            onclick="handleOrderAction('<%= data.ProductId._id%>', '<%= data.status === 'Delivered' ? 'return' : 'cancel' %>')">
+                            onclick="handleOrderAction('<%= data.ProductId._id %>', '<%= data.status === 'Delivered' ? 'return' : 'cancel' %>')">
                             <%= data.status==='Delivered' ? 'Return' : 'Cancel' %>
                           </button>
                           <% } %>
@@ -834,10 +834,10 @@
                     timerProgressBar: true,
                   });
 
-              
+
                   setTimeout(() => {
                     window.location.href = `/order-confirmation/${orderId}`;
-                  },6000); 
+                  }, 6000);
                 }
 
                 else {
@@ -867,7 +867,10 @@
                   showConfirmButton: false,
                   timer: 2000,
                   timerProgressBar: true,
-                });
+                })
+                setTimeout(() => {
+                  window.location.href = `/orders`;
+                }, 3000)
               }
             }
           };

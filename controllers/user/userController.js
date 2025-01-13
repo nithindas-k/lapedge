@@ -823,10 +823,10 @@ const loadOrderFailure = async (req, res) => {
 
 
         const orderDetails = await Order.findOne({ razorpayOrderId: razorpayId }).populate("items.ProductId")
-        const totalAmount = orderDetails.items.reduce((accumulator, item) => {
+        const totalAmount = orderDetails?.items.reduce((accumulator, item) => {
             return accumulator + item.totalPrice;
         }, 0);
-        const couponId = orderDetails.coupon
+        const couponId = orderDetails?.coupon
 
         let discountAmonut = 0
 
