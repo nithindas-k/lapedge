@@ -22,6 +22,20 @@
 
 <body style="background-color: #EFF2F1;">
   <style>
+    .shop-now-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #FFA500;
+    color: #000000;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: 2px solid #FFA500;
+   
+}
+
+
     .quantity-container {
       display: flex;
       align-items: center;
@@ -114,7 +128,9 @@
           <section class="cart section--lg container" style="max-width: 90%;">
             <div class="table__container">
               <table class="table">
+                <% if(items.length>0){ %>
                 <thead>
+           
                   <tr>
                     <th>Image</th>
                     <th>Name</th>
@@ -125,6 +141,7 @@
                   </tr>
                 </thead>
                 <tbody>
+                  
                   <% items.forEach((item,i)=> { %>
                    
                     <input id="stock-<%=item._id %>" type="text" hidden value="<%=item.productId.quantity %>">
@@ -217,6 +234,11 @@
               </a>
             </div>
             </div>
+            <% }else { %>
+              <h3>No Items In Cart</h3>
+              <a style="text-decoration: none; color: #000000;" href="/shop" class="shop-now-btn">Shop Now</a>
+
+              <% } %>
 
           </section>
 

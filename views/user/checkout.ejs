@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
   
-
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <title>Shop</title>
 
 
@@ -404,7 +404,7 @@
     <%- include('../partials/usernavbar') %>
 
       </nav>
-
+   <% if(items.length>0){ %>
       <main class="main">
         <!--=============== BREADCRUMB ===============-->
         <section class="breadcrumb">
@@ -451,7 +451,7 @@
                     <% }) %>
                 </div>
 
-                <button id="addressAdd" class="place-order-btn"><a href="/address/create?id=<%=userCart._id %>">Add Address</a></button>
+                <button id="addressAdd" class="place-order-btn"><a   style="text-decoration: none; color: #000000;"  href="/address/create?id=<%=userCart._id %>">Add Address</a></button>
 
               </div>
 
@@ -577,7 +577,22 @@
 
 
 
-
+<% }else { %>
+  <script> 
+    window.setTimeout(() => {
+      Swal.fire({
+        title: 'Your cart is empty!',
+        text: 'Please add items to your cart before checkout.',
+        icon: 'info',
+        confirmButtonText: 'Continue Shopping'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '/shop';
+        }
+      });
+    }, 500);
+  </script>
+  <% } %>
 
 
       </main>

@@ -52,6 +52,7 @@
             <div class="table__container">
               <table class="table">
                 <thead>
+                  <% if(userWishlist?.items.length > 0){ %>
                   <tr>
                     <th>Image</th>
                     <th>Name</th>
@@ -96,7 +97,9 @@
 
 
 
-
+<% }else { %>
+  <h3>No Items In Wishlist</h3>
+  <% } %>
         </section>
 
 
