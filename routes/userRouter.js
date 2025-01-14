@@ -20,12 +20,7 @@ router.post('/resentotp',userController.resendOTP)
 
 router.get("/auth/google", passport.authenticate('google', { scope: ["profile", "email"] }));
 
-// router.get('/auth/google/callback', 
-//     passport.authenticate('google', { failureRedirect: "/signup" }), 
-//     (req, res) => {
-//         req.session.user=true
-//         res.redirect('/');
-//     });
+
 router.get('/auth/google/callback', 
     passport.authenticate('google', { failureRedirect: "/signup"}), 
     (req, res, next) => {

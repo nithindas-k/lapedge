@@ -232,6 +232,7 @@
                                 </div>
                                 <div>
                                   <input id="user_id" type="text" hidden value="<%= userId %>">
+                                  <input id="check" type="text" hidden value="<%= check %>">
                                 </div>
                                 <button type="submit" class="btn btn-add-addresss" style="background-color: #ffaa00; color: black;"><b>Add address</b></button>
                             </form>
@@ -348,6 +349,8 @@ document.getElementById("Pincode").addEventListener('input', function() {
     const pincode = document.getElementById("Pincode").value.trim();
     const phone = document.getElementById("Phone").value.trim();
     const userId = document.getElementById("user_id").value
+    const check = document.getElementById("check").value
+    
 
     if (name === "" || address === "" || city === "" || state === "" || pincode === "" || phone === "") {
         Swal.fire({
@@ -375,8 +378,8 @@ document.getElementById("Pincode").addEventListener('input', function() {
     };
  console.log(data);
 
-   
-    fetch(`/address/create/${userId}`, {
+ if(!check){
+  fetch(`/address/create/${userId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -415,7 +418,52 @@ document.getElementById("Pincode").addEventListener('input', function() {
             timerProgressBar: true,
         });
     });
+ }else{
+  fetch(`/address/create/${userId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+       
+        
+       
+        Swal.fire({
+            icon: 'success',
+            title: 'Address added successfully!',
+            toast: true,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+        })
+        .then(()=>{
+          window.location.href = `/checkout`
+        })
+        
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Something went wrong!',
+            toast: true,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+        });
+    });
+ }
+
+   
+    
 });
+
 
       
      

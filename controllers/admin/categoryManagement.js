@@ -96,19 +96,7 @@ const updateCategory = async (req, res) => {
 
 
         if (croppedImage) {
-            // const base64Data = croppedImage.replace(/^data:image\/jpeg;base64,/, "").replace(/\s/g, '');
-            // const uploadDir = path.join(__dirname, '../../public/uploads');
-
-            // if (!fs.existsSync(uploadDir)) {
-            //     fs.mkdirSync(uploadDir, { recursive: true });
-            // }
-
-            // const imageFilename = `${Date.now()}.jpg`;
-            // const imagePath = path.join(uploadDir, imageFilename);
-
-
-            // fs.writeFileSync(imagePath, base64Data, 'base64');
-            // updatedData.image = imageFilename;
+          
             const b64 = Buffer.from(req.file.buffer).toString("base64");
             let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
             const cldRes = await handleUpload(dataURI);

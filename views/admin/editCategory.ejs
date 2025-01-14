@@ -85,7 +85,7 @@
         const imagePreview = document.getElementById('imagePreview');
         const previewContainer = document.getElementById('previewContainer');
 
-        // Function to validate file type
+        
         function validateFileType(file) {
             const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
             if (!validImageTypes.includes(file.type)) {
@@ -94,7 +94,7 @@
             return true;
         }
 
-        // Function to handle image selection
+      
         function handleImageSelect(event) {
             const file = event.target.files[0];
             
@@ -102,7 +102,6 @@
                 return;
             }
 
-            // Validate file type
             if (!validateFileType(file)) {
                 Swal.fire({
                     icon: 'error',
@@ -110,7 +109,7 @@
                     text: 'Please upload only image files (JPEG, PNG, GIF)',
                     confirmButtonColor: '#d33',
                 });
-                event.target.value = ''; // Clear the file input
+                event.target.value = ''; 
                 return;
             }
 

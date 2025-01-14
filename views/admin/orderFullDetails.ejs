@@ -200,7 +200,7 @@
 
         <div class="containerOrderDetails">
             <div class="order-header">
-                <h1 >Order Details - <%=order._id %></h1>
+                <h1 >Order Details - <%= order.orderId || order._id %></h1>
                 <span class="status-badge status-pending"><%=order.orderStatus %></span>
             </div>
   <input id="orderId" type="text" hidden value="<%=order._id %>">
@@ -216,11 +216,15 @@
                     </div>
                     <div class="order-details-item">
                         <label>Total Amount</label>
-                        <div class="value">₹<%=order.totalAmount %></div>
+                        <div class="value">₹<%=order.payableAmount %></div>
                     </div>
                     <div class="order-details-item">
                         <label>Payment Status</label>
                         <div class="value"><%=order.paymentStatus%></div>
+                    </div>
+                    <div class="order-details-item">
+                        <label>Discount</label>
+                        <div class="value">₹<%=order.couponDiscount%></div>
                     </div>
                 </div>
             </div>

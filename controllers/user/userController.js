@@ -107,26 +107,26 @@ const signup = async (req, res) => {
             return res.render("login", { message: "password invalid" });
         }
 
-        //user already exists
+
         const findUser = await userSchema.findOne({ email });
         if (findUser) {
             return res.render("signup", { message: "email  already exists" });
         }
 
-        //OTP
+      
         const otp = generateOtp();
 
-        // Otp sending to mail
+ 
         const emailSend = await sendVerificationEmail(email, otp);
         if (!emailSend) {
             return res.json({ message: "email.error" });
         }
 
-        //saveing the otp 
+   
         req.session.UserOtp = otp
         req.session.userData = { name, email, password, };
         req.session.email = email
-        //OTP expiration  
+  
         req.session.UserOtpTimestamp = Date.now();
 
 
@@ -150,11 +150,11 @@ const resendOTP = async (req, res) => {
         console.log('Before Resend OTP:', req.session);
         const email = req.session.email;
 
-        // OTP
+     
         const newOtp = generateOtp();
         console.log("Generated new OTP", newOtp);
 
-        //OTP expiration  
+      
         req.session.UserOtpTimestamp = Date.now();
         const emailSent = await sendVerificationEmail(email, newOtp);
         if (!emailSent) {
@@ -162,7 +162,7 @@ const resendOTP = async (req, res) => {
             return res.json({ success: false, message: "Failed to resend OTP. Please try again." });
         }
 
-        // store otp 
+  
         req.session.UserOtp = newOtp;
 
         console.log('After Resend OTP:', req.session);
@@ -189,7 +189,7 @@ const verifyOtp = async (req, res) => {
             return res.status(400).json({ success: false, message: "OTP not found. Please request a new OTP." });
         }
 
-        // OTP has expired
+    
         const otpExpirationTime = 1 * 60 * 1000;
         const currentTime = Date.now();
         console.log(currentTime - sessionOtpTimestamp > otpExpirationTime)
@@ -200,7 +200,6 @@ const verifyOtp = async (req, res) => {
             return res.status(400).json({ success: false, message: "OTP expired. Please request a new OTP." });
         }
 
-        // otp check
         console.log(userOtpInput, sessionOtp, req.session.userData)
         if (userOtpInput === sessionOtp) {
 
@@ -286,7 +285,7 @@ const forgotOtpVerify = async (req, res) => {
 
 
         const sessionOtp = req.session.UserOtp;
-        //  const userData = req.session.userData;
+     
 
 
         if (!sessionOtp) {
@@ -942,7 +941,7 @@ const loadInvoice = async (req, res) => {
 
         
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="invoice-${orderId}.pdf"`);
+        res.setHeader('Content-Disposition', `attachment; filename="invoice-${order.orderId}.pdf"`);
 
 
         doc.pipe(res);
@@ -992,7 +991,7 @@ const loadInvoice = async (req, res) => {
             .text(new Date(order.createdAt).toLocaleDateString(), 150, 205)
             .text('Order ID:', 50, 220, { fontSize: 1 })
 
-            .text(order._id.toString(), 150, 220);
+            .text(order.orderId||order._id.toString(), 150, 220);
 
 
         doc.fontSize(14)
@@ -1080,7 +1079,7 @@ const loadInvoice = async (req, res) => {
             .moveDown()
             .text('This is a computer-generated document and does not require a signature.', { align: 'center', color: '#666666' });
 
-        // Add page numbers
+        
         const pageCount = doc.bufferedPageRange().count;
         for (let i = 0; i < pageCount; i++) {
             doc.switchToPage(i);

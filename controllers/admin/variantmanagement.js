@@ -79,7 +79,7 @@ const editVariant = async (req, res) => {
     }
 }
 
-// Update variant
+
 const updateVariant = async (req, res) => {
     try {
         const { id } = req.params;

@@ -29,9 +29,13 @@ const loadAddress = async (req, res) => {
     } catch (error) {
         res.redirect("/404")
         
-    }
+    }``
 }
 const loadCreateAddress = async (req, res) => {
+    const id =  req.query.id
+ 
+    
+    
    
 
     try {
@@ -42,7 +46,9 @@ const loadCreateAddress = async (req, res) => {
           console.log("+++++++++++++++++++")
 console.log(req.session.userData)
         res.render("addAddress",{
-            userId: req.session.userData._id
+            userId: req.session.userData._id,
+            check:id,
+
         })
         
 
@@ -181,6 +187,7 @@ const editAddress = async (req, res) => {
         return res.status(500).json({ message: 'Error updating address' });
     }
 };
+
 
 
 

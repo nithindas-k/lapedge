@@ -206,7 +206,7 @@
                         <% orders.forEach((order,index)=>{ %>
                     <tr>
                         <td><%=index+1 %></td>
-                        <td><%=order._id %></td>
+                        <td><%= order.orderId || order._id %></td>
                         <td><%=new Date(order.orderDate).toLocaleDateString() %></td>  
                         <td><%= order.userId?.name %></td>
                         <td>₹1<%= order.totalAmount %></td>
@@ -227,9 +227,26 @@
 
             <div class="pagination">
                 <ul>
-                    <li><a href="#" class="active">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
+                    <% if (pagination.hasPrevPage) { %>
+                        <li>
+                            <a href="?page=<%= pagination.prevPage %>">Previous</a>
+                        </li>
+                    <% } %>
+                    
+                    <% for(let i = 1; i <= pagination.totalPages; i++) { %>
+                        <li>
+                            <a href="?page=<%= i %>" 
+                               class="<%= pagination.currentPage === i ? 'active' : '' %>">
+                                <%= i %>
+                            </a>
+                        </li>
+                    <% } %>
+                    
+                    <% if (pagination.hasNextPage) { %>
+                        <li>
+                            <a href="?page=<%= pagination.nextPage %>">Next</a>
+                        </li>
+                    <% } %>
                 </ul>
             </div>
         </div>

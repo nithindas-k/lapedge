@@ -10,6 +10,15 @@ const Wallet = require("../../models/wallet")
 const Transaction  = require("../../models/waletTrancations")
 require("dotenv").config();
 
+
+const generateOrderId = () => {
+   
+    const randomNum = Math.floor(100000 + Math.random() * 900000);
+  
+    return `ORD-${randomNum}`;
+};
+
+
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.userData._id;
@@ -198,6 +207,7 @@ const razerpayorder = async (req, res) => {
             
             const razorpayOrder = await razorpay.orders.create(orderOptions);
             console.log("id"  + razorpayOrder.id)
+            const customOrderId = generateOrderId();
 
         const newOrder = new Order({
             userId,
@@ -210,7 +220,8 @@ const razerpayorder = async (req, res) => {
             coupon: coupon?._id || null,
             razorpayOrderId: razorpayOrder.id,
             payableAmount:payableAmount,
-            couponDiscount:couponDiscount
+            couponDiscount:couponDiscount,
+            orderId:customOrderId
         });
 
 

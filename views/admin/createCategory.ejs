@@ -96,15 +96,14 @@ document.getElementById("form-data").addEventListener("submit", function(event) 
         return;
     }
 
-    // Create FormData from the form
+    
     const formData = new FormData(this);
 
-    // If we have a cropped image, add it to the formData
+ 
     if (croppedImageBlob) {
         formData.set('image', croppedImageBlob, 'cropped-image.png');
     }
 
-    // Send the form data to the server
     fetch('/category/create', {
         method: 'POST',
         body: formData

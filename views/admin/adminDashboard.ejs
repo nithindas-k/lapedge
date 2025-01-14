@@ -358,6 +358,7 @@
         
         
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 q
     <script>
@@ -556,6 +557,18 @@ function setFilter(period) {
 async function updateChart() {
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
+    if (new Date(startDate) > new Date(endDate)) {
+                    return Swal.fire({
+                        toast:true,
+                        icon:"warning",
+                        title:"Start date cannot be greater than the end date.",
+                        position:"top-end",
+                        showConfirmButton: false,
+                        timer: 3000
+
+                    })
+           
+        }
     
     try {
         const response = await fetch(`/admin/sales-chart?startDate=${startDate}&endDate=${endDate}`);
@@ -571,7 +584,7 @@ async function updateChart() {
     }
 }
 
-// 
+
 const today = new Date();
 const thirtyDaysAgo = new Date(today);
 thirtyDaysAgo.setDate(today.getDate() - 30);
@@ -579,7 +592,7 @@ thirtyDaysAgo.setDate(today.getDate() - 30);
 document.getElementById('endDate').value = today.toISOString().split('T')[0];
 document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
 
-// Initial load
+
 updateChart();
 
   </script>

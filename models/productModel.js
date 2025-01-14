@@ -3,15 +3,15 @@ const { Schema } = mongoose;
 
 const productSchema = new Schema({
     name: {
-        type: String,  // Corrected 'string' to String
+        type: String,
         required: true
     },
     description: {
-        type: String,  // Corrected 'string' to String
+        type: String,  
         required: true
     },
     brand: {
-        type: String,  // Corrected 'string' to String
+        type: String,  
         required: true
     },
     category: {
@@ -20,27 +20,27 @@ const productSchema = new Schema({
         required: true
     },
     regularPrice: {
-        type: Number,  // Corrected 'number' to Number
+        type: Number,  
         required: true
     },
     salePrice: {
-        type: Number,  // Corrected 'number' to Number
+        type: Number,  
         required: true
     },
     productOffer: {
-        type: Number,  // Corrected 'number' to Number
+        type: Number,  
         default: 0
     },
     quantity: {
-        type: Number,  // Corrected 'number' to Number
+        type: Number,  
         default: true
     },
     productImage: [{
-        type: String,  // Corrected 'string' to String
+        type: String, 
         required: true
     }],
     isBlocked: {
-        type: Boolean,  // Corrected 'boolean' to Boolean
+        type: Boolean, 
         default: false
     },
     status: {

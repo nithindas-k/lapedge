@@ -22,11 +22,11 @@ const userSchema = new Schema({
   profileImage: {
     type: {
       url: {
-        type: String, // URL or path to the uploaded image
-        default: '' // Optional: default profile image path
+        type: String, 
+        default: '' 
       },
       publicId: {
-        type: String, // If using cloud storage like Cloudinary
+        type: String, 
         default: ''
       }
     },

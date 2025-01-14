@@ -512,7 +512,7 @@
                 <div class="order-details">
                   <input id="orderId" type="hidden" value="<%=order._id%>">
                   <p><strong>Order Id : </strong>
-                    <%=order._id %>
+                    <%= order.orderId || order._id %>
                   </p>
                   <p><strong>Order Date : </strong>
                     <%= new Date(order.orderDate).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,

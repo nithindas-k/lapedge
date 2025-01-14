@@ -47,13 +47,13 @@
                 return;
             }
 
-            // Prepare the data to send
+            
             const response = await fetch('/variants/create/ram', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ram: ramName }) // Here 'ram' is being sent as a key
+        body: JSON.stringify({ ram: ramName }) 
     });
 
     const result = await response.json();

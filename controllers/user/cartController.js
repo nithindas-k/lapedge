@@ -175,14 +175,7 @@ const updateQuantity = async (req, res) => {
 
     item.quantity = newQuantity;
 
-    // Recalculate totalQuantity and totalAmount
-    // let totalQuantity = 0;
-    // let totalAmount = 0;
-
-    // userCart.items.forEach((item) => {
-    //   totalQuantity += item.quantity;
-    // //  totalAmount += item.quantity * item.productId.salePrice; // Assuming `salePrice` is in the product model
-    // }); 
+    
     console.log("userCart.totalQuantity" + userCart.totalQuantity)
     userCart.totalQuantity = newQuantity - userCart.totalQuantity
     console.log(userCart.totalQuantity)

@@ -151,7 +151,6 @@ let cropper;
 let currentImageIndex = null;
 let croppedImages = new Array(3).fill(null);
 
-// Initialize DOM elements
 const imageInputs = [
     document.getElementById('productImage1'),
     document.getElementById('productImage2'),
@@ -173,12 +172,12 @@ const cancelCropButton = document.getElementById('cancelCrop');
 const imageToCrop = document.getElementById('imageToCrop');
 const productForm = document.getElementById("productForm");
 
-// Handle image input changes
+
 imageInputs.forEach((input, index) => {
     input.addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
-            // Validate file type
+            
             if (!file.type.startsWith('image/')) {
                 swal({
                     title: 'Invalid File',
@@ -196,7 +195,7 @@ imageInputs.forEach((input, index) => {
                 imagePreviews[index].style.display = 'block';
                 cropButtons[index].style.display = 'inline-block';
                 
-                // Automatically open crop modal
+              
                 currentImageIndex = index;
                 cropModal.style.display = 'flex';
                 imageToCrop.src = e.target.result;
@@ -218,7 +217,7 @@ imageInputs.forEach((input, index) => {
     });
 });
 
-// Handle crop button clicks for existing images
+
 cropButtons.forEach((button, index) => {
     button.addEventListener('click', function() {
         currentImageIndex = index;
@@ -239,7 +238,7 @@ cropButtons.forEach((button, index) => {
     });
 });
 
-// Handle save crop button
+
 saveCropButton.addEventListener('click', async function() {
     if (cropper) {
         const canvas = cropper.getCroppedCanvas({
@@ -252,11 +251,11 @@ saveCropButton.addEventListener('click', async function() {
         const croppedImageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
         const blob = dataURItoBlob(croppedImageDataUrl);
         
-        // Store cropped image
+    
         croppedImages[currentImageIndex] = blob;
         imagePreviews[currentImageIndex].src = croppedImageDataUrl;
 
-        // Upload cropped image immediately
+      
         const productId = document.getElementById("productId").value;
         const formData = new FormData();
         formData.append("productImage", blob, 'cropped-image.jpg');
@@ -295,7 +294,7 @@ saveCropButton.addEventListener('click', async function() {
     }
 });
 
-// Handle cancel crop button
+
 cancelCropButton.addEventListener('click', function() {
     if (cropper) {
         cropper.destroy();
@@ -303,7 +302,7 @@ cancelCropButton.addEventListener('click', function() {
     }
 });
 
-// Convert Data URI to Blob
+
 function dataURItoBlob(dataURI) {
     const byteString = atob(dataURI.split(',')[1]);
     const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
@@ -317,7 +316,7 @@ function dataURItoBlob(dataURI) {
     return new Blob([ab], { type: mimeString });
 }
 
-// Form submission handler
+
 productForm.addEventListener("submit", async function(event) {
     event.preventDefault();
     
@@ -334,7 +333,7 @@ productForm.addEventListener("submit", async function(event) {
     const displaySize = document.getElementById("displaySize").value;
     const storage = document.getElementById("storage").value;
 
-    // Validation
+
     let errorMessage = "";
     
     if (!name) errorMessage = "Product name is required.";
@@ -361,7 +360,6 @@ productForm.addEventListener("submit", async function(event) {
         return;
     }
 
-    // Show loading state
     const submitButton = document.querySelector('.submit-button');
     const originalButtonText = submitButton.textContent;
     submitButton.textContent = 'Updating Product...';
@@ -412,13 +410,12 @@ productForm.addEventListener("submit", async function(event) {
             confirmButtonText: 'Okay'
         });
     } finally {
-        // Reset button state
+       
         submitButton.textContent = originalButtonText;
         submitButton.disabled = false;
     }
 });
 
-// Close modal if user clicks outside
 window.onclick = function(event) {
     if (event.target === cropModal) {
         if (cropper) {

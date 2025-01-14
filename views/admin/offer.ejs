@@ -199,68 +199,60 @@
                         </tr>
                     </thead>
                     <tbody>
-
-                        <% if(offers){%>
-
-                            <% offers.forEach((offer,index)=>{%>
-
+                        <% if (offers && offers.length> 0) { %>
+                            <% offers.forEach((offer, index)=> { %>
                                 <tr>
                                     <td>
-                                        <%=index+1 %>
+                                        <%= index + 1 %>
                                     </td>
                                     <td>
-                                        <%=offer.name %>
+                                        <%= offer.name %>
                                     </td>
                                     <td>
-                                        <%=offer.type %>
+                                        <%= offer.type %>
                                     </td>
                                     <td>
-                                        <%=offer.categoryOrProduct.name %>
+                                        <%= offer.categoryOrProduct.name %>
                                     </td>
-                                    <% if(offer.discountType=="Fixed Amount" ){%>
-                                        <td>₹<%=offer.discountValue %>
+                                    <% if (offer.discountType=="Fixed Amount" ) { %>
+                                        <td>₹<%= offer.discountValue %>
                                         </td>
-                                        <% }else { %>
+                                        <% } else { %>
                                             <td>
-                                                <%=offer.discountValue %>%
+                                                <%= offer.discountValue %>%
                                             </td>
                                             <% } %>
                                                 <td>
                                                     <%= new Date(offer.startDate).toISOString().split('T')[0] %>
                                                 </td>
-
                                                 <td>
                                                     <%= new Date(offer.endDate).toISOString().split('T')[0] %>
                                                 </td>
                                                 <td>
-                                                    <span class="">
-                                                        active
-                                                    </span>
+                                                    <span>Active</span>
                                                 </td>
                                                 <td>
                                                     <button class="edit-button">
                                                         <a style="text-decoration: none; color: orange;"
-                                                            href="offer/edit/<%=offer._id %>">Edit</a>
+                                                            href="offer/edit/<%= offer._id %>">Edit</a>
                                                     </button>
                                                 </td>
                                                 <td>
                                                     <button id="delete" class="delete-button"
-                                                        data-id="<%= offer._id %>"><a
-                                                            style="text-decoration: none; color: #ff0000;"
-                                                            href="">Delete</a></button>
+                                                        data-id="<%= offer._id %>">
+                                                        <a style="text-decoration: none; color: #ff0000;"
+                                                            href="">Delete</a>
+                                                    </button>
                                                 </td>
                                 </tr>
-                                <% }) %>
-
-
-                                    <% }else { %>
-
-
-                                        <h1>No offers available</h1>
-
+                                <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="10" style="text-align: center;">No offers available</td>
+                                        </tr>
                                         <% } %>
-
                     </tbody>
+
                 </table>
 
 
@@ -276,7 +268,7 @@
         document.querySelectorAll("#delete").forEach(btn => {
             btn.addEventListener("click", async function (event) {
                 event.preventDefault();
-                
+
 
                 const id = event.target.getAttribute("data-id")
                 const response = await fetch(`/offer/detele/${id}`, {
@@ -301,9 +293,9 @@
                         confirmButtonText: 'Yes, delete it!',
                         cancelButtonText: 'Cancel'
                     })
-                   
-                        location.reload()
-                  
+
+                    location.reload()
+
 
                 }
             })

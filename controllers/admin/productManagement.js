@@ -78,7 +78,7 @@ const CreateProduct = async (req, res) => {
             productImage: images
         });
 
-        // Save the new product in the database
+     
         await newProduct.save();
 
         const products = await productSchema.find();

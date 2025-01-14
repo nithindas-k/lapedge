@@ -123,6 +123,11 @@ const OrderSchema = mongoose.Schema({
         type:Boolean,
         default:false
     },
+    orderId: {
+        type: String,
+        required: true,
+        unique: true
+    },
     canceledAt: {
         type: Date,
         default: null

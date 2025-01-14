@@ -251,19 +251,51 @@ const LoadVariantManagement = async (req, res) => {
 
 const loadAllOrder = async (req, res) => {
     try {
-        const orders = await Order.find().populate("userId").populate("items.ProductId")
+
+
+        let page = 1;
+
+
+        if (req.query.page && !isNaN(req.query.page)) {
+            page = Math.max(1, parseInt(req.query.page));
+        }
+
+
+
+        const limit = 10;
+        const skip = (page - 1) * limit;
+
+
+        const totalOrders = await Order.countDocuments();
+        const totalPages = Math.max(1, Math.ceil(totalOrders / limit));
+
+
+
+        const orders = await Order.find()
+            .populate("userId")
+            .populate("items.ProductId")
+            .sort({ orderDate: -1 })
+            .skip(skip)
+            .limit(limit)
+            .sort({ orderDate: -1 });
 
         res.render("orderList", {
-            orders: orders
-        })
+            orders,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                hasPrevPage: page > 1,
+                hasNextPage: page < totalPages,
+                prevPage: page - 1,
+                nextPage: page + 1
+            }
+        });
 
     } catch (error) {
-
+        console.log('Error in loadAllOrder:', error);
+        res.status(500).send("Internal Server Error");
     }
-
-
-
-}
+};
 
 const loadOrderDetails = async (req, res) => {
     try {
@@ -524,11 +556,16 @@ const salesRepoetLoad = async (req, res) => {
         const { startDate, endDate } = req.query;
         console.log("Start Date:", startDate, "End Date:", endDate);
 
+
+
         let orders = [];
         let totalSales = 0;
         let totalDiscount = 0;
         let totalOrders = 0
         let totalOrderWithDate = 0
+        if (startDate > endDate) {
+
+        }
 
         if (startDate && endDate) {
             const start = new Date(startDate);
@@ -613,7 +650,7 @@ const downloadPdf = async (req, res) => {
             { $group: { _id: null, totalSales: { $sum: "$payableAmount" } } }
         ]);
 
-        const discountData = await Order.aggregate([
+         const discountData = await Order.aggregate([
             { $match: matching },
             { $group: { _id: null, totalDiscount: { $sum: "$couponDiscount" } } }
         ]);
@@ -647,7 +684,7 @@ const downloadPdf = async (req, res) => {
 
         const tableRows = [];
 
-        // Headers
+        
         const headers = [
             'Date',
             'Order ID',
@@ -678,7 +715,7 @@ const downloadPdf = async (req, res) => {
             });
         });
 
-        // Add grand total row
+      
         tableRows.push([
             'GRAND TOTAL',
             '',
@@ -701,7 +738,7 @@ const downloadPdf = async (req, res) => {
             prepareHeader: () => doc.font('Helvetica-Bold').fontSize(10),
             prepareRow: (row, indexCount) => {
                 doc.font('Helvetica').fontSize(9);
-                // Bold for grand total row
+                
                 if (indexCount === tableRows.length - 1) {
                     doc.font('Helvetica-Bold');
                 }
@@ -713,11 +750,11 @@ const downloadPdf = async (req, res) => {
                 horizontal: { disabled: false, width: 0.5, opacity: 0.2 }
             },
             align: {
-                4: 'center',    // Quantity
-                5: 'right',     // Unit Price
-                6: 'right',     // Subtotal
-                7: 'right',     // Discount
-                8: 'right'      // Final Amount
+                4: 'center',    
+                5: 'right',     
+                6: 'right',     
+                7: 'right',     
+                8: 'right'      
             }
         });
 
@@ -761,7 +798,7 @@ const sales = async (req, res) => {
             case 'weekly':
                 groupBy = {
                     _id: { $week: "$createdAt" },
-                    totalSales: { $sum: "$totalAmount" },
+                    totalSales: { $sum: "$payableAmount" },
                     count: { $sum: 1 }
                 };
                 dateFormat = { _id: 1 };
@@ -770,7 +807,7 @@ const sales = async (req, res) => {
             case 'monthly':
                 groupBy = {
                     _id: { $month: "$createdAt" },
-                    totalSales: { $sum: "$totalAmount" },
+                    totalSales: { $sum: "$payableAmount" },
                     count: { $sum: 1 }
                 };
                 dateFormat = { _id: 1 };
@@ -779,7 +816,7 @@ const sales = async (req, res) => {
             case 'yearly':
                 groupBy = {
                     _id: { $year: "$createdAt" },
-                    totalSales: { $sum: "$totalAmount" },
+                    totalSales: { $sum: "$payableAmount" },
                     count: { $sum: 1 }
                 };
                 dateFormat = { _id: 1 };
@@ -792,7 +829,7 @@ const sales = async (req, res) => {
                         month: { $month: "$createdAt" },
                         day: { $dayOfMonth: "$createdAt" }
                     },
-                    totalSales: { $sum: "$totalAmount" },
+                    totalSales: { $sum: "$payableAmount" },
                     count: { $sum: 1 }
                 };
                 dateFormat = { "_id.year": 1, "_id.month": 1, "_id.day": 1 };

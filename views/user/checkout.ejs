@@ -23,13 +23,13 @@
 
 <body style="background-color: #EFF2F1;">
   <style>
-    /* Change the table header color to black */
+ 
     table,
     th,
     td {
       border: 1px solid black !important;
       border-collapse: collapse !important;
-      /* Ensures that borders between cells are merged */
+
 
 
     }
@@ -451,7 +451,7 @@
                     <% }) %>
                 </div>
 
-                <button class="place-order-btn"><a href="/address/create">Add Address</a></button>
+                <button id="addressAdd" class="place-order-btn"><a href="/address/create?id=<%=userCart._id %>">Add Address</a></button>
 
               </div>
 
@@ -461,8 +461,7 @@
                 <div class="card-header">
                   <h3>Cart Totals</h3>
                 </div>
-
-
+                      <input id="checkoutAdress" type="hidden" value="<%=userCart._id %>">
                 <% items.forEach(item=> { %>
                   <div class="product-list">
                     <div class="product-item">
@@ -972,6 +971,8 @@
 
 
         })
+
+        
 
 
 
