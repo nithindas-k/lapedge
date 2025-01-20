@@ -11,21 +11,6 @@
 
 <body>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #000000;
-            color: #f5f5f5;
-            display: flex;
-            min-height: 100vh;
-            flex-direction: column;
-        }
-
         .main-div {
             display: flex;
             flex-grow: 1;
@@ -44,7 +29,7 @@
         .containerReport {
             background-color: #0A0A0A;
             border-radius: 6px;
-            /* margin-left: 250px; */
+            margin-left: 250px;
             margin-top: 20px;
             padding: 40px;
             /* width: calc(100% - 250px); */
@@ -172,98 +157,141 @@
             background-color: #FFA000;
             color: #1e1e1e;
         }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .pagination a {
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background-color: #2b2b2b;
+            color: #FFA000;
+        }
     </style>
 
-
-
-
-    <div class="containerReport">
-        <div class="header">
-            <h1>Sales Report</h1>
-        </div>
-        <div class="summary-card">
-            <h3>Total Orders</h3>
-            <p>
-                <%=totalOrders %>
-            </p>
-        </div>
-        <br>
-
-
-        <div class="filter-controls">
-            <div class="date-input">
-                <label>Start Date:</label>
-                <input type="date" id="startDate" name="startDate" value="<%= startDate %>">
-            </div>
-            <div class="date-input">
-                <label>End Date:</label>
-                <input type="date" id="endDate" name="endDate" value="<%= endDate %>">
-            </div>
-            <button class="filter-btn" onclick="filterReport()">Filter</button>
-        </div>
-
-
-
-        <div class="summary-cards">
-            <div class="summary-card">
-                <h3>Total Sales</h3>
-                <p>
-                    ₹<%=totalSales %>
-                </p>
-            </div>
-            <div class="summary-card">
-                <h3>Total Orders</h3>
-                <p>
-                    <%=totalOrderWithDate %>
-                </p>
+    <div class="main-div">
+        <%- include("../partials/adminNavbar") %>
+            <div class="hello">
+                <%- include('../partials/adminSidebar') %>
             </div>
 
-            <div class="summary-card">
-                <h3>Total Discounts</h3>
-                <p>₹<%=totalDiscount %>
-                </p>
+
+            <div class="containerReport">
+                <div class="header">
+                    <h1>Sales Report</h1>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Orders</h3>
+                    <p>
+                        <%=totalOrders %>
+                    </p>
+                </div>
+                <br>
+
+
+                <div class="filter-controls">
+                    <div class="date-input">
+                        <label>Start Date:</label>
+                        <input type="date" id="startDate" name="startDate" value="<%= startDate %>">
+                    </div>
+                    <div class="date-input">
+                        <label>End Date:</label>
+                        <input type="date" id="endDate" name="endDate" value="<%= endDate %>">
+                    </div>
+                    <button class="filter-btn" onclick="filterReport()">Filter</button>
+                </div>
+
+
+
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>Total Sales</h3>
+                        <p>
+                            ₹<%=totalSales %>
+                        </p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Total Orders</h3>
+                        <p>
+                            <%=totalOrderWithDate %>
+                        </p>
+                    </div>
+
+                    <div class="summary-card">
+                        <h3>Total Discounts</h3>
+                        <p>₹<%=totalDiscount %>
+                        </p>
+                    </div>
+                </div>
+
+                <table class="sales-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Username</th>
+                            <th>Order Date</th>
+                            <th>Payment Status</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% orders.forEach(order=> { %>
+                            <tr>
+                                <td>
+                                    <%= order._id %>
+                                </td>
+                                <td>
+                                    <%= order.userId?.name %>
+                                </td>
+                                <td>
+                                    <%= new Date(order.createdAt).toLocaleString() %>
+                                </td>
+                                <td>
+                                    <%= order.paymentStatus %>
+                                </td>
+                                <td>₹<%= order.payableAmount %>
+                                </td>
+                            </tr>
+                            <% }) %>
+
+                    </tbody>
+                </table>
+
+                <div class="download-buttons">
+                    <a href="/admin/download?startDate=<%=startDate %>&endDate=<%=endDate %>"><button
+                            class="download-btn">Download PDF</button></a>
+                    <button class="download-btn" onclick="downloadExcel()">Download EXCEL</button>
+
+                </div></a>
+
+                <!-- Add this right after your sales-table -->
+                <% if (totalPages> 0) { %>
+                    <div class="pagination"
+                        style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;">
+
+
+                        <% for(let i=1; i <=totalPages; i++) { %>
+                            <a href="?page=<%= i %>&startDate=<%= startDate %>&endDate=<%= endDate %>"
+                                class="filter-btn"
+                                style="text-decoration: none ;<%= currentPage === i ? 'background-color: #2b2b2b; color: #FFA000;' : '' %>">
+                                <%= i %>
+                            </a>
+                            <% } %>
+
+
+                    </div>
+                    <% } %>
             </div>
-        </div>
-
-        <table class="sales-table">
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Username</th>
-                    <th>Order Date</th>
-                    <th>Payment Status</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% orders.forEach(order=> { %>
-                    <tr>
-                        <td>
-                            <%= order._id %>
-                        </td>
-                        <td>
-                            <%= order.userId?.name %>
-                        </td>
-                        <td>
-                            <%= new Date(order.createdAt).toLocaleString() %>
-                        </td>
-                        <td>
-                            <%= order.paymentStatus %>
-                        </td>
-                        <td>₹<%= order.payableAmount %>
-                        </td>
-                    </tr>
-                    <% }) %>
-
-            </tbody>
-        </table>
-
-        <div class="download-buttons">
-            <a href="/admin/download?startDate=<%=startDate %>&endDate=<%=endDate %>"><button
-                    class="download-btn">Download PDF</button></a>
-            <button class="download-btn" onclick="downloadExcel()">Download EXCEL</button>
-            <a href="/admin/dashboard"> <button class="download-btn">Back</button>
-        </div></a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -285,20 +313,17 @@
             }
 
             if (new Date(startDate) > new Date(endDate)) {
-                    return Swal.fire({
-                        toast:true,
-                        icon:"warning",
-                        title:"Start date cannot be greater than the end date.",
-                        position:"top-end",
-                        showConfirmButton: false,
-                        timer: 3000
+                return Swal.fire({
+                    toast: true,
+                    icon: "warning",
+                    title: "Start date cannot be greater than the end date.",
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
 
-                    })
-           
-        }
-
-
-            window.location.href = `/admin/salesreport?startDate=${startDate}&endDate=${endDate}`;
+            window.location.href = `/admin/salesreport?startDate=${startDate}&endDate=${endDate}&page=1`;
         }
 
 
@@ -322,7 +347,7 @@
                     return;
                 }
 
-       
+
 
 
                 Swal.fire({

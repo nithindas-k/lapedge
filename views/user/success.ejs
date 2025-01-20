@@ -446,10 +446,10 @@
       transition: background-color 0.3s ease;
     }
 
-    /* Cancel Button Styles */
+
     .cancel-btn {
       background-color: #ff1a1a;
-      /* Red */
+ 
       color: rgb(0, 0, 0);
       border: none;
       border-radius: 6px;
@@ -457,7 +457,6 @@
 
 
 
-    /* Return Button Styles */
     .return-btn {
       background-color: #45a049;
       /* Green */
@@ -698,6 +697,14 @@
             setTimeout(() => {
               window.location.reload()
             }, 1500)
+          }else{
+            swal.fire({
+              title:"warning",
+              text:response.message,
+              icon:"waining"
+            
+
+            })
           }
 
 

@@ -34,11 +34,11 @@
                     <label for="category">Category</label>
                     <select name="category" id="category">
                         <% category.forEach(cat=> { %>
-                            <option value="<%= cat._id %>" <%=product.category?.toString()===cat._id.toString()
-                                ? 'selected' : '' %>>
+                            <option value="<%= cat._id %>" 
+                                <%= product.category?.toString() === cat._id.toString() ? 'selected' : '' %>>
                                 <%= cat.name %>
                             </option>
-                            <% }) %>
+                        <% }) %>
                     </select>
 
                     <label for="regularPrice">Regular Price</label>
@@ -57,47 +57,40 @@
                     <label for="RAM">RAM</label>
                     <select name="RAM" id="RAM">
                         <% ram.forEach((data)=>{ %>
-                            <option value="<%= data._id  %>"
-                                <%=product.specifications.ram?.toString()===data._id.toString() ? 'selected' : '' %>>
+                            <option value="<%= data._id %>"
+                                <%= product.specifications.ram?.toString() === data._id.toString() ? 'selected' : '' %>>
                                 <%= data.value %>
                             </option>
-                            <% }) %>
-
+                        <% }) %>
                     </select>
 
                     <label for="processor">Processor</label>
                     <select name="processor" id="processor">
                         <% processor.forEach((data)=>{ %>
-                            <option value="<%= data._id  %>"
-                                <%=product.specifications.processor?.toString()===data._id.toString() ? 'selected' : ''
-                                %>>
+                            <option value="<%= data._id %>"
+                                <%= product.specifications.processor?.toString() === data._id.toString() ? 'selected' : '' %>>
                                 <%= data.value %>
                             </option>
-                            <% }) %>
-
+                        <% }) %>
                     </select>
 
                     <label for="displaySize">Display Size</label>
                     <select name="displaySize" id="displaySize">
                         <% display.forEach((data)=>{ %>
-                            <option value="<%= data._id  %>"
-                                <%=product.specifications.display?.toString()===data._id.toString() ? 'selected' : '' %>
-                                >
+                            <option value="<%= data._id %>"
+                                <%= product.specifications.display?.toString() === data._id.toString() ? 'selected' : '' %>>
                                 <%= data.value %>
                             </option>
-                            <% }) %>
-
+                        <% }) %>
                     </select>
                     <label for="storage">Storage</label>
                     <select name="storage" id="storage">
                         <% storage.forEach((data)=>{ %>
-                            <option value="<%= data._id  %>" selected="<%= data.value %>"
-                                <%=product.specifications.storage?.toString()===data._id.toString() ? 'selected' : '' %>
-                                >
+                            <option value="<%= data._id %>"
+                                <%= product.specifications.storage?.toString() === data._id.toString() ? 'selected' : '' %>>
                                 <%= data.value %>
                             </option>
-                            <% }) %>
-
+                        <% }) %>
                     </select>
 
                     <div class="crop-section">

@@ -54,7 +54,7 @@ const addCart = async (req, res) => {
   try {
 
     if (!req.session.user) {
-      return res.status(404).json({ success: false, message: "user not found" })
+      return res.status(404).json({ success: false, message: "Login First" })
 
     }
     userId = req.session.userData._id

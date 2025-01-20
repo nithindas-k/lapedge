@@ -84,7 +84,7 @@
               <h1>HOME <span clsas="d-block"></span></h1>
               <p class="mb-4">"Every step tells a story. Crafted with precision, built for comfort. Style meets function
                 in every pair."</p>
-              <p><a href="/shop" class="btn btn-secondary me-2">Shop Now</a></p>
+              <p><a style="color: black; text-decoration: none;" href="/shop" class="btn btn-secondary me-2"><b>Shop Now</b></a></p>
             </div>
           </div>
           <div class="col-lg-7">
@@ -287,19 +287,10 @@
 
     <!--=============== PRODUCTS ===============-->
     <section class="products container section">
-      <div class="tab__btns">
-        <!-- <span class="tab__btn active-tab" data-target="#featured"
-                >Featured</span
-              > -->
-        <h3 class="section__title"><span>Best </span> Sellers</h3>
-        <!-- <span class="tab__btn" data-target="#popular">Popular</span>
-              <span class="tab__btn" data-target="#new-added">New Added</span> -->
-      </div>
-
       <div class="tab__items">
-        <div class="tab__item active-tab" content id="featured">
+        <div class="tab__item active-tab" id="featured">
           <div class="products__container grid">
-            <% product.forEach((data)=>{ %>
+            <% product.forEach((data, indx) => { %>
               <div class="product__item">
                 <div class="product__banner">
                   <a href="/productDetails/<%= data._id %>" class="product__images">
@@ -310,24 +301,22 @@
                     <a href="/productDetails/<%= data._id %>" class="action__btn" aria-label="Quick View">
                       <i class="fi fi-rs-eye"></i>
                     </a>
-                    <a href="#" class="action__btn" aria-label="Add to Wishlist">
+                    <button id="wishlist"  class="action__btn" data-id="<%= data._id %>" aria-label="Add to Wishlist" > 
                       <i class="fi fi-rs-heart"></i>
-                    </a>
-                    <a href="/cart" class="action__btn" aria-label="Add to cart">
+                    </button>
+                    <button class="action__btn add-to-cart-btn" data-id="<%= data._id %>" aria-label="Add to cart">
                       <i class="fi fi-rs-shopping-cart"></i>
-
-                    </a>
-
+                    </button>
                   </div>
                   <div class="product__badge light-pink">
-                    <%=data.status %>
+                    <%= data.status %>
                   </div>
                 </div>
                 <div class="product__content">
                   <span class="product__category">
-                    <%=data.category.name%>
+                    <%= data.category.name %>
                   </span>
-                  <a href="details.html">
+                  <a href="/details.html">
                     <h3 class="product__title">
                       <%= data.name %>
                     </h3>
@@ -343,12 +332,9 @@
                     <span class="new__price">₹<%= data.salePrice %></span>
                     <span class="old__price">₹<%= data.regularPrice %></span>
                   </div>
-                  <a href="#" class="action__btn cart__btn" aria-label="Add To Cart">
-                    <i class="fi fi-rs-shopping-bag-add"></i>
-                  </a>
                 </div>
               </div>
-              <% }) %>
+            <% }) %>
           </div>
         </div>
       </div>
@@ -388,9 +374,140 @@
 
     <!--=============== SWIPER JS ===============-->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!--=============== MAIN JS ===============-->
     <script src="assets/js/main.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
+
+        addToCartButtons.forEach(button => {
+          button.addEventListener("click", async function (event) {
+            event.preventDefault();
+            const productId = this.getAttribute("data-id");
+            const quantity = 1;
+
+            try {
+              const response = await fetch("/cart/add", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ productId, quantity }),
+              });
+
+              if (response.ok) {
+                Swal.fire({
+                  toast: true,
+                  position: 'top-end',
+                  icon: 'success',
+                  title: 'Product added to cart',
+                  showConfirmButton: false,
+                  timer: 3000
+                });
+              } else {
+                const errorData = await response.json();
+                Swal.fire({
+                  toast: true,
+                  position: 'top-end',
+                  icon: 'error',
+                  title: errorData.message || 'Error adding product to cart',
+                  showConfirmButton: false,
+                  timer: 3000
+                });
+              }
+            } catch (error) {
+              console.error("Error adding product to cart:", error);
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'An error occurred. Please try again.',
+                showConfirmButton: false,
+                timer: 3000
+              });
+            }
+          });
+        });
+      });
+
+
+
+      // Wishlist Add
+
+
+      document.addEventListener("DOMContentLoaded", function () {
+    const wishlistButtons = document.querySelectorAll("#wishlist");
+
+    wishlistButtons.forEach(button => {
+        button.addEventListener("click", async function (event) {
+            event.preventDefault();
+            const productId = this.getAttribute("data-id");
+            const wishlistIcon = this.querySelector("i.fi-rs-heart");
+
+            try {
+                const response = await fetch("/wishlist/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ productId }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+               
+                    if (data.added) {
+                        wishlistIcon.classList.remove("fi-rs-heart");
+                        wishlistIcon.classList.add("fi-ss-heart");
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Product added to wishlist',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    } else {
+                        wishlistIcon.classList.remove("fi-ss-heart");
+                        wishlistIcon.classList.add("fi-rs-heart");
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Product added to wishlist',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                } else {
+                    const errorData = await response.json();
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: errorData.message || 'Error updating wishlist',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            } catch (error) {
+                console.error("Error updating wishlist:", error);
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'An error occurred. Please try again.',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        });
+    });
+});
+    </script>
 </body>
 
 </html>

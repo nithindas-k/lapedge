@@ -152,7 +152,7 @@
 
 
                   <div id="cart" style="background-color: #ff8800; border-radius: 6px;"> <a href="#"
-                      class="btn btn--sm">Add To Card</a></div> 
+                      class="btn btn--sm">Add To Cart</a></div> 
                       
                   <% if(wishlisted) {%>
                     <a id="wishlist" style="background-color: #ff0000; border-radius: 6px;" href="#"
@@ -271,7 +271,7 @@
               Sign in to Newsletter
             </h3>
             <p class="newsletter__description">
-              ...and receive $25 coupon for first shopping.
+              ...and receive 25 coupon for first shopping.
             </p>
             <form action="" class="newsletter__form">
               <input type="text" placeholder="Enter Your Email" class="newsletter__input" />
@@ -317,30 +317,53 @@
           mainImage.style.transition = "transform 0.3s ease";
         });
         document.querySelector('.btn-increment').addEventListener('click', function () {
-          let input = document.querySelector('.quantity');
+    const input = document.querySelector('.quantity');
+    const stock = parseInt(document.getElementById("stock").value);
+    const currentValue = parseInt(input.value);
+    const MAX_LIMIT = 5;
 
-          let currentValue = parseInt(input.value);
-          if (currentValue < 5) {
-            if (!isNaN(currentValue) && stock > currentValue) {
-              input.value = currentValue + 1;
-            }
-          } else {
-
-            return swal.fire({
-              title: "Max  limit is  5 ",
-              toast: true,
-              showConfirmButton: false,
-              timerProgressBar: true,
-              position: 'top-right',
-              icon: 'warning',
-              timer: 2000,
-
-            })
-
-
-
-          }
+    // First check if values are valid numbers
+    if (isNaN(currentValue) || isNaN(stock)) {
+        return swal.fire({
+            title: "Invalid quantity value",
+            toast: true,
+            showConfirmButton: false,
+            timerProgressBar: true,
+            position: 'top-right',
+            icon: 'error',
+            timer: 2000
         });
+    }
+
+    // Check if trying to exceed maximum limit
+    if (currentValue >= MAX_LIMIT) {
+        return swal.fire({
+            title: "Max limit is 5",
+            toast: true,
+            showConfirmButton: false,
+            timerProgressBar: true,
+            position: 'top-right',
+            icon: 'warning',
+            timer: 2000
+        });
+    }
+
+    
+    if (currentValue >= stock) {
+        return swal.fire({
+            title: "Stock limit is exceeded",
+            toast: true,
+            showConfirmButton: false,
+            timerProgressBar: true,
+            position: 'top-right',
+            icon: 'warning',
+            timer: 2000
+        });
+    }
+
+    
+    input.value = currentValue + 1;
+});
 
         document.querySelector('.btn-decrement').addEventListener('click', function () {
           let input = document.querySelector('.quantity');

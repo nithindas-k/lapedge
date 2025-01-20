@@ -353,6 +353,7 @@ const updatecancelOrder = async (req, res) => {
         console.log(orderId)
         const order = await Order.findById(orderId).populate("userId")
         const userId = order.userId
+      
         for (let item of order.items) {
             const product = await productSchema.findById(item.ProductId)
 
@@ -361,6 +362,8 @@ const updatecancelOrder = async (req, res) => {
                 await product.save()
             }
         }
+
+
 
 
 
@@ -554,71 +557,71 @@ const approveAll = async (req, res) => {
 const salesRepoetLoad = async (req, res) => {
     try {
         const { startDate, endDate } = req.query;
-        console.log("Start Date:", startDate, "End Date:", endDate);
-
-
+        const page = parseInt(req.query.page) || 1; // Get current page from query
+        const limit = 10; // Items per page
+        const skip = (page - 1) * limit;
 
         let orders = [];
         let totalSales = 0;
         let totalDiscount = 0;
-        let totalOrders = 0
-        let totalOrderWithDate = 0
-        if (startDate > endDate) {
-
-        }
+        let totalOrders = 0;
+        let totalOrderWithDate = 0;
+        let totalPages = 0;
 
         if (startDate && endDate) {
             const start = new Date(startDate);
             const end = new Date(endDate);
             end.setHours(23, 59, 59, 999);
 
-            totalOrderWithDate = await Order.find({ orderStatus: "Delivered", createdAt: { $gte: start, $lte: end } }).countDocuments()
+            // Get total count for pagination
+            totalOrderWithDate = await Order.find({ 
+                orderStatus: "Delivered", 
+                createdAt: { $gte: start, $lte: end } 
+            }).countDocuments();
 
-            console.log("Parsed Dates - Start:", start, "End:", end);
+            totalPages = Math.ceil(totalOrderWithDate / limit);
 
-
+            // Add pagination to orders query
             orders = await Order.find(
                 { orderStatus: "Delivered", createdAt: { $gte: start, $lte: end } },
                 'orderId createdAt payableAmount paymentStatus couponDiscount'
-            ).populate('userId', 'name').populate('coupon');
-            console.log("Fetched Orders:", orders);
+            )
+            .populate('userId', 'name')
+            .populate('coupon')
+            .skip(skip)
+            .limit(limit);
 
-            totalOrders = await Order.find({ orderStatus: "Delivered" }).countDocuments()
+            totalOrders = await Order.find({ orderStatus: "Delivered" }).countDocuments();
 
             const salesData = await Order.aggregate([
                 { $match: { orderStatus: "Delivered", createdAt: { $gte: start, $lte: end } } },
                 { $group: { _id: null, totalSales: { $sum: "$payableAmount" } } }
             ]);
-            console.log("Sales Data:", salesData);
 
             totalSales = salesData[0]?.totalSales || 0;
-
-
-
 
             const discountData = await Order.aggregate([
                 { $match: { orderStatus: "Delivered", createdAt: { $gte: start, $lte: end } } },
                 { $group: { _id: null, totalDiscount: { $sum: "$couponDiscount" } } }
             ]);
-            console.log("Discount Data:", discountData);
 
             totalDiscount = discountData[0]?.totalDiscount || 0;
         }
 
-        console.log("+++++++++++++++++++++++++++++++++++++++++" + orders, totalSales, totalDiscount, startDate, endDate);
-
         res.render("salesReport", {
-            orders: orders,
-            totalSales: totalSales,
-            totalDiscount: totalDiscount,
+            orders,
+            totalSales,
+            totalDiscount,
             startDate,
             endDate,
             totalOrders,
-            totalOrderWithDate
+            totalOrderWithDate,
+            currentPage: page,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1
         });
     } catch (error) {
-        console.log(error)
-        console.log("trueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
         console.error("Error loading sales report:", error);
         res.status(500).send("An error occurred while generating the sales report.");
     }
@@ -788,7 +791,7 @@ const sales = async (req, res) => {
                 $gte: startDate ? new Date(startDate) : new Date(new Date().setMonth(new Date().getMonth() - 1)),
                 $lte: endDate ? new Date(endDate) : new Date()
             },
-            orderStatus: "Delivered"
+            orderStatus:"Delivered"
         };
 
         let groupBy = {};
@@ -799,7 +802,8 @@ const sales = async (req, res) => {
                 groupBy = {
                     _id: { $week: "$createdAt" },
                     totalSales: { $sum: "$payableAmount" },
-                    count: { $sum: 1 }
+                    count: { $sum: 1 },
+                    
                 };
                 dateFormat = { _id: 1 };
                 break;

@@ -34,14 +34,13 @@
                     <input type="text" name="brand" id="brand">
 
                     <label for="category">Category</label>
-                    <select name="category" id="category">
-                        <!-- Add categories dynamically here -->
-                        <% category.forEach(cat=> { %>
+                    <select name="category" id="category" required>
+                        <option value="Select a category" disabled selected>Select a category</option>
+                        <% category.forEach(cat => { %>
                             <option value="<%= cat._id %>">
                                 <%= cat.name %>
                             </option>
-                            <% }) %>
-
+                        <% }) %>
                     </select>
 
                     <label for="regularPrice">Regular Price</label>
@@ -63,6 +62,7 @@
                     <h4>Specifications</h4>
                     <label for="RAM">RAM</label>
                     <select  name="RAM" id="RAM">
+                        <option value="" disabled selected>Select a Ram</option>
                         <% ram.forEach((data)=>{ %>
                            <option value="<%= data._id  %>">
                             <%= data.value %>
@@ -76,6 +76,7 @@
 
                     <label for="processor">Processor</label>
                     <select type="text" name="processor" id="processor">
+                        <option value="" disabled selected>Select a Processor</option>
                         <% processor.forEach((data)=>{ %>
                             <option value="<%= data._id  %>">
                             <%= data.value %>
@@ -85,6 +86,7 @@
 
                     <label for="displaySize">Display Size</label>
                     <select  name="displaySize" id="displaySize">
+                        <option value="" disabled selected>Select a Display Size</option>
                         <% display.forEach((data)=>{ %>
                             <option value="<%= data._id  %>">
                             <%= data.value %>
@@ -96,6 +98,7 @@
 
                     <label for="storage">Storage</label>
                     <select name="storage" id="storage">
+                        <option value="" disabled selected>Select a Storage</option>
                         <% storage.forEach((data)=>{ %>
                             <option value="<%= data._id%>">
                             <%= data.value%>
@@ -293,15 +296,15 @@ productForm.addEventListener("submit", function(event) {
     if (!name) errorMessage = "Product name is required.";
     else if (!description) errorMessage = "Product description is required.";
     else if (!brand) errorMessage = "Product brand is required.";
-    else if (!category) errorMessage = "Product category is required.";
+    else if (!category || category == "Select a category") errorMessage = "Product category is required.";
     else if (!regularPrice || regularPrice <= 0) errorMessage = "Regular price must be a positive number.";
     else if (!salePrice || salePrice < 0) errorMessage = "Sale price must be a non-negative number.";
     else if (!quantity || quantity < 0) errorMessage = "Quantity must be a non-negative number.";
     else if (salePrice > regularPrice) errorMessage = "Sale price cannot be greater than regular price.";
-    else if (!RAM) errorMessage = "RAM specification is required.";
-    else if (!processor) errorMessage = "Processor specification is required.";
-    else if (!displaySize) errorMessage = "Display size specification is required.";
-    else if (!storage) errorMessage = "Storage specification is required.";
+    else if (!RAM || RAM === "") errorMessage = "RAM specification is required.";
+    else if (!processor|| processor === "") errorMessage = "Processor specification is required.";
+    else if (!displaySize || displaySize ==="") errorMessage = "Display size specification is required.";
+    else if (!storage|| storage === "") errorMessage = "Storage specification is required.";
     else if (!croppedImages[0]) errorMessage = "First product image is required.";
     else if (!croppedImages[1]) errorMessage = "Second product image is required.";
     else if (!croppedImages[2]) errorMessage = "Third product image is required.";

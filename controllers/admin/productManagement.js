@@ -35,15 +35,16 @@ const CreateProduct = async (req, res) => {
     try {
         const { name, description, brand, category, regularPrice, salePrice, quantity, RAM, processor, displaySize, storage } = req.body;
 
-        let qstatus = "";
-
-        if (quantity <= 5 && quantity > 0) {
-            qstatus = "Hurry up!";
+        let qstatus = ""
+        if (quantity == 0) {
+            qstatus = "Out Of Stock"
         } else if (quantity > 5) {
-            qstatus = "Available";
-        } else if (quantity === 0) {
-            qstatus = "Out of Stock";
+            qstatus = "Available"
+        } else if (quantity <= 5) {
+
+            qstatus = "Hurry up!"
         }
+
 
         const images = [];
         const fileFields = ['productImage1', 'productImage2', 'productImage3'];
@@ -147,7 +148,7 @@ const LoadupdateProduct = async (req, res) => {
         const display = await variantSchema.find({ isBlocked: false, category: "display" }).populate("category")
         const storage = await variantSchema.find({ isBlocked: false, category: "storage" }).populate("category")
         const productId = req.params.Id
-        const product = await productSchema.findById(productId).populate("category");
+        const product = await productSchema.findById(productId)
         const category = await categorySchema.find({ isListed: true });
 
         res.render("updateProducts", { product: product, category: category, ram: ram, processor: processor, display: display, storage: storage })

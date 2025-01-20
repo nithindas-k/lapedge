@@ -222,6 +222,7 @@ const verifyOtp = async (req, res) => {
             req.session.UserOtp = null;
             req.session.userData = newUser;
             req.session.UserOtpTimestamp = null;
+        
 
 
 

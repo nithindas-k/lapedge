@@ -25,8 +25,8 @@
         .containerCategory {
             background-color: #0A0A0A;
             border-radius: 6px;
-            max-width: 1000px;
-            margin: 0 auto;
+            
+            margin-left: 250px;
             padding: 40px;
             margin-top: 100px;
             width: 100%;

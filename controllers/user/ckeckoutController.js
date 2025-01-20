@@ -30,9 +30,9 @@ const loadCheckout = async  (req, res) => {
         const totalQuantity = userCart.items.reduce((total, item) => total + item.quantity, 0);
         const totalAmount = userCart.items.reduce((total, item) => total + (item.productId.salePrice * item.quantity), 0);
         coupons = await couponSchema.find()
-        const availableCoupons = coupons.filter(coupon => totalAmount >= coupon.minimumPrice);
-
-        
+        const availableCoupons = coupons.filter(coupon => 
+            totalAmount >= coupon.minimumPrice && coupon.maxUsage > coupon.currentUsage
+        );
         
        
         
@@ -49,7 +49,7 @@ const loadCheckout = async  (req, res) => {
 
 
 
-
+  
 
        
 

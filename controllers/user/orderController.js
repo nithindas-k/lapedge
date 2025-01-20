@@ -363,12 +363,25 @@ const cancel =  async (req, res) => {
                 order.items[i].reason = cancelReason || null
                 const product  = await Product.findById(orderItemId)
                 product.quantity += order.items[i].quantity
+               
+                let qstatus = ""
+                if (quantity == 0) {
+                    qstatus = "Out Of Stock"
+                } else if (quantity > 5) {
+                    qstatus = "Available"
+                } else if (quantity <= 5) {
+        
+                    qstatus = "Hurry up!"
+                }
+                product.status = qstatus
+        
                 await product.save()
 
 
                 if(order.paymentStatus == "Success"){
                     const orderTotal = order.totalAmount
                     const itemTotal = order.items[i].totalPrice
+                    let count = order.items.length
 
 
                     let amount  = itemTotal  
@@ -386,6 +399,7 @@ const cancel =  async (req, res) => {
                                 console.log("+++++++++++++++++",amount)
 
                     }
+
                     
                     const userWallet = await Wallet.findOneAndUpdate({ userId: order.userId }, {
                         $inc: {
@@ -399,6 +413,9 @@ const cancel =  async (req, res) => {
                         amount: amount,
                         associatedOrder: order._id
                     })
+
+                   
+                    
 
 
 
