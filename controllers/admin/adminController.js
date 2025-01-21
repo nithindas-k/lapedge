@@ -157,7 +157,7 @@ const loadDashboard = async (req, res) => {
         res.render('adminDashboard', { topProducts, topCategories, });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Error fetching data');
+        res.redirect("/404")
     }
 }
 
