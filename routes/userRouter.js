@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const userController = require("../controllers/user/userController")
+const authCheck  =  require("../middleware/userAuth")
 
 
 
@@ -41,8 +42,8 @@ router.get('/auth/google/callback',
     }
 );
 
-router.get('/login',userController.loadLoginPage).post('/login',userController.login)
-router.get('/signup', userController.loadSignup)
+router.get('/login',authCheck,userController.loadLoginPage).post('/login',userController.login)
+router.get('/signup',authCheck, userController.loadSignup)
 router.post('/signup', userController.signup)
 
 router.get('/forgotOtp', userController.loadForgotPpassword);

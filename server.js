@@ -20,7 +20,10 @@ const couponRoutes  = require("./routes/couponRouters")
 const offerRoutes  = require("./routes/offerRoutes")
 const walletRoutes = require("./routes/walletRouter")
 const userController = require("./controllers/user/userController")
+
 db()
+
+
 
 
 const userLog = require('./middleware/userLoginCheck')
