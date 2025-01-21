@@ -188,7 +188,7 @@
     text-align: center;
 }
 
-/* Grid Lines */
+
 .grid-lines {
     position: absolute;
     width: calc(100% - 60px);
@@ -206,13 +206,13 @@
     background-color: #333;
 }
 
-/* Fixed Elements */
+
 .hello {
     position: fixed;
     z-index: 2000;
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
     .filters {
         flex-direction: column;
@@ -308,7 +308,7 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-title">Total Sales</div>
-                    <div class="stat-value" id="totalSales">$0</div>
+                    <div class="stat-value" id="totalSales">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-title">Total Orders</div>
@@ -320,7 +320,7 @@
                 </div>
             </div>
         
-            <!-- Chart Container -->
+        
             <div class="chart-container">
                 <canvas id="salesChart" width="400" height="200"></canvas>
             </div>
