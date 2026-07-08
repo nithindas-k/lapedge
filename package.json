@@ -1,9 +1,9 @@
 {
   "name": "main-project",
   "version": "1.0.0",
-  "main": "sever.js",
+  "main": "server.js",
   "scripts": {
-    "start": "nodemon server"
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
