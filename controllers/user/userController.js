@@ -69,33 +69,54 @@ function generateOtp() {
 }
 async function sendVerificationEmail(email, otp) {
     try {
+        const resendTransport = {
+            name: 'resend-http',
+            version: '1.0.0',
+            send: async (mail, callback) => {
+                try {
+                    const response = await fetch('https://api.resend.com/emails', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            from: 'onboarding@resend.dev',
+                            to: mail.data.to,
+                            subject: mail.data.subject,
+                            text: mail.data.text,
+                            html: mail.data.html
+                        })
+                    });
 
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.NODEMAILER_EMAIL,
-                pass: process.env.NODEMAILER_PASSWORD
-            }, tls: {
-                rejectUnauthorized: false
+                    const result = await response.json();
+                    if (response.ok) {
+                        callback(null, { messageId: result.id });
+                    } else {
+                        callback(new Error(JSON.stringify(result)));
+                    }
+                } catch (err) {
+                    callback(err);
+                }
             }
-        })
+        };
+
+        const transporter = nodemailer.createTransport(resendTransport);
 
         const info = await transporter.sendMail({
-            from: process.env.NODEMAILER_EMAIL,
+            from: 'onboarding@resend.dev',
             to: email,
             subject: "verify your email",
             text: `your OTP is ${otp}`,
             html: `<b>your OTP : ${otp}</b>`,
-        })
-        return info.accepted.length > 0
+        });
+
+        return !!info.messageId;
+
     } catch (error) {
-        console.error("Error Sending email", error)
-        return false
-
+        console.error("Error Sending email", error);
+        return false;
     }
-
 }
 
 const signup = async (req, res) => {
