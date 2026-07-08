@@ -115,16 +115,20 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                imageToCrop.src = e.target.result;
                 cropModal.style.display = 'flex';
-                if (cropper) {
-                    cropper.destroy();
-                }
-                cropper = new Cropper(imageToCrop, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    autoCropArea: 0.8,
-                });
+                
+                imageToCrop.onload = function() {
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(imageToCrop, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        autoCropArea: 0.8,
+                    });
+                    imageToCrop.onload = null;
+                };
+                imageToCrop.src = e.target.result;
                 cropButton.style.display = 'inline-block';
             };
             reader.readAsDataURL(file);

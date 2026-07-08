@@ -154,15 +154,21 @@ imageInput.addEventListener('change', function(event) {
 
 cropButton.addEventListener('click', function() {
     cropModal.style.display = 'flex';
-    imageToCrop.src = imagePreview.src;
     
-    cropper = new Cropper(imageToCrop, {
-        aspectRatio: 1,
-        viewMode: 1,
-        autoCropArea: 0.8,
-        zoomable: true,
-        movable: true,
-    });
+    imageToCrop.onload = function() {
+        if (cropper) {
+            cropper.destroy();
+        }
+        cropper = new Cropper(imageToCrop, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 0.8,
+            zoomable: true,
+            movable: true,
+        });
+        imageToCrop.onload = null;
+    };
+    imageToCrop.src = imagePreview.src;
 });
 
 saveCropButton.addEventListener('click', function() {

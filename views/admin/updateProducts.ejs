@@ -192,19 +192,22 @@ imageInputs.forEach((input, index) => {
               
                 currentImageIndex = index;
                 cropModal.style.display = 'flex';
+                
+                imageToCrop.onload = function() {
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(imageToCrop, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        autoCropArea: 0.8,
+                        zoomable: true,
+                        movable: true,
+                    });
+                    imageToCrop.onload = null;
+                };
                 imageToCrop.src = e.target.result;
-
-                if (cropper) {
-                    cropper.destroy();
-                }
-
-                cropper = new Cropper(imageToCrop, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    autoCropArea: 0.8,
-                    zoomable: true,
-                    movable: true,
-                });
             };
             reader.readAsDataURL(file);
         }
@@ -216,19 +219,22 @@ cropButtons.forEach((button, index) => {
     button.addEventListener('click', function() {
         currentImageIndex = index;
         cropModal.style.display = 'flex';
+        
+        imageToCrop.onload = function() {
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.8,
+                zoomable: true,
+                movable: true,
+            });
+            imageToCrop.onload = null;
+        };
         imageToCrop.src = imagePreviews[index].src;
-
-        if (cropper) {
-            cropper.destroy();
-        }
-
-        cropper = new Cropper(imageToCrop, {
-            aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 0.8,
-            zoomable: true,
-            movable: true,
-        });
     });
 });
 
