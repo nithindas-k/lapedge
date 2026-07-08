@@ -93,7 +93,7 @@ const toggleCouponListing = async (req, res) => {
 
         await coupon.save();
 
-        res.json({ success: true, message: `Coupon is now ${coupon.active ? 'Active' : 'Inactive'}` });
+        res.json({ success: true, message: `Coupon is now ${coupon.isActive ? 'Active' : 'Inactive'}` });
     } catch (error) {
         console.error('Error toggling coupon status:', error);
         res.status(500).json({ success: false, message: 'Server error while toggling coupon status' });
@@ -168,8 +168,12 @@ const couponApply =  async (req, res) => {
         if(!coupon){
             return res.json({ success: false, message: 'Coupon not found or not active' });
         }
-        if(coupon.startDate > coupon.expirationDate ){
+        const currentDate = new Date();
+        if (currentDate > coupon.expirationDate) {
             return res.json({ success: false, message: 'Coupon expired' });
+        }
+        if (currentDate < coupon.startDate) {
+            return res.json({ success: false, message: 'Coupon is not active yet' });
         }
         if(totalAmount < coupon.minimumPrice){
             return res.json({ success: false, message: 'Coupon minimum price not met' });

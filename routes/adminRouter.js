@@ -23,7 +23,7 @@ router.get("/viewUser",adminAuth,userManagement.loadUserView)
 router.get("/order",adminAuth,adminController.loadAllOrder)
 router.get("/orders/:orderId",adminAuth,adminController.loadOrderDetails)
 router.put("/updateStatus/:orderId",adminAuth,adminController.updateOrderStatus)
-router.put("/cancelOrder/:orderId",adminController.updatecancelOrder)
+router.put("/cancelOrder/:orderId",adminAuth,adminController.updatecancelOrder)
 
 
 
@@ -34,7 +34,7 @@ router.post("/products/toggle-block/:id", adminAuth, adminController.ToggleProdu
 
 
 
-router.get("/variant",adminController.LoadVariantManagement)
+router.get("/variant",adminAuth,adminController.LoadVariantManagement)
 
 router.get('/logout', (req, res) => {
     req.session.destroy((err) => {
@@ -55,7 +55,7 @@ router.put("/approve",adminAuth,adminController.approveAll)
 
 
 //user return
-router.put("/returnOrder/:orderId",adminController.AllReturn)
+router.put("/returnOrder/:orderId",adminAuth,adminController.AllReturn)
 
 
 
@@ -66,7 +66,7 @@ router.get("/salesreport",adminAuth,adminController.salesRepoetLoad)
 
 //dowload 
 router.get("/download",adminAuth,adminController.downloadPdf)
-router.get("/downloadexcel", adminController.downloadExcel);
+router.get("/downloadexcel",adminAuth,adminController.downloadExcel);
 
 router.get("/sales-chart",adminAuth,adminController.sales)
 

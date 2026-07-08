@@ -23,7 +23,7 @@ const LoadAddProduct = async (req, res) => {
             { category: category, message: null, ram: ram, processor: processor, display: display, storage: storage })
 
     } catch (error) {
-        res.redirect("/pageerror")
+        res.redirect("/admin/error")
     }
 
 }

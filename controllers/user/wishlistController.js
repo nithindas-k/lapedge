@@ -76,20 +76,10 @@ const addWishlist = async (req, res) => {
 };
 
 const addToCart = async (req, res) => {
-
-  if (!req.session.user) {
-    return res.redirect("/login")
-
-  }
-  const { productId, userId } = req.body;
+  const { productId } = req.body;
+  const userId = req.session.userData._id;
 
   try {
-
-    if (!req.session.user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-
-
     const product = await productSchema.findById(productId);
     if (!product) {
       return res.status(400).json({ success: false, message: "Product not found" });

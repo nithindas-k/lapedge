@@ -137,26 +137,15 @@ const razerpayorder = async (req, res) => {
             });
         }
 
-        const { addressId, paymentMethod, payableAmount, couponCode } = req.body;
+        const { addressId, paymentMethod, couponCode } = req.body;
         
-        if (!addressId || !paymentMethod || !payableAmount) {
+        if (!addressId || !paymentMethod) {
             return res.status(400).json({
                 success: false,
                 message: 'Missing required fields'
             });
         }
 
-        console.log("++++++++++++++++++++++++++++++++++++++++15")
-        const coupon = await Coupon.findOne({code: couponCode})
-        console.log("++++++++++++++++++++++++++++++++++++++++"+coupon)
-
-        
-        
-   
-        const amountInPaise = Math.round(parseFloat(payableAmount) * 100);
-       
-
-      
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({
@@ -180,8 +169,22 @@ const razerpayorder = async (req, res) => {
             unitPrice: item.productId.salePrice,
             totalPrice: item.quantity * item.productId.salePrice,
         }));
+
         let totalAmount = orderItems.reduce((total, item) => total + item.totalPrice, 0);
-        let couponDiscount = totalAmount - payableAmount
+        let payableAmount = totalAmount;
+        let couponDiscount = 0;
+        let coupon = null;
+
+        if (couponCode && couponCode !== 'null' && couponCode !== '') {
+            coupon = await Coupon.findOne({ code: couponCode });
+            if (coupon && coupon.currentUsage < coupon.maxUsage) {
+                const discount = parseInt((totalAmount * coupon.discountValue) / 100);
+                payableAmount = totalAmount - discount;
+                couponDiscount = discount;
+            }
+        }
+
+        const amountInPaise = Math.round(parseFloat(payableAmount) * 100);
 
         
         const shippingAddress = user.addresses.find(
@@ -365,11 +368,11 @@ const cancel =  async (req, res) => {
                 product.quantity += order.items[i].quantity
                
                 let qstatus = ""
-                if (quantity == 0) {
+                if (product.quantity == 0) {
                     qstatus = "Out Of Stock"
-                } else if (quantity > 5) {
+                } else if (product.quantity > 5) {
                     qstatus = "Available"
-                } else if (quantity <= 5) {
+                } else if (product.quantity <= 5) {
         
                     qstatus = "Hurry up!"
                 }
@@ -422,16 +425,15 @@ const cancel =  async (req, res) => {
                 }
                 order.payableAmount =  order.payableAmount - order.items[i].totalPrice
                 if(couponData && order.payableAmount < couponData.minimumPrice){
-                    const remainingDiscount = totalOrderDiscount - proptionalDiscount
-                    let newPayableAmount =0
+                    let newPayableAmount = 0
                     for(let item of order.items){
                        if(item.status !== 'Cancelled'){
                          newPayableAmount += item.totalPrice
                        }
                     }
                     order.payableAmount = newPayableAmount
-                    order.coupon=null
-
+                    order.coupon = null
+                    order.couponDiscount = 0
                 }
                 break;
             }

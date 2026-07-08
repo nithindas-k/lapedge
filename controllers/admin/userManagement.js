@@ -47,7 +47,7 @@ const userInfo = async (req, res) => {
         });
 
     } catch (error) {
-        res.redirect("/pageerror");
+        res.redirect("/admin/error");
     }
 }
 
@@ -78,7 +78,7 @@ const loadUserView  =  async (req, res) => {
         const user = await userSchema.findById(id);
         res.render("userView", { user: user });
     } catch (error) {
-        res.redirect("/pageerror");
+        res.redirect("/admin/error");
     }
 
 }

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Product</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/public/css/admin.css">
+    <link rel="stylesheet" href="/css/admin.css">
     <link rel="stylesheet" href="https://unpkg.com/cropperjs/dist/cropper.min.css">
     <link rel="stylesheet" href="/css/updateproduct.css">
 </head>
@@ -142,12 +142,13 @@
 
 let cropper;
 let currentImageIndex = null;
-let croppedImages = new Array(3).fill(null);
+let   croppedImages = new Array(3).fill(null);
 
 const imageInputs = [
     document.getElementById('productImage1'),
     document.getElementById('productImage2'),
     document.getElementById('productImage3')
+
 ];
 const imagePreviews = [
     document.getElementById('imagePreview1'),

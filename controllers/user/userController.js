@@ -13,8 +13,8 @@ const offerSchema = require("../../models/offerModel")
 const razorpay = require('../../config/razorpay');
 const PDFDocument = require('pdfkit');
 const path = require('path');
-console.log('Email:', env.NODEMAILER_EMAIL);
-console.log('Password exists:', !!env.NODEMAILER_PASSWORD);
+console.log('Email:', process.env.NODEMAILER_EMAIL);
+console.log('Password exists:', !!process.env.NODEMAILER_PASSWORD);
 
 
 
@@ -40,7 +40,7 @@ const loadSignup = async (req, res) => {
         res.render('signup', { message: null })
 
     } catch (error) {
-        res.status.send("server error")
+        res.status(500).send("server error")
 
     }
 
@@ -104,7 +104,7 @@ const signup = async (req, res) => {
         console.log("Sending email")
 
         if (password !== cPassword) {
-            return res.render("login", { message: "password invalid" });
+            return res.render("signup", { message: "password invalid" });
         }
 
 
@@ -301,7 +301,7 @@ const forgotOtpVerify = async (req, res) => {
             req.session.UserOtp = null;
 
 
-            return res.status(400).json({ success: true });
+            return res.status(200).json({ success: true });
 
         } else {
 
@@ -593,11 +593,11 @@ const updateProfile = async (req, res) => {
         const userId = req.session.userData._id;
         const user = await userSchema.findById(userId);
 
-        user.name = name
+        user.name = name;
 
-
-        user.save()
-        return res.status(500).json({ success: true, message: "Profile updated successfully" })
+        await user.save();
+        req.session.userData = user;
+        return res.status(200).json({ success: true, message: "Profile updated successfully" })
 
 
 
@@ -706,12 +706,13 @@ const changePassword = async (req, res) => {
 
         const userId = req.session.userData._id
         const user = await userSchema.findById(userId)
-        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-        if (user.password == hashedNewPassword) {
-            return res.status(500).json({ success: false, message: "Password is same as old password" })
-
+        const isSamePassword = await bcrypt.compare(newPassword, user.password);
+        if (isSamePassword) {
+            return res.status(400).json({ success: false, message: "Password is same as old password" })
         }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedNewPassword
         await user.save()
         res.status(200).json({ success: true, message: "Password updated successfully" })
@@ -721,7 +722,7 @@ const changePassword = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-
+        return res.status(500).json({ success: false, message: "An error occurred while changing password." })
     }
 }
 
@@ -746,7 +747,7 @@ const loadProductsFilter = async (req, res) => {
 
         }
         if (sortBy == "New arrivals") {
-            sory = { createdAt: -1 }
+            sort = { createdAt: -1 }
         }
 
 
@@ -800,6 +801,7 @@ const loadProductsFilter = async (req, res) => {
 
     } catch (error) {
         console.log(error)
+        return res.status(500).json({ success: false, message: "An error occurred while filtering products." })
     }
 
 
@@ -978,7 +980,7 @@ const loadInvoice = async (req, res) => {
             .text('Email: lapedge@gmail.com', 50, 145);
 
 
-        doc.strokeColor('#00000')
+        doc.strokeColor('#000000')
             .lineWidth(1)
             .moveTo(50, 170)
             .lineTo(550, 170)
@@ -990,7 +992,7 @@ const loadInvoice = async (req, res) => {
             .text(`INV-${order._id.toString().slice(-6)}`, 150, 190)
             .text('Date:', 50, 205)
             .text(new Date(order.createdAt).toLocaleDateString(), 150, 205)
-            .text('Order ID:', 50, 220, { fontSize: 1 })
+            .text('Order ID:', 50, 220)
 
             .text(order.orderId||order._id.toString(), 150, 220);
 

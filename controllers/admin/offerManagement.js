@@ -84,19 +84,19 @@ const addOffer = async (req, res) => {
             const category = await categorySchema.findById(categoryOrProduct)
 
             const products = await productSchema.find({category:categoryOrProduct})
-            products.forEach(async (product) => {
+            for (const product of products) {
 
                 if(discountType == "Percentage" ){
                     product.productOffer = product.salePrice
-                    product.offerPersentage = discountValue
+                    product.offerPersentage = parseInt(discountValue)
                    
                     
-                    const discountedPrice =  parseInt((product.salePrice * discountValue / 100))
+                    const discountedPrice =  parseInt((product.salePrice * parseInt(discountValue) / 100))
                     product.salePrice = product.salePrice - discountedPrice
                 }else if(discountType == "Fixed Amount"){
-                     product.offerPersentage = discountValue
+                     product.offerPersentage = parseInt(discountValue)
 
-                    product.salePrice = product.salePrice -parseInt(discountValue)
+                    product.salePrice = product.salePrice - parseInt(discountValue)
                     if(  product.salePrice <= 0){
                         return res.status(400).json({success :false , message :"there is a issue in price calculating"})
                         
@@ -104,26 +104,23 @@ const addOffer = async (req, res) => {
 
                 }
                 await product.save()
-            })
+            }
         }
 
         if(type == "Product"){
             const product = await productSchema.findById(categoryOrProduct)
             if(discountType == "Percentage" ){
                 product.productOffer = product.salePrice
-                const discountedPrice =  parseInt((product.salePrice * discountValue / 100))
+                product.offerPersentage = parseInt(discountValue)
+                const discountedPrice =  parseInt((product.salePrice * parseInt(discountValue) / 100))
                 product.salePrice = product.salePrice - discountedPrice
             }else if(discountType == "Fixed Amount"){
-               
-                product.salePrice = product.salePrice - discountValue
+                product.offerPersentage = parseInt(discountValue)
+                product.salePrice = product.salePrice - parseInt(discountValue)
                 if(  product.salePrice <= 0){
                     return res.status(400).json({success :false , message :"there is a issue in price calculating"})
                     
                 }
-
-
-               
-                
 
             }
             await product.save()

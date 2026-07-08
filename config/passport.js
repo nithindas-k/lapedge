@@ -4,9 +4,10 @@ const User = require('../models/userSchema')
 const env = require("dotenv").config()
 
 // Add dynamic callback URL configuration
-const callbackURL = process.env.NODE_ENV === 'production' 
-  ? 'http://lapedge.shop/auth/google/callback'
-  : 'http://localhost:3000/auth/google/callback';
+const callbackURL = process.env.GOOGLE_CALLBACK_URL || 
+  (process.env.NODE_ENV === 'production' 
+    ? 'http://lapedge.shop/auth/google/callback'
+    : 'http://localhost:3000/auth/google/callback');
 
 passport.use(new googleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,

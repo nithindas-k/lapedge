@@ -10,26 +10,26 @@ const product = require("../../models/productModel");
 
 
 const loadAddress = async (req, res) => {
-    const {userId}  = req.params
-    const user = await userSchema.findById(userId)
-    if(!user){
-        return res.redirect("/404")
-    }
-
-
-
-
-
     try {
-        res.render("address",{
-            addresses:user.addresses,
+        if (!req.session.user || !req.session.userData) {
+            return res.redirect("/login");
+        }
+        const sessionUserId = req.session.userData._id;
+        const { userId } = req.params;
+        if (userId !== sessionUserId.toString()) {
+            return res.redirect("/404");
+        }
+        const user = await userSchema.findById(sessionUserId);
+        if (!user) {
+            return res.redirect("/404");
+        }
+        res.render("address", {
+            addresses: user.addresses,
             user: user
-        })
-        
+        });
     } catch (error) {
-        res.redirect("/404")
-        
-    }``
+        res.redirect("/404");
+    }
 }
 const loadCreateAddress = async (req, res) => {
     const id =  req.query.id
@@ -68,12 +68,21 @@ console.log(req.session.userData)
 }
 const CreateAddress = async (req, res) => {
     try {
+        if (!req.session.user || !req.session.userData) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+        const sessionUserId = req.session.userData._id;
+        const { userId } = req.params;
+        if (userId !== sessionUserId.toString()) {
+            return res.status(403).json({ success: false, message: "Forbidden" });
+        }
 
-        const{userId}  = req.params
-       
-        const user = await userSchema.findById(userId);
+        const user = await userSchema.findById(sessionUserId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
 
-        const { address, city, state, name,pincode,phone } = req.body;
+        const { address, city, state, name, pincode, phone } = req.body;
 
         user.addresses.push({
             address: address,
@@ -82,17 +91,15 @@ const CreateAddress = async (req, res) => {
             name: name,
             pincode: pincode,
             phone: phone
-        })
+        });
        
         await user.save();
 
-     res.json({success: true, message:"Success"})
+        res.json({ success: true, message: "Success" });
         
     } catch (error) {
-        
+        res.status(500).json({ success: false, message: "Server error" });
     }
-
-
 }
 const deleteAddress = async (req, res) => {
     try {

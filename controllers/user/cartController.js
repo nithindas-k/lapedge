@@ -57,7 +57,7 @@ const addCart = async (req, res) => {
       return res.status(404).json({ success: false, message: "Login First" })
 
     }
-    userId = req.session.userData._id
+    const userId = req.session.userData._id
 
     const product = await productSchema.findById(productId)    
 
@@ -78,8 +78,8 @@ const addCart = async (req, res) => {
         return res.status(400).json({ success: false, message: "Stock  Limit is exceeded" })
 
       }
-      if(productInCart.quantity == 5){
-        return res.status(400).json({ success: false, message: " Limit is exceeded" })
+      if (productInCart.quantity + parseInt(quantity) > 5) {
+        return res.status(400).json({ success: false, message: "Limit is exceeded" })
       }
 
       productInCart.quantity += parseInt(quantity);
@@ -173,21 +173,17 @@ const updateQuantity = async (req, res) => {
     }
 
 
-    item.quantity = newQuantity;
+    item.quantity = parseInt(newQuantity);
 
-    
-    console.log("userCart.totalQuantity" + userCart.totalQuantity)
-    userCart.totalQuantity = newQuantity - userCart.totalQuantity
-    console.log(userCart.totalQuantity)
-    userCart.totalAmount = totalAmount;
-
+    userCart.totalQuantity = userCart.items.reduce((total, i) => total + i.quantity, 0);
+    userCart.totalAmount = userCart.items.reduce((total, i) => total + (i.productId.salePrice * i.quantity), 0);
 
     await userCart.save();
 
 
     res.status(200).json({
       success: true,
-      cart,
+      userCart,
       message: "Quantity updated successfully",
     });
   } catch (error) {

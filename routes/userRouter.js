@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 const userController = require("../controllers/user/userController")
 const authCheck  =  require("../middleware/userAuth")
+const userSessionCheck = require("../middleware/userSessionCheck")
 
 
 
@@ -68,22 +69,22 @@ router.get('/logout', (req, res) => {
     });
 });
 
-router.get("/account/:userId",userController.loadAccount)
+router.get("/account/:userId", userSessionCheck, userController.loadAccount)
 
-router.get("/orders",userController.loadOrders)
-router.get("/orders/:orderId", userController.loadOrdersDetails)
+router.get("/orders", userSessionCheck, userController.loadOrders)
+router.get("/orders/:orderId", userSessionCheck, userController.loadOrdersDetails)
 
 
 
-router.get('/profile-edit', userController.loadProfileEdit);
-router.post('/profile-edit',userController.updateProfile);
-router.get("/order-confirmation/:orderId",userController.loadOrderConfirmation)
-router.get("/order-failed-confirmation/:razorpayId",userController.loadOrderFailure)
-router.post("/order/retry-razorpay/:orderId",userController.retryPayment)
+router.get('/profile-edit', userSessionCheck, userController.loadProfileEdit);
+router.post('/profile-edit', userSessionCheck, userController.updateProfile);
+router.get("/order-confirmation/:orderId", userSessionCheck, userController.loadOrderConfirmation)
+router.get("/order-failed-confirmation/:razorpayId", userSessionCheck, userController.loadOrderFailure)
+router.post("/order/retry-razorpay/:orderId", userSessionCheck, userController.retryPayment)
 
 router.get("/productsFilter",userController.loadProductsFilter)
 
-router.get("/Invoice/:orderId",userController.loadInvoice)
+router.get("/Invoice/:orderId", userSessionCheck, userController.loadInvoice)
 router.get("/404",userController.errorpage)
 
 

@@ -2,7 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const wishlistController = require('../controllers/user/wishlistController');
+const userSessionCheck = require('../middleware/userSessionCheck');
 
+router.use(userSessionCheck);
 
 router.get("/",wishlistController.loadWishlist)
 router.post("/add",wishlistController.addWishlist)

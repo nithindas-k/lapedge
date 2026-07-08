@@ -34,7 +34,7 @@ const getVariantsPage = async (req, res) => {
         const displayVariants = await Variant.find({ category: 'display' });
         const storageVariants = await Variant.find({ category: 'storage' });
 
-        res.render('/admin/variant', {
+        res.render('variantmanagement', {
             ramVariants,
             processorVariants,
             displayVariants,
@@ -72,7 +72,7 @@ const editVariant = async (req, res) => {
             return res.status(404).send('Variant not found');
         }
 
-        res.render('', { variant });
+        res.redirect('/admin/variant');
     } catch (error) {
         console.error('Error loading edit variant page:', error);
         res.status(500).send('Error loading edit variant page');

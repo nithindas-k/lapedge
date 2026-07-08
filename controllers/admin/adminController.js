@@ -15,7 +15,7 @@ const xlsx = require('xlsx');
 
 const loadLogin = (req, res) => {
 
-    if (req.session.isAd) {
+    if (req.session.isAdmin) {
         return res.redirect("/admin/dashboard")
     }
     res.render('adminLogin', { message: null })
