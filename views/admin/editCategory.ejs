@@ -117,18 +117,29 @@
             reader.onload = function(e) {
                 cropModal.style.display = 'flex';
                 
-                imageToCrop.onload = function() {
-                    if (cropper) {
-                        cropper.destroy();
-                    }
-                    cropper = new Cropper(imageToCrop, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        autoCropArea: 0.8,
-                    });
-                    imageToCrop.onload = null;
+                const setupCropper = () => {
+                    setTimeout(() => {
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        cropper = new Cropper(imageToCrop, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 0.8,
+                        });
+                    }, 50);
                 };
+
                 imageToCrop.src = e.target.result;
+
+                if (imageToCrop.complete) {
+                    setupCropper();
+                } else {
+                    imageToCrop.onload = function() {
+                        setupCropper();
+                        imageToCrop.onload = null;
+                    };
+                }
                 cropButton.style.display = 'inline-block';
             };
             reader.readAsDataURL(file);
@@ -136,28 +147,34 @@
 
   
         saveCropButton.addEventListener('click', function() {
-            const canvas = cropper.getCroppedCanvas({
-                width: 300,
-                height: 300,
-            });
-            
-            
-            canvas.toBlob(function(blob) {
-                const url = URL.createObjectURL(blob);
-                imagePreview.src = url;
-                previewContainer.style.display = 'block';
-            }, 'image/jpeg');
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 300,
+                    height: 300,
+                });
+                
+                
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    imagePreview.src = url;
+                    previewContainer.style.display = 'block';
+                }, 'image/jpeg');
 
-           
-            croppedImageInput.value = canvas.toDataURL('image/jpeg');
+               
+                croppedImageInput.value = canvas.toDataURL('image/jpeg');
+                cropper.destroy();
+                cropper = null;
+            }
             cropModal.style.display = 'none';
-            cropper.destroy();
         });
 
      
         cancelCropButton.addEventListener('click', function() {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
             cropModal.style.display = 'none';
-            cropper.destroy();
             imageInput.value = ''; 
             previewContainer.style.display = 'none';
         });

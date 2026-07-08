@@ -193,21 +193,32 @@ imageInputs.forEach((input, index) => {
                 currentImageIndex = index;
                 cropModal.style.display = 'flex';
                 
-                imageToCrop.onload = function() {
-                    if (cropper) {
-                        cropper.destroy();
-                    }
+                const setupCropper = () => {
+                    setTimeout(() => {
+                        if (cropper) {
+                            cropper.destroy();
+                        }
 
-                    cropper = new Cropper(imageToCrop, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        autoCropArea: 0.8,
-                        zoomable: true,
-                        movable: true,
-                    });
-                    imageToCrop.onload = null;
+                        cropper = new Cropper(imageToCrop, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 0.8,
+                            zoomable: true,
+                            movable: true,
+                        });
+                    }, 50);
                 };
+
                 imageToCrop.src = e.target.result;
+
+                if (imageToCrop.complete) {
+                    setupCropper();
+                } else {
+                    imageToCrop.onload = function() {
+                        setupCropper();
+                        imageToCrop.onload = null;
+                    };
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -220,21 +231,32 @@ cropButtons.forEach((button, index) => {
         currentImageIndex = index;
         cropModal.style.display = 'flex';
         
-        imageToCrop.onload = function() {
-            if (cropper) {
-                cropper.destroy();
-            }
+        const setupCropper = () => {
+            setTimeout(() => {
+                if (cropper) {
+                    cropper.destroy();
+                }
 
-            cropper = new Cropper(imageToCrop, {
-                aspectRatio: 1,
-                viewMode: 1,
-                autoCropArea: 0.8,
-                zoomable: true,
-                movable: true,
-            });
-            imageToCrop.onload = null;
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 0.8,
+                    zoomable: true,
+                    movable: true,
+                });
+            }, 50);
         };
+
         imageToCrop.src = imagePreviews[index].src;
+
+        if (imageToCrop.complete) {
+            setupCropper();
+        } else {
+            imageToCrop.onload = function() {
+                setupCropper();
+                imageToCrop.onload = null;
+            };
+        }
     });
 });
 
@@ -290,16 +312,18 @@ saveCropButton.addEventListener('click', async function() {
         }
 
         cropper.destroy();
-        cropModal.style.display = 'none';
+        cropper = null;
     }
+    cropModal.style.display = 'none';
 });
 
 
 cancelCropButton.addEventListener('click', function() {
     if (cropper) {
         cropper.destroy();
-        cropModal.style.display = 'none';
+        cropper = null;
     }
+    cropModal.style.display = 'none';
 });
 
 

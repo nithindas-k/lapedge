@@ -155,35 +155,48 @@ imageInput.addEventListener('change', function(event) {
 cropButton.addEventListener('click', function() {
     cropModal.style.display = 'flex';
     
-    imageToCrop.onload = function() {
-        if (cropper) {
-            cropper.destroy();
-        }
-        cropper = new Cropper(imageToCrop, {
-            aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 0.8,
-            zoomable: true,
-            movable: true,
-        });
-        imageToCrop.onload = null;
+    const setupCropper = () => {
+        setTimeout(() => {
+            if (cropper) {
+                cropper.destroy();
+            }
+            cropper = new Cropper(imageToCrop, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.8,
+                zoomable: true,
+                movable: true,
+            });
+        }, 50);
     };
+
     imageToCrop.src = imagePreview.src;
+
+    if (imageToCrop.complete) {
+        setupCropper();
+    } else {
+        imageToCrop.onload = function() {
+            setupCropper();
+            imageToCrop.onload = null;
+        };
+    }
 });
 
 saveCropButton.addEventListener('click', function() {
-    const canvas = cropper.getCroppedCanvas();
-    const croppedImageDataUrl = canvas.toDataURL();
-    
-    
-    croppedImageBlob = dataURItoBlob(croppedImageDataUrl);
-    
-    
-    imagePreview.src = croppedImageDataUrl;
-    
-    
+    if (cropper) {
+        const canvas = cropper.getCroppedCanvas();
+        const croppedImageDataUrl = canvas.toDataURL();
+        
+        
+        croppedImageBlob = dataURItoBlob(croppedImageDataUrl);
+        
+        
+        imagePreview.src = croppedImageDataUrl;
+        
+        cropper.destroy();
+        cropper = null;
+    }
     cropModal.style.display = 'none';
-    cropper.destroy();
 });
 
 function dataURItoBlob(dataURI) {
@@ -198,8 +211,11 @@ function dataURItoBlob(dataURI) {
 }
 
 cancelCropButton.addEventListener('click', function() {
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
     cropModal.style.display = 'none';
-    cropper.destroy();
 });
     </script>
 </body>
