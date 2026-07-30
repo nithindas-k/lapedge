@@ -400,8 +400,23 @@
 
               })
             } else {
-              if (response.status == 404) {
-                window.location.href = "/login"
+              if (response.status == 401 || response.status == 404) {
+
+                localStorage.setItem("pro", productId)
+
+                swal.fire({
+                  title: "login first",
+                  toast: true,
+                  showConfirmButton: false,
+                  timerProgressBar: true,
+                  position: 'top-right',
+                  icon: 'warning',
+                  timer: 2000
+                });
+                setTimeout(()=>{
+                  window.location.href = "/login?redirectTo=" + encodeURIComponent(window.location.pathname)
+                },2000)
+                return;
               }
               console.log(data)
 

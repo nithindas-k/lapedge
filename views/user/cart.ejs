@@ -364,7 +364,7 @@
 
         function updateQuantityInBackend(itemId, newQuantity, totalAmount) {
           fetch('/cart/update-quantity', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },

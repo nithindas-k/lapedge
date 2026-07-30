@@ -49,7 +49,8 @@ const loadSignup = async (req, res) => {
 const loadLoginPage = async (req, res) => {
 
     try {
-        return res.render("login", { message: null })
+        const redirectTo = req.query.redirectTo || "";
+        return res.render("login", { message: null, redirectTo })
     } catch (error) {
 
         console.log("login page not founded", error)
@@ -456,31 +457,40 @@ const loadForgotPpassword = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-
-        const { email, password } = req.body;
+       if(req.session.id){
+            console.log(req.session.id)
+        }
+        const { email, password, redirectTo } = req.body;
         const findUser = await userSchema.findOne({ isAdmin: 0, email: email });
+        
         if (!findUser) {
-            return res.render("login", { message: "user not found" })
+            return res.render("login", { message: "user not found", redirectTo: redirectTo || "" })
         }
         if (findUser.isBlocked) {
-            return res.render("login", { message: "your account is blocked" })
+            return res.render("login", { message: "your account is blocked", redirectTo: redirectTo || "" })
 
         }
+
+
 
         const passwordMatch = await bcrypt.compare(password, findUser.password)
         if (!passwordMatch) {
-            return res.render("login", { message: "password invalid" })
+            return res.render("login", { message: "password invalid", redirectTo: redirectTo || "" })
         }
         req.session.user = true
         req.session.userData = findUser
 
+        if (redirectTo) {
+            return res.redirect(redirectTo);
+        }
         res.redirect("/")
 
 
 
     } catch (error) {
         console.log("login error", error)
-        res.render("login", { message: " login faild  try again later" })
+        const redirectTo = req.body.redirectTo || "";
+        res.render("login", { message: " login faild  try again later", redirectTo })
     }
 
 }

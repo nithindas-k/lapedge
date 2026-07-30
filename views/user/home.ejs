@@ -407,6 +407,20 @@
                   timer: 3000
                 });
               } else {
+                if (response.status === 401 || response.status === 404) {
+                  Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: 'login first',
+                    showConfirmButton: false,
+                    timer: 2000
+                  });
+                  setTimeout(() => {
+                    window.location.href = "/login?redirectTo=" + encodeURIComponent('/productDetails/' + productId);
+                  }, 2000);
+                  return;
+                }
                 const errorData = await response.json();
                 Swal.fire({
                   toast: true,

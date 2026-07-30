@@ -77,7 +77,7 @@ router.get("/orders/:orderId", userSessionCheck, userController.loadOrdersDetail
 
 
 router.get('/profile-edit', userSessionCheck, userController.loadProfileEdit);
-router.post('/profile-edit', userSessionCheck, userController.updateProfile);
+router.put('/profile-edit', userSessionCheck, userController.updateProfile);
 router.get("/order-confirmation/:orderId", userSessionCheck, userController.loadOrderConfirmation)
 router.get("/order-failed-confirmation/:razorpayId", userSessionCheck, userController.loadOrderFailure)
 router.post("/order/retry-razorpay/:orderId", userSessionCheck, userController.retryPayment)

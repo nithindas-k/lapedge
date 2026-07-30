@@ -17,6 +17,7 @@
         <div class="card">
             <h3>Login to Your Account</h3>
             <form id="loginForm" class="form" method="post" action="/login">
+                <input type="hidden" name="redirectTo" value="<%= redirectTo %>">
                 <input type="email" name="email" id="email" placeholder="Your Email" class="form__input" />
                 <input type="password" name="password" id="password" placeholder="Your Password" class="form__input" />
                 <div style="color: red;">
@@ -48,6 +49,7 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
             const errorPopup = document.getElementById('errorPopup');
+            const pro =  localStorage.getItem("pro")
 
 
             function showError(message) {

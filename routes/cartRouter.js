@@ -9,7 +9,7 @@ router.get("/", cartController.loadCart)
 
 router.post("/add",cartController.addCart)
 router.delete("/delete",cartController.deleteCart)
-router.post("/update-quantity",cartController.updateQuantity)
+router.put("/update-quantity",cartController.updateQuantity)
 
 
 module.exports = router

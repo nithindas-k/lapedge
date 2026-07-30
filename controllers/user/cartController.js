@@ -14,9 +14,7 @@ const cart = require("../../models/cartModel")
 const loadCart = async (req, res) => {
   try {
 
-    if (!req.session.user) {
-      return res.redirect("/login");
-    }
+
 
     const userId = req.session.userData._id;
 
@@ -53,10 +51,7 @@ const addCart = async (req, res) => {
   const { productId, quantity } = req.body
   try {
 
-    if (!req.session.user) {
-      return res.status(404).json({ success: false, message: "Login First" })
 
-    }
     const userId = req.session.userData._id
 
     const product = await productSchema.findById(productId)    
