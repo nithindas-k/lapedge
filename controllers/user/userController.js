@@ -856,10 +856,15 @@ const loadOrderFailure = async (req, res) => {
 
 
         const orderDetails = await Order.findOne({ razorpayOrderId: razorpayId }).populate("items.ProductId")
-        const totalAmount = orderDetails?.items.reduce((accumulator, item) => {
+        if (!orderDetails) {
+            console.log("Order not found for razorpayOrderId:", razorpayId)
+            return res.redirect("/404")
+        }
+
+        const totalAmount = orderDetails.items.reduce((accumulator, item) => {
             return accumulator + item.totalPrice;
         }, 0);
-        const couponId = orderDetails?.coupon
+        const couponId = orderDetails.coupon
 
         let discountAmonut = 0
 

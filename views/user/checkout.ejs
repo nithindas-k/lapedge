@@ -854,7 +854,7 @@
                       timerProgressBar: true,
                     })
                     setTimeout(()=>{
-                      window.location.href = `/order-confirmation/${verifyResult.orderId}`;
+                      window.location.href = `/order-failed-confirmation/${result.orderId}`;
                     },2500)
                     
                   }
@@ -865,7 +865,8 @@
               rzp.open();
               rzp.on('payment.failed', (response) => {
                 console.log(response);
-                window.location.href = `/order-failed-confirmation/${response.error.metadata.order_id}`;
+                const orderId = (response.error && response.error.metadata && response.error.metadata.order_id) || result.orderId;
+                window.location.href = `/order-failed-confirmation/${orderId}`;
               })
 
             } catch (error) {
