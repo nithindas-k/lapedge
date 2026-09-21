@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const Variant = require("../../models/variantModel")
 const CouponSchema = require("../../models/couponModel")
+const { STATUS_CODES } = require("../../enums");
+const { MESSAGES } = require("../../constants");
 
 const productSchema = require("../../models/productModel")
 const Order = require("../../models/orderModel")
@@ -60,7 +62,7 @@ const addcoupon = async ( req , res )=>{
         })
         await coupon.save()
         
-        return res.status(200).json({ success: true, message: "Coupon created successfully." });
+        return res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.COUPON_CREATED_SUCCESS });
 
 
         
@@ -80,7 +82,7 @@ const toggleCouponListing = async (req, res) => {
         const coupon = await CouponSchema.findById(couponId);
 
         if (!coupon) {
-            return res.status(404).json({ success: false, message: 'Coupon not found' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.COUPON_NOT_FOUND });
         }
 
         
@@ -93,10 +95,10 @@ const toggleCouponListing = async (req, res) => {
 
         await coupon.save();
 
-        res.json({ success: true, message: `Coupon is now ${coupon.isActive ? 'Active' : 'Inactive'}` });
+        res.status(STATUS_CODES.OK).json({ success: true, message: `Coupon is now ${coupon.isActive ? 'Active' : 'Inactive'}` });
     } catch (error) {
         console.error('Error toggling coupon status:', error);
-        res.status(500).json({ success: false, message: 'Server error while toggling coupon status' });
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.COUPON_STATUS_ERROR });
     }
 };
 
@@ -108,7 +110,7 @@ const loadcouponEdit =  async (req, res) => {
         const {id} = req.params
         const coupon = await CouponSchema.findById(id)
         if(!coupon){
-            return res.status(404).json({ success: false, message: 'Coupon not found' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.COUPON_NOT_FOUND });
         }
 
        
@@ -142,14 +144,14 @@ const couponEdit   = async (req, res) => {
             minimumPrice: minimumPrice
         })
         if(!coupon){
-            return res.status(404).json({ success: false, message: 'Coupon not found' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.COUPON_NOT_FOUND });
         }
-        res.json({ success: true, message: 'Coupon updated successfully' })
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.COUPON_UPDATED_SUCCESS })
 
         
     } catch (error) {
         console.error(error)
-        res.status(500).json({ success: false, message: 'Failed to update coupon' })
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.COUPON_UPDATE_FAILED })
         
     }
 }
@@ -166,20 +168,20 @@ const couponApply =  async (req, res) => {
         console.log(coupon)
         
         if(!coupon){
-            return res.json({ success: false, message: 'Coupon not found or not active' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.COUPON_NOT_FOUND_OR_INACTIVE });
         }
         const currentDate = new Date();
         if (currentDate > coupon.expirationDate) {
-            return res.json({ success: false, message: 'Coupon expired' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.COUPON_EXPIRED });
         }
         if (currentDate < coupon.startDate) {
-            return res.json({ success: false, message: 'Coupon is not active yet' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.COUPON_NOT_ACTIVE_YET });
         }
         if(totalAmount < coupon.minimumPrice){
-            return res.json({ success: false, message: 'Coupon minimum price not met' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.COUPON_MIN_PRICE_NOT_MET });
         }
         if(coupon.maxUsage <= coupon.currentUsage){
-            return res.json({ success: false, message: 'Coupon has reached its maximum usage limit' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.COUPON_MAX_USAGE_LIMIT });
         }
        
 
@@ -191,16 +193,15 @@ const couponApply =  async (req, res) => {
         totalAmount = totalAmount - discountAmonut
   
 
-        coupon.save()
+        await coupon.save()
         
-        return res.json({ success: true, message: 'Coupon applied successfully', discountAmonut: discountAmonut, totalAmount: totalAmount })
+        return res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.COUPON_APPLIED_SUCCESS, discountAmonut: discountAmonut, totalAmount: totalAmount })
 
        
         
     } catch (error) {
-
         console.log(error)
-        
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.SOMETHING_WENT_WRONG });
     }
 
 

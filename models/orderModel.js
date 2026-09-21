@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ORDER_STATUS, PAYMENT_STATUS, PAYMENT_METHOD } = require('../enums');
 
 const OrderSchema = mongoose.Schema({
     userId: {
@@ -32,8 +33,8 @@ const OrderSchema = mongoose.Schema({
             },
             status: {
                 type: String,
-                enum: ["Pending", "Ordered", "Shipped", "Delivered", "Cancelled", "Returned","Return Rejected","Return Requested","Cancelled"],
-                default: "Ordered"
+                enum: Object.values(ORDER_STATUS),
+                default: ORDER_STATUS.ORDERED
             },
             reason: {
                 type: String,
@@ -58,28 +59,19 @@ const OrderSchema = mongoose.Schema({
     },
     orderStatus: {
         type: String,
-        enum: [
-            "Pending",
-            "Ordered", 
-            "Shipped", 
-            "Delivered", 
-            "Cancelled",
-            "Returned",
-            "Return Rejected",
-            "Return Requested"
-        ],
-        default: "Pending"
+        enum: Object.values(ORDER_STATUS),
+        default: ORDER_STATUS.PENDING
     },
     paymentMethod: { 
         type: String,
-        enum: ["OnlinePayment","Wallet", "COD"],
+        enum: Object.values(PAYMENT_METHOD),
         required: true
     },
     paymentStatus:{
         type: String,
-        enum: ["Pending","Success", "Failed"],
+        enum: Object.values(PAYMENT_STATUS),
         required: true,
-        default:"Pending"
+        default: PAYMENT_STATUS.PENDING
     },
     payableAmount :{
         type: Number,

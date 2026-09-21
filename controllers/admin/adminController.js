@@ -11,6 +11,8 @@ const pdf = require("html-pdf")
 const ejs = require("ejs");
 const PDFDocument = require('pdfkit-table');
 const xlsx = require('xlsx');
+const { STATUS_CODES, ORDER_STATUS } = require("../../enums");
+const { MESSAGES } = require("../../constants");
 
 
 const loadLogin = (req, res) => {
@@ -35,14 +37,14 @@ const login = async (req, res) => {
 
         if (!user) {
 
-            return res.render("adminLogin", { message: "Invalid email or password.", messageType: "error" });
+            return res.render("adminLogin", { message: MESSAGES.INVALID_EMAIL_OR_PASSWORD, messageType: "error" });
         }
 
 
         const passwordMatch = await bcrypt.compare(password, user.password);
         console.log(passwordMatch)
         if (!passwordMatch) {
-            return res.render("adminLogin", { message: "Invalid  password.", messageType: "error" });
+            return res.render("adminLogin", { message: MESSAGES.INVALID_PASSWORD, messageType: "error" });
         }
         req.session.isAdmin = true;
 
@@ -51,7 +53,7 @@ const login = async (req, res) => {
 
     } catch (error) {
         console.error("Login error: ", error);
-        res.render("adminLogin", { message: "An error occurred. Please try again later." });
+        res.render("adminLogin", { message: MESSAGES.TRY_AGAIN_LATER });
     }
 };
 
@@ -205,7 +207,7 @@ const ToggleProductBlock = async (req, res) => {
         const product = await productSchema.findById(productId);
 
         if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found" });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.PRODUCT_NOT_FOUND });
         }
 
 
@@ -214,14 +216,14 @@ const ToggleProductBlock = async (req, res) => {
 
         const statusMessage = product.isBlocked ? "Product unlisted successfully!" : "Product listed successfully!";
 
-        return res.status(200).json({
+        return res.status(STATUS_CODES.OK).json({
             success: true,
             message: statusMessage
         });
 
     } catch (error) {
         console.error("Error in ToggleProductBlock:", error.message);
-        return res.status(500).json({
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: "Server error, please try again."
         });
@@ -332,11 +334,12 @@ const updateOrderStatus = async (req, res) => {
         });
         await order.save()
 
-        res.status(200).json({ success: true, message: "Order status updated successfully" })
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.ORDER_STATUS_UPDATED_SUCCESS })
 
 
     } catch (error) {
         console.log(error)
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 
 
@@ -367,9 +370,9 @@ const updatecancelOrder = async (req, res) => {
 
 
 
-        order.orderStatus = "Cancelled"
+        order.orderStatus = ORDER_STATUS.CANCELLED
         order.items.forEach(element => {
-            element.status = "Cancelled"
+            element.status = ORDER_STATUS.CANCELLED
         });
 
         const userWallet = await Wallet.findOneAndUpdate({ userId: userId }, {
@@ -389,11 +392,11 @@ const updatecancelOrder = async (req, res) => {
 
         await order.save()
 
-        res.status(200).json({ success: true, message: "Order cancelled successfully" })
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.ORDER_CANCELLED_SUCCESS })
 
     } catch (error) {
         console.log(error)
-
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
 
@@ -406,11 +409,11 @@ const returnRequestCancel = async (req, res) => {
 
         const order = await Order.findById(orderId)
         const item = order.items.find(item => item._id.toString() === itemId)
-        item.status = "Delivered"
+        item.status = ORDER_STATUS.DELIVERED
         item.reason = null
         await order.save()
 
-        res.status(200).json({ success: true, message: "Return request cancelled successfully" })
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.RETURN_REQUEST_CANCELLED })
 
 
 
@@ -418,7 +421,7 @@ const returnRequestCancel = async (req, res) => {
     } catch (error) {
 
         console.log(error)
-
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
 
@@ -431,10 +434,10 @@ const approve = async (req, res) => {
         const userId = order.userId._id
 
         const item = order.items.find(item => item._id.toString() === itemId)
-        item.status = "Returned"
-        const allItemsReturned = order.items.every(item => item.status === "Returned");
+        item.status = ORDER_STATUS.RETURNED
+        const allItemsReturned = order.items.every(item => item.status === ORDER_STATUS.RETURNED);
         if (allItemsReturned) {
-            order.orderStatus = "Returned";
+            order.orderStatus = ORDER_STATUS.RETURNED;
         }
 
 
@@ -470,13 +473,13 @@ const approve = async (req, res) => {
 
 
 
-        res.status(200).json({ success: true, message: "Order Returned successfully" })
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.ORDER_RETURNED_SUCCESS })
 
 
 
     } catch (error) {
         console.log(error)
-
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
 
@@ -490,12 +493,12 @@ const AllReturn = async (req, res) => {
         const order = await Order.findById(orderId).populate("items.ProductId")
         order.returnReason = returnReason
         order.items.forEach(element => {
-            element.status = "Return Requested"
+            element.status = ORDER_STATUS.RETURN_REQUESTED
         });
-        order.orderStatus = "Return Requested"
+        order.orderStatus = ORDER_STATUS.RETURN_REQUESTED
         await order.save()
 
-        res.status(200).json({ success: true, message: "Return request sent successfully" })
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.RETURN_REQUEST_SENT })
 
 
 
@@ -506,7 +509,7 @@ const AllReturn = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 
 }
@@ -520,7 +523,7 @@ const approveAll = async (req, res) => {
 
         const item = await order.items
         for (let data of item) {
-            data.status = "Returned"
+            data.status = ORDER_STATUS.RETURNED
 
         }
 
@@ -533,7 +536,7 @@ const approveAll = async (req, res) => {
 
 
 
-        order.orderStatus = "Returned"
+        order.orderStatus = ORDER_STATUS.RETURNED
         const wallet = await Wallet.findOne({ userId: userId })
 
         wallet.balance += order.payableAmount
@@ -542,7 +545,7 @@ const approveAll = async (req, res) => {
         await transaction.save()
         await order.save()
 
-        res.status(200).json({ success: true, message: "All items returned successfully" })
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.ALL_ITEMS_RETURNED })
 
 
 
@@ -550,6 +553,7 @@ const approveAll = async (req, res) => {
     } catch (error) {
 
         console.log(error)
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 
 }
@@ -870,13 +874,13 @@ const sales = async (req, res) => {
             };
         });
 
-        res.status(200).json({
+        res.status(STATUS_CODES.OK).json({
             success: true,
             data: formattedData
         });
 
     } catch (error) {
-        res.status(500).json({
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: "Error fetching sales data",
             error: error.message

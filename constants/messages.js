@@ -1,0 +1,131 @@
+const MESSAGES = Object.freeze({
+    // Common / Server
+    INTERNAL_SERVER_ERROR: "Internal Server Error",
+    SERVER_ERROR: "Internal server error",
+    SOMETHING_WENT_WRONG: "somthing went wrong",
+    ERROR_OCCURRED: "An error occurred.",
+    TRY_AGAIN_LATER: "An error occurred. Please try again later.",
+    UNAUTHORIZED: "Unauthorized",
+    FORBIDDEN: "Forbidden",
+
+    // User & Authentication
+    USER_NOT_FOUND: "User not found",
+    USER_NOT_FOUND_DOT: "User not found.",
+    USER_BLOCKED_SUCCESS: "User blocked successfully",
+    USER_UNBLOCKED_SUCCESS: "user unBaned successfully",
+    INVALID_EMAIL_OR_PASSWORD: "Invalid email or password.",
+    INVALID_PASSWORD: "Invalid  password.",
+    EMAIL_ALREADY_EXISTS: "email  already exists",
+    EMAIL_REQUIRED: "Email is required.",
+    EMAIL_ERROR: "email.error",
+    OTP_NOT_FOUND: "OTP not found. Please request a new OTP.",
+    OTP_EXPIRED: "OTP expired. Please request a new OTP.",
+    INVALID_OTP: "Invalid OTP. Please try again.",
+    OTP_VERIFIED_SUCCESS: "OTP verified successfully.",
+    OTP_VERIFY_ERROR: "An error occurred while verifying OTP.",
+    OTP_RESEND_FAILED: "Failed to resend OTP. Please try again.",
+    OTP_RESEND_SUCCESS: "OTP resent successfully",
+    OTP_RESEND_ERROR: "Error resending OTP",
+    OTP_SEND_FAILED: "Failed to send OTP. Please try again.",
+    OTP_SEND_SUCCESS: "OTP sent to your email .",
+    PROFILE_UPDATED_SUCCESS: "Profile updated successfully",
+    PROFILE_UPDATE_FAILED: "Failed to update profile",
+    PASSWORD_SAME_AS_OLD: "Password is same as old password",
+    PASSWORD_UPDATED_SUCCESS: "Password updated successfully",
+    PASSWORD_CHANGE_ERROR: "An error occurred while changing password.",
+    SESSION_EXPIRED: "Session expired or not logged in. Please login to continue.",
+
+    // Category
+    CATEGORY_EXISTS: "Category with the same name already exists.",
+    CATEGORY_CREATED_SUCCESS: "Category created successfully.",
+    CATEGORY_NAME_EXISTS: "Category name already exists",
+    CATEGORY_NOT_FOUND: "Category not found",
+    CATEGORY_LISTED_SUCCESS: "Category has been listed successfully!",
+    CATEGORY_UNLISTED_SUCCESS: "Category has been unlisted successfully!",
+    CATEGORY_STATUS_ERROR: "An error occurred while updating the category status.",
+
+    // Product
+    PRODUCT_NOT_FOUND: "Product not found",
+    PRODUCT_CREATED_SUCCESS: "Product created successfully!",
+    PRODUCT_CREATE_ERROR: "Error creating product",
+    PRODUCT_UPDATED_SUCCESS: "Product updated successfully",
+    PRODUCT_IMAGE_REQUIRED: "No image file provided",
+    IMAGE_UPDATED_SUCCESS: "Image updated successfully",
+    IMAGE_UPDATE_FAILED: "Failed to update image",
+    PRODUCT_FILTER_ERROR: "An error occurred while filtering products.",
+
+    // Variant
+    VARIANT_NOT_FOUND: "Variant not found",
+    VARIANT_CREATE_ERROR: "Error creating variant",
+    VARIANT_UPDATE_ERROR: "Error updating variant",
+    VARIANT_DELETE_ERROR: "Error deleting variant",
+    VARIANT_LOAD_ERROR: "Error loading variants page",
+    VARIANT_STATUS_ERROR: "Error toggling variant block status",
+
+    // Coupon
+    COUPON_NOT_FOUND: "Coupon not found",
+    COUPON_CREATED_SUCCESS: "Coupon created successfully.",
+    COUPON_UPDATED_SUCCESS: "Coupon updated successfully",
+    COUPON_UPDATE_FAILED: "Failed to update coupon",
+    COUPON_NOT_FOUND_OR_INACTIVE: "Coupon not found or not active",
+    COUPON_EXPIRED: "Coupon expired",
+    COUPON_NOT_ACTIVE_YET: "Coupon is not active yet",
+    COUPON_MIN_PRICE_NOT_MET: "Coupon minimum price not met",
+    COUPON_MAX_USAGE_LIMIT: "Coupon has reached its maximum usage limit",
+    COUPON_APPLIED_SUCCESS: "Coupon applied successfully",
+    COUPON_STATUS_ERROR: "Server error while toggling coupon status",
+
+    // Offer
+    OFFER_NOT_FOUND: "Offer not found",
+    OFFER_CREATED_SUCCESS: "Offer created successfully.",
+    OFFER_DELETED_SUCCESS: "Offer deleted successfully.",
+    OFFER_PRICE_CALC_ISSUE: "there is a issue in price calculating",
+
+    // Cart
+    CART_NOT_FOUND: "Cart not found",
+    ITEM_NOT_FOUND_IN_CART: "Item not found in cart",
+    PRODUCT_ADDED_TO_CART: "Product added to cart",
+    ITEM_REMOVED_FROM_CART: "Item removed from cart",
+    STOCK_LIMIT_EXCEEDED: "Stock  Limit is exceeded",
+    LIMIT_EXCEEDED: "Limit is exceeded",
+    MAX_LIMIT_5: "Max  Limit is 5",
+    FAILED_TO_UPDATE_CART: "Failed to update cart",
+    CART_LOAD_ERROR: "An error occurred while loading the cart.",
+
+    // Wishlist
+    ITEM_ALREADY_IN_WISHLIST: "Item is already in your wishlist",
+    PRODUCT_ADDED_TO_WISHLIST: "Product added to wishlist",
+    PRODUCT_NOT_IN_WISHLIST: "Product not found in wishlist",
+    PRODUCT_ALREADY_IN_CART: "Product Already In cart",
+    PRODUCT_ALREADY_IN_CART_SPACE: "Product Already In cart ",
+    PRODUCT_ADDED_SUCCESS: "product Added to successfully",
+    WISHLIST_NOT_FOUND: "Wishlist not found",
+    PRODUCT_DELETED_SUCCESS: "Product deleted successfully",
+
+    // Address
+    ADDRESS_NOT_FOUND: "Address not found",
+    ADDRESS_DELETED_SUCCESS: "Address deleted successfully",
+    ADDRESS_UPDATED_SUCCESS: "Address updated Successfully",
+    ADDRESS_UPDATE_ERROR: "Error updating address",
+
+    // Order & Payment
+    ADDRESS_AND_PAYMENT_REQUIRED: "Address and payment method are required",
+    CART_EMPTY: "Cart is empty",
+    COD_NOT_AVAILABLE: "COD Not available on this product",
+    ORDER_PLACED_SUCCESS: "Order placed successfully",
+    ORDER_FAILED: "Order Failed",
+    ORDER_NOT_FOUND: "Order not found",
+    ORDER_CANCELLED_SUCCESS: "Order cancelled successfully",
+    ORDER_STATUS_UPDATED_SUCCESS: "Order status updated successfully",
+    RETURN_REQUEST_CANCELLED: "Return request cancelled successfully",
+    ORDER_RETURNED_SUCCESS: "Order Returned successfully",
+    RETURN_REQUEST_SENT: "Return request sent successfully",
+    ALL_ITEMS_RETURNED: "All items returned successfully",
+    ITEM_NOT_FOUND: "Item not found",
+    ITEM_RETURNED_SUCCESS: "Item returned successfully",
+    RAZORPAY_ORDER_FAILED: "Something Went Wrong With Razorpay Order",
+    PAYMENT_VERIFIED_SUCCESS: "Payment verified successfully",
+    PAYMENT_VERIFICATION_FAILED: "Payment verification failed",
+});
+
+module.exports = MESSAGES;

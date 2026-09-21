@@ -4,6 +4,8 @@ const categorySchema = require("../../models/categoryModel")
 const userSchema = require("../../models/userSchema")
 const path = require('path');
 const fs = require('fs');
+const { STATUS_CODES } = require("../../enums");
+const { MESSAGES } = require("../../constants");
 
 
 
@@ -42,7 +44,7 @@ const getVariantsPage = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching variants:', error);
-        res.status(500).send('Error loading variants page');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(MESSAGES.VARIANT_LOAD_ERROR);
     }
 }
 
@@ -56,10 +58,10 @@ const createVariant = async (req, res) => {
         const newVariant = new Variant({ category: variantType, value: variantValue, isBlocked: false });
         await newVariant.save();
 
-        res.json({ variantType, variantValue, success: true });
+        res.status(STATUS_CODES.OK).json({ variantType, variantValue, success: true });
     } catch (error) {
         console.error(`Error creating variant:`, error);
-        res.status(500).send('Error creating variant');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(MESSAGES.VARIANT_CREATE_ERROR);
     }
 };
 
@@ -69,13 +71,13 @@ const editVariant = async (req, res) => {
         const variant = await Variant.findById(id);
 
         if (!variant) {
-            return res.status(404).send('Variant not found');
+            return res.status(STATUS_CODES.NOT_FOUND).send(MESSAGES.VARIANT_NOT_FOUND);
         }
 
         res.redirect('/admin/variant');
     } catch (error) {
         console.error('Error loading edit variant page:', error);
-        res.status(500).send('Error loading edit variant page');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('Error loading edit variant page');
     }
 }
 
@@ -92,13 +94,13 @@ const updateVariant = async (req, res) => {
         );
 
         if (!variant) {
-            return res.status(404).send('Variant not found');
+            return res.status(STATUS_CODES.NOT_FOUND).send(MESSAGES.VARIANT_NOT_FOUND);
         }
 
         res.redirect('/admin/variant');
     } catch (error) {
         console.error('Error updating variant:', error);
-        res.status(500).send('Error updating variant');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(MESSAGES.VARIANT_UPDATE_ERROR);
     }
 }
 
@@ -109,13 +111,13 @@ const deleteVariant = async (req, res) => {
         const result = await Variant.findByIdAndDelete(id);
 
         if (!result) {
-            return res.status(404).send('Variant not found');
+            return res.status(STATUS_CODES.NOT_FOUND).send(MESSAGES.VARIANT_NOT_FOUND);
         }
 
         res.redirect('/admin/variant');
     } catch (error) {
         console.error('Error deleting variant:', error);
-        res.status(500).send('Error deleting variant');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(MESSAGES.VARIANT_DELETE_ERROR);
     }
 }
 
@@ -127,7 +129,7 @@ const toggleBlockVariant = async (req, res) => {
         const variant = await Variant.findById(id);
 
         if (!variant) {
-            return res.status(404).send('Variant not found');
+            return res.status(STATUS_CODES.NOT_FOUND).send(MESSAGES.VARIANT_NOT_FOUND);
         }
 
         variant.isBlocked = !variant.isBlocked;
@@ -136,7 +138,7 @@ const toggleBlockVariant = async (req, res) => {
         res.redirect('/admin/variant');
     } catch (error) {
         console.error('Error toggling variant block status:', error);
-        res.status(500).send('Error toggling variant block status');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(MESSAGES.VARIANT_STATUS_ERROR);
     }
 
 

@@ -13,6 +13,8 @@ const offerSchema = require("../../models/offerModel")
 const razorpay = require('../../config/razorpay');
 const PDFDocument = require('pdfkit');
 const path = require('path');
+const { STATUS_CODES } = require("../../enums");
+const { MESSAGES } = require("../../constants");
 console.log('Email:', process.env.NODEMAILER_EMAIL);
 console.log('Password exists:', !!process.env.NODEMAILER_PASSWORD);
 
@@ -40,10 +42,10 @@ const loadSignup = async (req, res) => {
         res.render('signup', { message: null })
 
     } catch (error) {
-        res.status(500).send("server error")
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send(MESSAGES.SERVER_ERROR)
 
     }
-
+}
 
 }
 const loadLoginPage = async (req, res) => {
@@ -141,7 +143,7 @@ const signup = async (req, res) => {
  
         const emailSend = await sendVerificationEmail(email, otp);
         if (!emailSend) {
-            return res.json({ message: "email.error" });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ message: MESSAGES.EMAIL_ERROR });
         }
 
    
@@ -181,18 +183,18 @@ const resendOTP = async (req, res) => {
         const emailSent = await sendVerificationEmail(email, newOtp);
         if (!emailSent) {
             console.log("Failed to send email");
-            return res.json({ success: false, message: "Failed to resend OTP. Please try again." });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.OTP_RESEND_FAILED });
         }
 
   
         req.session.UserOtp = newOtp;
 
         console.log('After Resend OTP:', req.session);
-        return res.json({ success: true, message: "OTP resent successfully", otp: newOtp });
+        return res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.OTP_RESEND_SUCCESS, otp: newOtp });
 
     } catch (error) {
         console.error("Error in resending OTP", error);
-        return res.json({ success: false, message: "Error resending OTP" });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.OTP_RESEND_ERROR });
     }
 };
 
@@ -208,7 +210,7 @@ const verifyOtp = async (req, res) => {
         console.log(sessionOtp, sessionOtpTimestamp)
 
         if (!sessionOtp) {
-            return res.status(400).json({ success: false, message: "OTP not found. Please request a new OTP." });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.OTP_NOT_FOUND });
         }
 
     
@@ -219,7 +221,7 @@ const verifyOtp = async (req, res) => {
             req.session.UserOtp = null;
             req.session.UserOtpTimestamp = null;
             console.log("+++++++++++" + req.session.userData)
-            return res.status(400).json({ success: false, message: "OTP expired. Please request a new OTP." });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.OTP_EXPIRED });
         }
 
         console.log(userOtpInput, sessionOtp, req.session.userData)
@@ -250,16 +252,16 @@ const verifyOtp = async (req, res) => {
 
 
             req.session.user = true;
-            return res.json({ success: true, message: 'OTP verified successfully.' });
+            return res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.OTP_VERIFIED_SUCCESS });
 
 
         } else {
 
-            return res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.INVALID_OTP });
         }
     } catch (error) {
         console.error('Error verifying OTP:', error);
-        return res.status(500).json({ success: false, message: 'An error occurred while verifying OTP.' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.OTP_VERIFY_ERROR });
     }
 };
 
@@ -270,13 +272,13 @@ const forgotOtp = async (req, res) => {
 
 
         if (!email) {
-            return res.json({ success: false, message: "Email is required." });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.EMAIL_REQUIRED });
         }
 
 
         const user = await userSchema.findOne({ email });
         if (!user) {
-            return res.json({ success: false, message: "User not found." });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.USER_NOT_FOUND_DOT });
         }
 
 
@@ -285,19 +287,19 @@ const forgotOtp = async (req, res) => {
 
         const emailSent = await sendVerificationEmail(email, otp);
         if (!emailSent) {
-            return res.json({ success: false, message: "Failed to send OTP. Please try again." });
+            return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.OTP_SEND_FAILED });
         }
 
 
         req.session.UserOtp = otp;
         req.session.userData = user;
         console.log(`Forgot password otp: ${req.session.UserOtp}`)
-        return res.json({ success: true, message: "OTP sent to your email ." });
+        return res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.OTP_SEND_SUCCESS });
 
 
     } catch (error) {
         console.error("Error in forgotOtp:", error);
-        return res.json({ success: false, message: "An error occurred. Please try again." });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.TRY_AGAIN_LATER });
     }
 };
 
@@ -313,7 +315,7 @@ const forgotOtpVerify = async (req, res) => {
 
         if (!sessionOtp) {
 
-            return res.status(400).json({ success: false, message: "OTP not found. Please request a new OTP." });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.OTP_NOT_FOUND });
         }
 
 
@@ -323,16 +325,16 @@ const forgotOtpVerify = async (req, res) => {
             req.session.UserOtp = null;
 
 
-            return res.status(200).json({ success: true });
+            return res.status(STATUS_CODES.OK).json({ success: true });
 
         } else {
 
 
-            return res.status(400).json({ success: false, message: "Invalid OTP. Please try again." });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.INVALID_OTP });
         }
     } catch (error) {
         console.log('Error verifying OTP for password reset:', error);
-        return res.status(500).json({ success: false, message: 'An error occurred while verifying OTP.' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.OTP_VERIFY_ERROR });
     }
 };
 
@@ -628,7 +630,7 @@ const updateProfile = async (req, res) => {
 
         await user.save();
         req.session.userData = user;
-        return res.status(200).json({ success: true, message: "Profile updated successfully" })
+        return res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.PROFILE_UPDATED_SUCCESS })
 
 
 
@@ -640,7 +642,7 @@ const updateProfile = async (req, res) => {
 
     } catch (error) {
         console.error("Error in updating profile", error)
-        return res.status(500).json({ success: false, message: "Failed to update profile" })
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.PROFILE_UPDATE_FAILED })
 
     }
 
@@ -740,20 +742,20 @@ const changePassword = async (req, res) => {
 
         const isSamePassword = await bcrypt.compare(newPassword, user.password);
         if (isSamePassword) {
-            return res.status(400).json({ success: false, message: "Password is same as old password" })
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.PASSWORD_SAME_AS_OLD })
         }
 
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedNewPassword
         await user.save()
-        res.status(200).json({ success: true, message: "Password updated successfully" })
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.PASSWORD_UPDATED_SUCCESS })
 
 
 
 
     } catch (error) {
         console.log(error)
-        return res.status(500).json({ success: false, message: "An error occurred while changing password." })
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.PASSWORD_CHANGE_ERROR })
     }
 }
 
@@ -824,7 +826,7 @@ const loadProductsFilter = async (req, res) => {
         }
 
 
-        res.json(products)
+        res.status(STATUS_CODES.OK).json(products)
 
 
 
@@ -832,7 +834,7 @@ const loadProductsFilter = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        return res.status(500).json({ success: false, message: "An error occurred while filtering products." })
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.PRODUCT_FILTER_ERROR })
     }
 
 
@@ -968,7 +970,7 @@ const loadInvoice = async (req, res) => {
             .populate('items.ProductId', 'name salePrice');
 
         if (!order) {
-            return res.status(404).send('Order not found');
+            return res.status(STATUS_CODES.NOT_FOUND).send(MESSAGES.ORDER_NOT_FOUND);
         }
 
     

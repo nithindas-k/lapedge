@@ -1,4 +1,6 @@
 const userSchema = require("../../models/userSchema");
+const { STATUS_CODES } = require("../../enums");
+const { MESSAGES } = require("../../constants");
 
 const userInfo = async (req, res) => {
     try {
@@ -56,9 +58,9 @@ const userBlocked = async (req, res) => {
     try {
         let id = req.query.id;
         await userSchema.updateOne({ _id: id }, { $set: { isBlocked: true } });
-        res.json({ success: true , message:"User blocked successfully"});
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.USER_BLOCKED_SUCCESS });
     } catch (error) {
-        res.json({ success: false ,message:"somthing went wrong"});
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.SOMETHING_WENT_WRONG });
     }
 }
 
@@ -66,9 +68,9 @@ const userunBlocked = async (req, res) => {
     try {
         let id = req.query.id;
         await userSchema.updateOne({ _id: id }, { $set: { isBlocked: false } });
-        res.json({ success: true ,message:"user unBaned successfully"});
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.USER_UNBLOCKED_SUCCESS });
     } catch (error) {
-        res.json({ success: false, message:"somthing went wrong"});
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.SOMETHING_WENT_WRONG });
     }
 }
 

@@ -3,6 +3,8 @@ const productSchema = require("../../models/productModel");
 const path = require('path');
 const fs = require('fs');
 const { handleUpload } = require("../../config/cloud");
+const { STATUS_CODES } = require("../../enums");
+const { MESSAGES } = require("../../constants");
 
 
 
@@ -53,16 +55,16 @@ const createCategory = async (req, res) => {
         const existingCategory = await categorySchema.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
 
         if (existingCategory) {
-            return res.status(400).json({ success: false, message: "Category with the same name already exists." });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.CATEGORY_EXISTS });
         }
 
         const newCategory = new categorySchema({ name, description, image })
         await newCategory.save()
 
-        res.status(200).json({ success: true, message: "Category created successfully." });
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.CATEGORY_CREATED_SUCCESS });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "An error occurred." });
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.ERROR_OCCURRED });
     }
 };
 
@@ -124,7 +126,7 @@ const toggleCategoryListing = async (req, res) => {
 
         const category = await categorySchema.findById(categoryId);
         if (!category) {
-            return res.status(404).json({ success: false, message: "Category not found" });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.CATEGORY_NOT_FOUND });
         }
 
 
@@ -136,14 +138,14 @@ const toggleCategoryListing = async (req, res) => {
         await category.save();
 
 
-        res.json({
+        res.status(STATUS_CODES.OK).json({
             success: true,
             status: category.isListed ? 'listed' : 'unlisted',
-            message: category.isListed ? 'Category has been listed successfully!' : 'Category has been unlisted successfully!'
+            message: category.isListed ? MESSAGES.CATEGORY_LISTED_SUCCESS : MESSAGES.CATEGORY_UNLISTED_SUCCESS
         });
     } catch (error) {
         console.error("Error toggling category listing:", error);
-        res.status(500).json({ success: false, message: "An error occurred while updating the category status." });
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.CATEGORY_STATUS_ERROR });
     }
 };
 

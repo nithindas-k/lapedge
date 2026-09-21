@@ -6,6 +6,8 @@ const nodemailer = require("nodemailer")
 const env = require("dotenv").config()
 const bcrypt = require('bcrypt');
 const product = require("../../models/productModel");
+const { STATUS_CODES } = require("../../enums");
+const { MESSAGES } = require("../../constants");
 
 
 
@@ -23,63 +25,36 @@ const loadAddress = async (req, res) => {
         if (!user) {
             return res.redirect("/404");
         }
-        res.render("address", {
-            addresses: user.addresses,
-            user: user
-        });
+        const address = user.addresses;
+        res.render("address", { address: address, userId });
     } catch (error) {
-        res.redirect("/404");
+        console.error(error);
+        res.redirect("/error");
     }
-}
+};
 const loadCreateAddress = async (req, res) => {
-    const id =  req.query.id
- 
-    
-    
-   
-
     try {
-
-        if(!req.session.user){
-            return res.redirect("/login")
-        }
-          console.log("+++++++++++++++++++")
-console.log(req.session.userData)
-        res.render("addAddress",{
-            userId: req.session.userData._id,
-            check:id,
-
-        })
-        
-
-        
-    
-        
-        
+        const { userId } = req.params
+        res.render("addAddress", { userId })
     } catch (error) {
-        
-             res.redirect("/404")
-        
-        
-        
+        console.log(error)
+        res.redirect("/404")
     }
-
-
 }
 const CreateAddress = async (req, res) => {
     try {
         if (!req.session.user || !req.session.userData) {
-            return res.status(401).json({ success: false, message: "Unauthorized" });
+            return res.status(STATUS_CODES.UNAUTHORIZED).json({ success: false, message: MESSAGES.UNAUTHORIZED });
         }
         const sessionUserId = req.session.userData._id;
         const { userId } = req.params;
         if (userId !== sessionUserId.toString()) {
-            return res.status(403).json({ success: false, message: "Forbidden" });
+            return res.status(STATUS_CODES.FORBIDDEN).json({ success: false, message: MESSAGES.FORBIDDEN });
         }
 
         const user = await userSchema.findById(sessionUserId);
         if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.USER_NOT_FOUND });
         }
 
         const { address, city, state, name, pincode, phone } = req.body;
@@ -95,10 +70,10 @@ const CreateAddress = async (req, res) => {
        
         await user.save();
 
-        res.json({ success: true, message: "Success" });
+        res.status(STATUS_CODES.OK).json({ success: true, message: "Success" });
         
     } catch (error) {
-        res.status(500).json({ success: false, message: "Server error" });
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.SERVER_ERROR });
     }
 }
 const deleteAddress = async (req, res) => {
@@ -110,16 +85,16 @@ const deleteAddress = async (req, res) => {
         const addressIndex = user.addresses.findIndex((addr) => addr._id.toString() === addressId);
 
         if (addressIndex === -1) {
-          return res.status(404).json({ success: false, message: "Address not found" });
+          return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.ADDRESS_NOT_FOUND });
         }
     
         user.addresses.splice(addressIndex, 1);
         await user.save();
 
-       return res.status(200).json({ success: true, message: "Address deleted successfully" });
+       return res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.ADDRESS_DELETED_SUCCESS });
     } catch (error) {
         console.error(error);
-       return res.status(500).json({ success: false, message: "Something went wrong" });
+       return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.SOMETHING_WENT_WRONG });
     }
 };
 
@@ -169,13 +144,13 @@ const editAddress = async (req, res) => {
         const user = await userSchema.findById(req.session.userData._id); 
         
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ message: MESSAGES.USER_NOT_FOUND });
         }
 
         const addressIndex = user.addresses.findIndex((addr) => addr._id.toString() === addressId.toString());
 
         if(addressIndex === -1) {
-            return res.status(404).json({ message: 'Address not found' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ message: MESSAGES.ADDRESS_NOT_FOUND });
         }
         
         user.addresses[addressIndex].name = name;
@@ -187,11 +162,11 @@ const editAddress = async (req, res) => {
 
         await user.save();
 
-        return res.status(200).json({ message: 'Address updated Successfully' });
+        return res.status(STATUS_CODES.OK).json({ message: MESSAGES.ADDRESS_UPDATED_SUCCESS });
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: 'Error updating address' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.ADDRESS_UPDATE_ERROR });
     }
 };
 

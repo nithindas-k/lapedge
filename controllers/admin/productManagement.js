@@ -4,6 +4,8 @@ const userSchema = require("../../models/userSchema")
 const path = require('path');
 const fs = require('fs');
 const variantSchema = require("../../models/variantModel")
+const { STATUS_CODES } = require("../../enums");
+const { MESSAGES } = require("../../constants");
 
 
 const { handleUpload } = require('../../config/cloud');
@@ -84,15 +86,15 @@ const CreateProduct = async (req, res) => {
 
         const products = await productSchema.find();
 
-        return res.status(200).json({
-            message: 'Product created successfully!',
+        return res.status(STATUS_CODES.OK).json({
+            message: MESSAGES.PRODUCT_CREATED_SUCCESS,
             product: newProduct,
             products: products
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({
-            message: 'Error creating product',
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            message: MESSAGES.PRODUCT_CREATE_ERROR,
             error: error.message,
         });
     }
@@ -134,7 +136,7 @@ const loadProductDetails = async (req, res) => {
 
     } catch (error) {
 
-        res.status(500).json({ message: "Server error", error: error.message });
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.SERVER_ERROR, error: error.message });
     }
 };
 
@@ -200,12 +202,12 @@ const updateProduct = async (req, res) => {
             }
         })
 
-        res.json({ message: "hello" })
+        res.status(STATUS_CODES.OK).json({ message: MESSAGES.PRODUCT_UPDATED_SUCCESS })
 
 
     } catch (error) {
         console.error("Error updating product:", error);
-        res.status(500).send("Server error");
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("Server error");
     }
 };
 
@@ -215,13 +217,13 @@ const updateimage = async (req, res) => {
         const imageIndex = req.body.index;
 
         if (!req.file) {
-            return res.status(400).json({ error: "No image file provided" });
+            return res.status(STATUS_CODES.BAD_REQUEST).json({ error: MESSAGES.PRODUCT_IMAGE_REQUIRED });
         }
 
         const productData = await productSchema.findById(productId);
 
         if (!productData) {
-            return res.status(404).json({ error: "Product not found" });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ error: MESSAGES.PRODUCT_NOT_FOUND });
         }
 
         const b64 = Buffer.from(req.file.buffer).toString("base64");
@@ -234,15 +236,15 @@ const updateimage = async (req, res) => {
 
         await productData.save();
 
-        res.json({
-            message: "Image updated successfully",
+        res.status(STATUS_CODES.OK).json({
+            message: MESSAGES.IMAGE_UPDATED_SUCCESS,
             image: result.secure_url
         });
 
     } catch (error) {
         console.error('Error updating image:', error);
-        res.status(500).json({
-            error: "Failed to update image",
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({
+            error: MESSAGES.IMAGE_UPDATE_FAILED,
             details: error.message
         });
     }

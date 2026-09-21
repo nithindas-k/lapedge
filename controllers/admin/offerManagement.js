@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const categorySchema = require("../../models/categoryModel")
 const productSchema = require("../../models/productModel")
 const offerSchema = require("../../models/offerModel")
+const { STATUS_CODES } = require("../../enums");
+const { MESSAGES } = require("../../constants");
 
 
 
@@ -44,10 +46,10 @@ const addOfferPage = async (req, res) => {
 const getCategories = async (req, res) => {
     try {
         const categories = await categorySchema.find({});
-        res.json({ success: true, items: categories });
+        res.status(STATUS_CODES.OK).json({ success: true, items: categories });
     } catch (error) {
         console.error('Error loading categories:', error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 
@@ -55,10 +57,10 @@ const getCategories = async (req, res) => {
 const getProducts = async (req, res) => {
     try {
         const products = await productSchema.find({});
-        res.json({ success: true, items: products });
+        res.status(STATUS_CODES.OK).json({ success: true, items: products });
     } catch (error) {
         console.error('Error loading products:', error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 
@@ -98,7 +100,7 @@ const addOffer = async (req, res) => {
 
                     product.salePrice = product.salePrice - parseInt(discountValue)
                     if(  product.salePrice <= 0){
-                        return res.status(400).json({success :false , message :"there is a issue in price calculating"})
+                        return res.status(STATUS_CODES.BAD_REQUEST).json({success :false , message :MESSAGES.OFFER_PRICE_CALC_ISSUE})
                         
                     }
 
@@ -118,7 +120,7 @@ const addOffer = async (req, res) => {
                 product.offerPersentage = parseInt(discountValue)
                 product.salePrice = product.salePrice - parseInt(discountValue)
                 if(  product.salePrice <= 0){
-                    return res.status(400).json({success :false , message :"there is a issue in price calculating"})
+                    return res.status(STATUS_CODES.BAD_REQUEST).json({success :false , message :MESSAGES.OFFER_PRICE_CALC_ISSUE})
                     
                 }
 
@@ -133,14 +135,14 @@ const addOffer = async (req, res) => {
 
 
         await offer.save()
-        res.status(200).json({ success: true, message: "Offer created successfully." });
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.OFFER_CREATED_SUCCESS });
 
 
 
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "An error occurred." });
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.ERROR_OCCURRED });
 
     }
 }
@@ -152,7 +154,7 @@ const loadEditPage  =  async (req , res )=>{
         const {id} = req.params
         const offer = await offerSchema.findById(id)
         if(!offer){
-            return res.status(404).json({ success: false, message: 'Offer not found' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.OFFER_NOT_FOUND });
         }
             res.render("editOffer",{
                 offer: offer
@@ -171,7 +173,7 @@ const deleteOffer = async (req, res) => {
         let offer = await offerSchema.findById(id);
 
         if (!offer) {
-            return res.status(404).json({ success: false, message: 'Offer not found' });
+            return res.status(STATUS_CODES.NOT_FOUND).json({ success: false, message: MESSAGES.OFFER_NOT_FOUND });
         }
 
         if (offer.type == "Product") {
@@ -226,11 +228,11 @@ const deleteOffer = async (req, res) => {
 
 
         await offerSchema.findByIdAndDelete(id);
-        res.status(200).json({ success: true, message: "Offer deleted successfully." });
+        res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.OFFER_DELETED_SUCCESS });
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: 'Server Error' });
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.SERVER_ERROR });
     }
 };
 
