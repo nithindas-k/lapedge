@@ -47,7 +47,6 @@ const loadSignup = async (req, res) => {
     }
 }
 
-}
 const loadLoginPage = async (req, res) => {
 
     try {
@@ -68,7 +67,11 @@ const loadverifyOtp = (req, res) => {
     res.render('verify-otp')
 }
 function generateOtp() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(`\n========================================`);
+    console.log(`>>> OTP: ${otp} <<<`);
+    console.log(`========================================\n`);
+    return otp;
 }
 async function sendVerificationEmail(email, otp) {
     try {
@@ -137,26 +140,20 @@ const signup = async (req, res) => {
             return res.render("signup", { message: "email  already exists" });
         }
 
-      
+
         const otp = generateOtp();
 
- 
-        const emailSend = await sendVerificationEmail(email, otp);
-        if (!emailSend) {
-            return res.status(STATUS_CODES.BAD_REQUEST).json({ message: MESSAGES.EMAIL_ERROR });
-        }
-
-   
-        req.session.UserOtp = otp
-        req.session.userData = { name, email, password, };
-        req.session.email = email
-  
+        req.session.UserOtp = otp;
+        req.session.userData = { name, email, password };
+        req.session.email = email;
         req.session.UserOtpTimestamp = Date.now();
 
+        console.log("\n========================================");
+        console.log(`>>> SIGNUP OTP: ${otp} <<<`);
+        console.log(`>>> FOR EMAIL: ${email} <<<`);
+        console.log("========================================\n");
 
-        console.log("OTP SENT:", otp);
-        console.log('Session Data:', req.session);
-
+        await sendVerificationEmail(email, otp);
 
         res.redirect("/verifyotp");
 
@@ -174,20 +171,16 @@ const resendOTP = async (req, res) => {
         console.log('Before Resend OTP:', req.session);
         const email = req.session.email;
 
-     
+
         const newOtp = generateOtp();
-        console.log("Generated new OTP", newOtp);
+        console.log("\n========================================");
+        console.log(`>>> RESEND OTP: ${newOtp} <<<`);
+        console.log("========================================\n");
 
-      
-        req.session.UserOtpTimestamp = Date.now();
-        const emailSent = await sendVerificationEmail(email, newOtp);
-        if (!emailSent) {
-            console.log("Failed to send email");
-            return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.OTP_RESEND_FAILED });
-        }
-
-  
         req.session.UserOtp = newOtp;
+        req.session.UserOtpTimestamp = Date.now();
+
+        await sendVerificationEmail(email, newOtp);
 
         console.log('After Resend OTP:', req.session);
         return res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.OTP_RESEND_SUCCESS, otp: newOtp });
@@ -213,7 +206,7 @@ const verifyOtp = async (req, res) => {
             return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.OTP_NOT_FOUND });
         }
 
-    
+
         const otpExpirationTime = 1 * 60 * 1000;
         const currentTime = Date.now();
         console.log(currentTime - sessionOtpTimestamp > otpExpirationTime)
@@ -246,7 +239,7 @@ const verifyOtp = async (req, res) => {
             req.session.UserOtp = null;
             req.session.userData = newUser;
             req.session.UserOtpTimestamp = null;
-        
+
 
 
 
@@ -284,16 +277,15 @@ const forgotOtp = async (req, res) => {
 
         const otp = generateOtp();
 
-
-        const emailSent = await sendVerificationEmail(email, otp);
-        if (!emailSent) {
-            return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.OTP_SEND_FAILED });
-        }
-
-
         req.session.UserOtp = otp;
         req.session.userData = user;
-        console.log(`Forgot password otp: ${req.session.UserOtp}`)
+
+        console.log("\n========================================");
+        console.log(`>>> FORGOT PASSWORD OTP: ${otp} <<<`);
+        console.log("========================================\n");
+
+        await sendVerificationEmail(email, otp);
+
         return res.status(STATUS_CODES.OK).json({ success: true, message: MESSAGES.OTP_SEND_SUCCESS });
 
 
@@ -310,7 +302,7 @@ const forgotOtpVerify = async (req, res) => {
 
 
         const sessionOtp = req.session.UserOtp;
-     
+
 
 
         if (!sessionOtp) {
@@ -459,12 +451,12 @@ const loadForgotPpassword = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-       if(req.session.id){
+        if (req.session.id) {
             console.log(req.session.id)
         }
         const { email, password, redirectTo } = req.body;
         const findUser = await userSchema.findOne({ isAdmin: 0, email: email });
-        
+
         if (!findUser) {
             return res.render("login", { message: "user not found", redirectTo: redirectTo || "" })
         }
@@ -511,7 +503,7 @@ const loadproductDetails = async (req, res) => {
 
 
         const product = await productSchema.findOne({ _id: id }).populate('specifications.RAM').populate('specifications.processor').populate('specifications.displaySize').populate('specifications.storage');
-        if(!product){
+        if (!product) {
             return res.redirect("/404")
         }
         const products = await productSchema.find({ _id: { $ne: id }, isBlocked: false, name: { $eq: product.name } }).populate("category")
@@ -533,7 +525,7 @@ const loadAccount = async (req, res) => {
         }
         const userId = req.session.userData._id
         const user = await userSchema.findById(userId)
-        if(!user){
+        if (!user) {
             return res.redirect("/404")
         }
 
@@ -542,7 +534,7 @@ const loadAccount = async (req, res) => {
             user: user
         })
     } catch (error) {
-        res.redirect("/404")    
+        res.redirect("/404")
 
     }
 
@@ -559,10 +551,10 @@ const loadOrders = async (req, res) => {
         }
         const userId = req.session.userData._id
         const orders = await Order.find({ userId: userId }).sort({ orderDate: -1 }).populate("items.ProductId")
-        if(!orders){
+        if (!orders) {
             return res.redirect("/404")
         }
-        
+
 
 
 
@@ -653,11 +645,11 @@ const loadOrderConfirmation = async (req, res) => {
     try {
         const { orderId } = req.params
 
-        
+
 
 
         const orderDetails = await Order.findById(orderId).populate("items.ProductId")
-        if(!orderDetails){
+        if (!orderDetails) {
             return res.redirect("/404")
         }
 
@@ -973,42 +965,42 @@ const loadInvoice = async (req, res) => {
             return res.status(STATUS_CODES.NOT_FOUND).send(MESSAGES.ORDER_NOT_FOUND);
         }
 
-    
+
         const doc = new PDFDocument({
             margin: 50,
             size: 'A4',
             bufferPages: true
         });
 
-        
+
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="invoice-${order.orderId}.pdf"`);
 
 
         doc.pipe(res);
 
-        
+
         const pageWidth = doc.page.width;
-        const pageHeight = doc.page.height; 
-        const imageWidth = 500;           
-        const imageHeight = 150;         
-        const centerX = (pageWidth - imageWidth) / 2; 
-        const centerY = (pageHeight - imageHeight) / 2; 
+        const pageHeight = doc.page.height;
+        const imageWidth = 500;
+        const imageHeight = 150;
+        const centerX = (pageWidth - imageWidth) / 2;
+        const centerY = (pageHeight - imageHeight) / 2;
 
-        
-        doc.save(); 
-        doc.fillOpacity(0.2) 
+
+        doc.save();
+        doc.fillOpacity(0.2)
             .image(path.join(__dirname, '../../public/images/mainlogo.png'), centerX, centerY, { width: imageWidth });
-        doc.restore(); 
+        doc.restore();
 
 
 
-        
+
         doc.font('Helvetica-Bold')
             .fontSize(25)
             .text('INVOICE', 50, 50, { align: 'right' });
 
-        
+
         doc.font('Helvetica')
             .fontSize(10)
             .text('lapedge', 50, 85)
@@ -1032,7 +1024,7 @@ const loadInvoice = async (req, res) => {
             .text(new Date(order.createdAt).toLocaleDateString(), 150, 205)
             .text('Order ID:', 50, 220)
 
-            .text(order.orderId||order._id.toString(), 150, 220);
+            .text(order.orderId || order._id.toString(), 150, 220);
 
 
         doc.fontSize(14)
@@ -1120,7 +1112,7 @@ const loadInvoice = async (req, res) => {
             .moveDown()
             .text('This is a computer-generated document and does not require a signature.', { align: 'center', color: '#666666' });
 
-        
+
         const pageCount = doc.bufferedPageRange().count;
         for (let i = 0; i < pageCount; i++) {
             doc.switchToPage(i);
@@ -1137,12 +1129,12 @@ const loadInvoice = async (req, res) => {
     }
 };
 
-const errorpage = async (req,res)=>{
+const errorpage = async (req, res) => {
     try {
         res.render("404")
-        
+
     } catch (error) {
-        
+
     }
 }
 
